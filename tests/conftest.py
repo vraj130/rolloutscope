@@ -3,6 +3,9 @@
 from pathlib import Path
 
 import pytest
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent.parent / ".env")
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 

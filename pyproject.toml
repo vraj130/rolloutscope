@@ -26,6 +26,7 @@ dev = [
     "hypothesis>=6.100",
     "ruff>=0.6",
     "mypy>=1.11",
+    "python-dotenv>=1.2.2",
 ]
 
 [project.scripts]

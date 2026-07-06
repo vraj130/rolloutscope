@@ -14,6 +14,7 @@ Everything network-shaped skips instead of failing: this file runs only under
 from __future__ import annotations
 
 import json
+import os
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -72,12 +73,28 @@ TEXT_KEYS = (
 )
 
 
+def _hf_token() -> str | None:
+    """Return HF_TOKEN from the environment, or None if unset."""
+    return os.environ.get("HF_TOKEN") or None
+
+
 def _fetch_json(url: str) -> Any:
     """GET a JSON document; any network or decode problem skips the test."""
-    request = urllib.request.Request(url, headers={"User-Agent": "rolloutscope-tests"})
+    headers: dict[str, str] = {"User-Agent": "rolloutscope-tests"}
+    token = _hf_token()
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    request = urllib.request.Request(url, headers=headers)
     try:
         with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:
             return json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        if exc.code == 401:
+            pytest.skip(
+                f"HF API returned 401 for {url}. "
+                "Set HF_TOKEN in .env or the environment to authenticate."
+            )
+        pytest.skip(f"network unavailable or bad response from {url}: {exc}")
     except (urllib.error.URLError, OSError, ValueError, TimeoutError) as exc:
         pytest.skip(f"network unavailable or bad response from {url}: {exc}")
 
@@ -139,8 +156,9 @@ def _label_of(row: dict[str, Any]) -> bool | None:
                 return True
             if lowered in CLEAN_WORDS:
                 return False
-            # a named hack subcategory string counts as hacked
-            if key in {"hack_type", "hack_category", "category"} and lowered:
+            # TRACE uses dotted subcategory strings like "1.2.3" for hacked rows;
+            # any non-empty non-clean string label counts as hacked.
+            if lowered and lowered != "0":
                 return True
     return None
 
