@@ -11,3 +11,8 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - Project scaffold: uv-managed environment, src layout, CI matrix (3.11 to 3.13),
   placeholder CLI with --version.
+- Normalized rollout schema (frozen contract): discriminated union on kind, per-row
+  schema_version, extra-key preservation, Verdict and Finding models, content-derived
+  IDs with the v1 join contract, streaming JSONL IO with skip-and-log, and a tested
+  migration chain.
+- ADR-0001 recording the normalized-schema decision and its alternatives.
