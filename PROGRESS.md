@@ -131,7 +131,39 @@ TODOs carried forward: none.
 
 ## Phase 3: adapters (sub-agent A)
 
-Status: pending
+Status: COMPLETE (2026-07-05), sub-agent A report follows; full-suite integration
+gate happens with Phase 6 (per user instruction, Phase 6 waits for go-ahead).
+
+- [x] adapters/base.py: Adapter protocol (detect / load / load_run), RunManifest +
+      SourceFile, step_index_from_name (prime-rl step layout mapping encoded here
+      and nowhere else: step_<int> case-insensitive or bare integer, else None),
+      normalize_row computing IDs from raw disk values before validation,
+      iter_normalized_rows with skip-and-log.
+- [x] adapters/verifiers_eval.py: run dir or direct .jsonl; run_id from
+      metadata.json hash when present, else name hash; step_index always None.
+- [x] adapters/prime_rl_train.py: direct file, single step dir, or run dir of step
+      dirs; numeric step ordering (step_10 after step_2); shared run_id across all
+      three entry forms; never parses advantages / is_trainable.
+- [x] resolve_adapter with documented tie-break (verifiers_eval first).
+- [x] New synthetic fixture tests/fixtures/prime_rl_run/ (two steps, 3 + 2 rows,
+      README labeling it synthetic) proving step_index attachment and ordering.
+- [x] 37 tests: golden rows including literal content-derived IDs, unknown-key
+      preservation, bad-row skip-and-log, resolve routing, 12 parametrized
+      step-name cases. Evidence: `uv run pytest tests/test_adapters -q` 37 passed
+      (re-run by orchestrator).
+- [x] Orchestrator verification: scoped tests re-run green; grep shows no
+      verifiers/prime-rl imports and no em dashes; schema/ untouched.
+
+Sub-agent A TODOs (also as TODO comments in source):
+1. base.py _STEP_DIR_RE: the exact prime-rl step_path directory naming at pin
+   df2acf48 is not pinned by the reference; until then only step_<int> and bare
+   integer names carry step_index.
+2. prime_rl_train.py _manifest: whether prime-rl writes a run-level manifest next
+   to step dirs is unpinned; run_id comes from the run root name for now.
+
+Contract friction noted (no contract change): adapter skip-and-log catches a wider
+exception set than io.read_rollouts; Message.tool_calls None default materializes
+in dumps so golden tests assert full dumps, not raw bytes.
 
 ## Phase 4: detectors (sub-agent B)
 
