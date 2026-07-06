@@ -41,7 +41,41 @@ TODOs carried forward: none.
 
 ## Phase 1: environment and scaffold
 
-Status: pending
+Status: COMPLETE (2026-07-05)
+
+- [x] uv verified. Evidence: `uv --version` printed uv 0.11.14.
+- [x] Python pinned. Evidence: `uv python install 3.12` installed cpython 3.12.13;
+      .python-version contains `3.12`; requires-python is `>=3.11,<3.14`.
+- [x] pyproject from the scaffold template, every placeholder filled: hatchling build,
+      metadata, `[project.scripts] rolloutscope`, entry-point group
+      `rolloutscope.detectors`, ruff lint + format config, pytest + coverage + mypy
+      config, dev extra. Evidence: pyproject.toml.
+- [x] Runtime deps pydantic, orjson, typer, rich, jinja2; dev deps pytest, pytest-cov,
+      hypothesis, ruff, mypy; nothing else, no torch or inference libraries.
+      Evidence: pyproject.toml dependency lists and uv.lock.
+- [x] CI from the scaffold template: one lint job (ruff check, format check, mypy),
+      one test job across 3.11 / 3.12 / 3.13, all via uv with caching. Evidence:
+      .github/workflows/ci.yml.
+- [x] Directory skeleton per CLAUDE.md layout with empty __init__.py files and a
+      placeholder import test. Evidence: src/rolloutscope/{schema,adapters,detectors,
+      analysis,report}/__init__.py, report/templates/, tests/test_placeholder.py.
+- [x] MIT LICENSE, .gitignore (Python + uv + macOS), CHANGELOG.md with Unreleased,
+      PROGRESS.md seeded (done at Phase 0). Evidence: files present.
+- [x] Smoke checks. Evidence: `uv sync --extra dev` resolved and installed;
+      `uv run python -c "import rolloutscope, pydantic, orjson, typer, rich, jinja2"`
+      printed imports ok; `uv run pytest -q` 1 passed; `uv run ruff check .` all
+      checks passed; `uv run ruff format .` 8 files unchanged; `uv run mypy src/` no
+      issues in 7 files; `uv run rolloutscope --version` printed 0.1.0.
+- [x] pip never invoked at any point.
+- [x] Commit at gate.
+
+Deviations:
+- Dev deps installed via the dev extra + `uv sync --extra dev` instead of the literal
+  `uv add --dev` (would target dependency groups and break `--extra dev`), D-011.
+- git init already happened at the Phase 0 gate (D-002); this phase's commit is the
+  scaffold commit.
+
+TODOs carried forward: none.
 
 ## Phase 2: schema contract (freeze at gate)
 

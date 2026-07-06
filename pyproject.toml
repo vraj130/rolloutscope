@@ -1,0 +1,75 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rolloutscope"
+version = "0.1.0"
+description = "Offline rollout and reward-hacking debugger for the verifiers / prime-rl RL ecosystem"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11,<3.14"
+authors = [{ name = "Vijay Raj Gohil", email = "vg2097@nyu.edu" }]
+keywords = ["reinforcement-learning", "reward-hacking", "observability", "rollouts", "verifiers"]
+dependencies = [
+    "pydantic>=2.7",
+    "orjson>=3.10",
+    "typer>=0.12",
+    "rich>=13.7",
+    "jinja2>=3.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=5",
+    "hypothesis>=6.100",
+    "ruff>=0.6",
+    "mypy>=1.11",
+]
+
+[project.scripts]
+# CLI is a thin wrapper over the library (library-first design).
+rolloutscope = "rolloutscope.cli:app"
+
+[project.entry-points."rolloutscope.detectors"]
+# Detector discovery, pytest-style. Built-in detectors register here (Phase 4) through
+# the same mechanism third parties use:
+# my-detector = "my_pkg.detectors:MyDetector"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rolloutscope"]
+
+# --- ruff: lint + format in one tool ---
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+ignore = []
+
+[tool.ruff.lint.isort]
+known-first-party = ["rolloutscope"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+# --- pytest / coverage ---
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers -m 'not integration'"
+testpaths = ["tests"]
+markers = [
+    "integration: tests that need network access (TRACE download etc.); run with -m integration",
+]
+
+[tool.coverage.run]
+source = ["src/rolloutscope"]
+branch = true
+
+# --- mypy ---
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src/rolloutscope"]

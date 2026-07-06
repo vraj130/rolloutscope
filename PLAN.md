@@ -164,6 +164,11 @@ waiting on B.
   choice, made before this build started); it stays ignored, and .claude/ (local
   skills, local settings) is ignored with it. The CLAUDE.md layout listing is treated
   as describing the working tree, not the committed tree.
+- D-011 (Phase 1): dev dependencies are declared in the pyproject `dev` extra (filled
+  from the scaffold template) and installed with `uv sync --extra dev`, rather than
+  the literal `uv add --dev` from the build prompt. Reason: `uv add --dev` writes to
+  PEP 735 dependency groups, not extras, which would break the required
+  `uv sync --extra dev` workflow. Installs still go exclusively through uv.
 
 ## E. Risk self-critique
 

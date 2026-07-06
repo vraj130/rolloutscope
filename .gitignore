@@ -1,2 +1,25 @@
+# local instruction files (user's choice, see PLAN.md D-010)
 CLAUDE.md
 .claude/
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+coverage.xml
+htmlcov/
+
+# environments (uv-managed; uv.lock IS committed)
+.venv/
+
+# macOS
+.DS_Store
