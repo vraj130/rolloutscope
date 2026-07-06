@@ -2,6 +2,10 @@
 CLAUDE.md
 .claude/
 
+# local build and planning docs (kept locally, not published)
+PLAN.md
+PROGRESS.md
+
 
 # python
 __pycache__/

@@ -14,10 +14,9 @@ jobs:
       - uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
-      - run: uv sync --extra dev
-      - run: uv run ruff check .
-      - run: uv run ruff format --check .
-      - run: uv run mypy src/
+      - run: uv run --extra dev ruff check .
+      - run: uv run --extra dev ruff format --check .
+      - run: uv run --extra dev mypy src/
 
   test:
     runs-on: ubuntu-latest
@@ -30,5 +29,8 @@ jobs:
       - uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
-      - run: uv sync --extra dev --python ${{ matrix.python-version }}
-      - run: uv run pytest --cov --cov-report=term-missing
+      # One command so the interpreter and the dev extra always match: a bare
+      # `uv run` after a separate `uv sync --extra dev --python X` would re-sync
+      # to the default environment (no dev extra, default interpreter) and drop
+      # pytest.
+      - run: uv run --extra dev --python ${{ matrix.python-version }} pytest --cov --cov-report=term-missing
