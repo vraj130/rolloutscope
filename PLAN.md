@@ -112,6 +112,9 @@ parses these from disk; the model exists so the v1 monitor hook has a home.
 
 Property: reserializing the same row yields the same IDs (hypothesis-tested).
 
+**SCHEMA FROZEN at commit 5f87593 (2026-07-05).** Contract changes now require the
+orchestrator, a version bump, and a migration entry.
+
 ## C. Phase schedule and sub-agent assignment
 
 | Phase | Owner | Scope | Parallel? |

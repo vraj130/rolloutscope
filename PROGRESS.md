@@ -79,7 +79,55 @@ TODOs carried forward: none.
 
 ## Phase 2: schema contract (freeze at gate)
 
-Status: pending
+Status: COMPLETE (2026-07-05)
+
+**SCHEMA FROZEN at commit 5f87593.** From this point, schema changes require the
+orchestrator session, a version bump, and a migration entry. No sub-agent edits
+schema/.
+
+- [x] models.py: Rollout discriminated union on kind (single_turn | multi_turn),
+      per-row schema_version starting at "1.0", extra="allow" on row, message, step,
+      timing, and token models, field names compatible with verifiers RolloutOutput
+      (example_id, prompt, completion, reward, timing, is_completed, is_truncated,
+      metrics, answer, info, error, stop_condition, trajectory, tool_defs,
+      token_usage). Evidence: src/rolloutscope/schema/models.py, round-trip tests.
+- [x] TrainingSignals sidecar model, never on the base row. Evidence: models.py.
+- [x] Verdict and Finding frozen in schema/findings.py: Verdict(detector, fired,
+      score, category, evidence, rollout_ids) with mandatory evidence on fire
+      (model validator); Finding(severity info|warning|critical, title, description,
+      detector, metrics, config_used, exemplars). Evidence: findings.py.
+- [x] ids.py: rollout_id sha256/16-hex over canonical (example_id, prompt,
+      completion, reward); group_id grp-{example_id}; run_id from manifest hash or
+      directory name; step_index adapter-attached only; v1 join contract
+      (run_id, rollout_id, step_index) in the module docstring. Evidence: ids.py,
+      test_ids.py.
+- [x] io.py: generator-based line-by-line orjson reader, per-row validation,
+      skip-and-log with row number and reason, never fatal; streaming writer.
+      Evidence: io.py, test_io.py (bad JSON, non-object, invalid row, future
+      version all skipped and logged).
+- [x] migrate.py: registry keyed by major, migrate_row entry point, identity 1.0
+      entry, unit-tested fake 0.x to 1.0 example. Evidence: migrate.py,
+      test_migrate.py.
+- [x] JSON Schema export with working discriminator mapping. Evidence:
+      rollout_json_schema(), test_json_schema.py.
+- [x] Fixtures shaped exactly per on-disk-format.md: 5-row grouped single-turn
+      results.jsonl with state_columns extras, one multi-turn ToolEnv row with
+      2-step trajectory, one metadata.json, all synthetic and labeled so in
+      tests/fixtures/README.md.
+- [x] Tests a through e: single-turn round-trip incl unknown keys, multi-turn
+      round-trip incl trajectory, JSON Schema discriminator, migration chain,
+      hypothesis round-trip and ID stability properties. Evidence:
+      `uv run pytest -q` 25 passed.
+- [x] Gate: `uv run pytest -q` 25 passed; `uv run ruff check .` all checks passed;
+      `uv run ruff format .` clean; `uv run mypy src/` no issues in 12 files.
+- [x] No package outside schema/ imports anything yet (all still empty).
+
+Deviations:
+- The 5-row fixture is grouped 3 + 2 rather than an even rollouts_per_example
+  split; the fixture README documents the reading (one rollout dropped on error,
+  as real appended files exhibit).
+
+TODOs carried forward: none.
 
 ## Phase 3: adapters (sub-agent A)
 
