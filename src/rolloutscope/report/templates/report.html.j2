@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rolloutscope report</title>
+<style>
+  :root { color-scheme: light; }
+  body {
+    margin: 0;
+    background: #f9f9f7;
+    color: #0b0b0b;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.5;
+  }
+  header.page { background: #fcfcfb; border-bottom: 1px solid #e1e0d9; padding: 1.1rem 1.5rem; }
+  h1 { font-size: 1.35rem; margin: 0; }
+  .subtitle { color: #52514e; font-size: 0.9rem; margin: 0.2rem 0 0; }
+  main { max-width: 980px; margin: 0 auto; padding: 0.5rem 1.5rem 3rem; }
+  section { margin-top: 2rem; }
+  h2 { font-size: 1.1rem; border-bottom: 1px solid #e1e0d9; padding-bottom: 0.3rem; }
+  h3 { font-size: 0.95rem; color: #52514e; }
+  .stats { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .stat {
+    background: #fcfcfb; border: 1px solid #e1e0d9; border-radius: 8px;
+    padding: 0.55rem 0.9rem; min-width: 7.5rem;
+  }
+  .stat .value { font-size: 1.25rem; font-weight: 600; }
+  .stat .label {
+    color: #52514e; font-size: 0.72rem;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
+  th, td { text-align: left; padding: 0.35rem 0.6rem; border-bottom: 1px solid #e1e0d9; }
+  th { color: #52514e; font-weight: 600; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .charts { display: flex; flex-wrap: wrap; gap: 1rem; }
+  figure {
+    margin: 0; background: #fcfcfb; border: 1px solid #e1e0d9;
+    border-radius: 8px; padding: 0.5rem; max-width: 100%; overflow-x: auto;
+  }
+  article.finding {
+    border: 1px solid #e1e0d9; border-left: 4px solid #2a78d6; border-radius: 6px;
+    background: #fcfcfb; padding: 0.8rem 1rem; margin-top: 1rem;
+  }
+  article.finding.critical { border-left-color: #d03b3b; }
+  article.finding.warning { border-left-color: #fab219; }
+  .badge {
+    display: inline-block; font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; border-radius: 4px; padding: 0.1rem 0.45rem;
+    color: #ffffff; background: #1c5cab;
+  }
+  .badge.critical { background: #d03b3b; }
+  .badge.warning { background: #8a6100; }
+  .finding-title { margin: 0 0 0.4rem; }
+  details { margin-top: 0.5rem; }
+  summary { cursor: pointer; color: #1c5cab; }
+  .exemplar { margin: 0.6rem 0; }
+  .exemplar-meta { margin: 0 0 0.2rem; font-size: 0.8rem; color: #52514e; }
+  pre.snippet {
+    white-space: pre-wrap; overflow-wrap: anywhere; margin: 0.2rem 0;
+    background: #f0efec; border-radius: 6px; padding: 0.55rem 0.8rem; font-size: 0.8rem;
+  }
+  mark { background: #ffe08a; padding: 0 0.15em; border-radius: 2px; }
+  code { font-size: 0.85em; background: #f0efec; padding: 0 0.25em; border-radius: 3px; }
+  footer.repro {
+    max-width: 980px; margin: 0 auto; color: #52514e; font-size: 0.8rem;
+    border-top: 1px solid #e1e0d9; margin-top: 2.5rem; padding: 1rem 1.5rem 2rem;
+  }
+  footer.repro ul { margin: 0.3rem 0 0; padding-left: 1.2rem; }
+</style>
+</head>
+<body>
+<header class="page">
+  <h1>rolloutscope report</h1>
+  <p class="subtitle">offline rollout and reward debugging summary</p>
+</header>
+<main>
+  <section id="summary">
+    <h2>Run summary</h2>
+    <div class="stats">
+      {% for label, value in stats %}
+      <div class="stat"><div class="value">{{ value }}</div><div class="label">{{ label }}</div></div>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% if histogram_svg or step_svg %}
+  <section id="charts">
+    <h2>Charts</h2>
+    <div class="charts">
+      {% if histogram_svg %}<figure>{{ histogram_svg | safe }}</figure>{% endif %}
+      {% if step_svg %}<figure>{{ step_svg | safe }}</figure>{% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+  <section id="findings">
+    <h2>Findings</h2>
+    {% if findings %}
+    {% for finding in findings %}
+    <article class="finding {{ finding.severity }}">
+      <p class="finding-title">
+        <span class="badge {{ finding.severity }}">{{ finding.severity }}</span>
+        <strong>{{ finding.title }}</strong>
+      </p>
+      <p>{{ finding.description }}</p>
+      {% if finding.metrics %}
+      <table>
+        <thead><tr><th>metric</th><th class="num">value</th></tr></thead>
+        <tbody>
+          {% for key, value in finding.metrics | dictsort %}
+          <tr><td>{{ key }}</td><td class="num">{{ "%.4g" | format(value) }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+      {% if finding.exemplars %}
+      <details>
+        <summary>Evidence: {{ finding.exemplars | length }} exemplar span(s)</summary>
+        {% for span in finding.exemplars %}
+        <div class="exemplar">
+          <p class="exemplar-meta">
+            rollout <code>{{ span.rollout_id }}</code>, field <code>{{ span.field }}</code>
+            {%- if span.note %}, note: {{ span.note }}{% endif %}
+          </p>
+          <pre class="snippet"><mark>{{ span.text }}</mark></pre>
+        </div>
+        {% endfor %}
+      </details>
+      {% endif %}
+    </article>
+    {% endfor %}
+    {% else %}
+    <p>No findings.</p>
+    {% endif %}
+  </section>
+
+  {% if report.aggregates.group_stats %}
+  <section id="groups">
+    <h2>Group statistics</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>group</th><th class="num">rollouts</th><th class="num">reward mean</th>
+          <th class="num">reward variance</th><th>all rewards identical</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for key, group in report.aggregates.group_stats.items() %}
+        <tr>
+          <td><code>{{ key }}</code></td>
+          <td class="num">{{ group.count }}</td>
+          <td class="num">{{ "%.4g" | format(group.reward_mean) }}</td>
+          <td class="num">{{ "%.4g" | format(group.reward_variance) }}</td>
+          <td>{{ "yes" if group.all_identical else "no" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% endif %}
+
+  {% if report.aggregates.step_series %}
+  <section id="steps">
+    <h2>Per-step series</h2>
+    <table>
+      <thead>
+        <tr>
+          <th class="num">step</th><th class="num">rollouts</th><th class="num">reward mean</th>
+          <th class="num">reward variance</th><th class="num">dead group fraction</th>
+          <th class="num">mean completion chars</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for step in report.aggregates.step_series %}
+        <tr>
+          <td class="num">{{ step.step_index }}</td>
+          <td class="num">{{ step.count }}</td>
+          <td class="num">{{ "%.4g" | format(step.reward_mean) }}</td>
+          <td class="num">{{ "%.4g" | format(step.reward_variance) }}</td>
+          <td class="num">{{ "%.4g" | format(step.dead_group_fraction) }}</td>
+          <td class="num">{{ "%.4g" | format(step.mean_completion_length) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% endif %}
+
+  {% if report.aggregates.top_rollouts or report.aggregates.bottom_rollouts %}
+  <section id="rollouts">
+    <h2>Reward extremes</h2>
+    {% for heading, snippets in (
+        ("Highest reward", report.aggregates.top_rollouts),
+        ("Lowest reward", report.aggregates.bottom_rollouts),
+    ) %}
+    {% if snippets %}
+    <h3>{{ heading }}</h3>
+    {% for snippet in snippets %}
+    <details>
+      <summary>
+        reward {{ "%.4g" | format(snippet.reward) }}, group <code>{{ snippet.group_key }}</code>,
+        example {{ snippet.example_id }}
+        {%- if snippet.rollout_id %}, rollout <code>{{ snippet.rollout_id }}</code>{% endif %}
+      </summary>
+      <p class="exemplar-meta">prompt</p>
+      <pre class="snippet">{{ snippet.prompt_snippet }}</pre>
+      <p class="exemplar-meta">completion</p>
+      <pre class="snippet">{{ snippet.completion_snippet }}</pre>
+    </details>
+    {% endfor %}
+    {% endif %}
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  <section id="config">
+    <h2>Config appendix</h2>
+    {% if config_rows %}
+    <table>
+      <thead><tr><th>owner</th><th>setting</th><th>value</th></tr></thead>
+      <tbody>
+        {% for owner, key, value in config_rows %}
+        <tr><td>{{ owner }}</td><td><code>{{ key }}</code></td><td>{{ value }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>No configuration recorded.</p>
+    {% endif %}
+  </section>
+</main>
+<footer class="repro">
+  <strong>Reproducibility</strong>
+  <div>rolloutscope {{ report.tool_version }}, schema version {{ report.schema_version }}</div>
+  {% if report.input_files %}
+  <ul>
+    {% for item in report.input_files %}
+    <li><code>{{ item.name }}</code> sha256 <code>{{ item.sha256 }}</code>
+      {%- if item.size_bytes is not none %} ({{ item.size_bytes }} bytes){% endif %}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div>no input files recorded</div>
+  {% endif %}
+</footer>
+</body>
+</html>

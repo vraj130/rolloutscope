@@ -171,7 +171,41 @@ Status: pending
 
 ## Phase 5: analysis and report (sub-agent C)
 
-Status: pending
+Status: COMPLETE (2026-07-05), sub-agent C report follows; completed before Phase 4
+(the phases are independent by design; C hand-built its Verdict fixtures).
+
+- [x] analysis/aggregates.py: single-pass streaming aggregation (Welford moments,
+      bounded heaps for top-k/bottom-k, fixed histogram bins with underflow and
+      overflow counters documented as the single-pass alternative), run summary,
+      per-group stats, per-step series when step_index present.
+- [x] analysis/findings.py: Verdict-to-Finding assembly (grouping by detector and
+      category, configurable SeverityThresholds documented heuristic: max fired
+      score >= 0.8 critical, >= 0.5 warning, else info; exemplar selection;
+      include_clean flag for info findings on clean detectors).
+- [x] report/model.py: ReportData composing run summary, aggregates, findings, and
+      reproducibility fields (tool version, schema_version, input file hashes via
+      streaming hash_file).
+- [x] report/terminal.py rich renderer; report/json_out.py deterministic
+      (sorted keys, byte-identical re-render, verified across dict insertion
+      orders); report/html.py + svg.py (exactly two chart helpers) +
+      templates/report.html.j2: one self-contained file, inline CSS, zero JS,
+      <details> collapsibles, <mark> evidence highlighting, config appendix,
+      reproducibility footer; autoescape on; PackageLoader so it works installed.
+- [x] 45 tests in tests/test_report/ including hand-computed aggregate math
+      (mean 0.64, per-group variances, histogram counts [0,0,2,0,0,0,0,0,1,2],
+      top/bottom-k tie order), streaming test on a pure generator, JSON byte
+      determinism, HTML self-containment (no src=, href=, @import, url(, <script,
+      <link, <iframe, <object, <embed anywhere).
+- [x] Orchestrator verification: `uv run pytest tests/test_report -q` 45 passed
+      (re-run); no em dashes, no upstream imports, no <script> in template.
+
+Notes from sub-agent C:
+- Dead-group fraction excludes singleton groups (documented heuristic).
+- Finding.metrics is dict[str, float] so counts are stored as floats; renderers
+  format with %g. No contract change needed.
+- C observed transient mypy errors in detectors/ (Sub-agent B's package, still in
+  flight at the time); B's definition of done requires mypy green, checked at the
+  Phase 4 gate.
 
 ## Phase 6: CLI and integration
 
