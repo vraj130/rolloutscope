@@ -18,5 +18,10 @@ def eval_run_dir() -> Path:
 
 
 @pytest.fixture
+def demo_dir() -> Path:
+    return FIXTURES_DIR / "demo"
+
+
+@pytest.fixture
 def multi_turn_path() -> Path:
     return FIXTURES_DIR / "multi_turn_rollout.jsonl"

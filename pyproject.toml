@@ -59,6 +59,11 @@ ignore = []
 [tool.ruff.lint.isort]
 known-first-party = ["rolloutscope"]
 
+[tool.ruff.lint.flake8-bugbear]
+# typer builds the CLI by evaluating Argument()/Option() as parameter defaults;
+# those factories return immutable descriptor objects, so B008 does not apply.
+extend-immutable-calls = ["typer.Argument", "typer.Option"]
+
 [tool.ruff.format]
 docstring-code-format = true
 

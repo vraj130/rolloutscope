@@ -247,7 +247,59 @@ Notes from sub-agent C:
 
 ## Phase 6: CLI and integration
 
-Status: pending
+Status: COMPLETE (2026-07-05)
+
+- [x] cli.py: thin typer app whose real work lives in importable, unit-tested
+      functions (load_run_config, build_report_data, exit_code_for), not in the
+      command bodies. This is the only module that imports adapters, detectors,
+      analysis, and report together (per PLAN section A). Evidence: cli.py.
+- [x] Command set from PLAN section A: analyze, convert, detectors list,
+      schema export, plus the pre-existing --version. Evidence: cli.py, all
+      exercised by tests/test_cli/test_e2e.py.
+- [x] analyze: resolves the adapter, materializes rollouts (detectors do
+      whole-group contrastive analysis, so a stream will not do), runs the
+      discovered detectors, assembles findings, aggregates, and renders the
+      terminal summary plus optional --json and --out HTML. --config,
+      --detector (repeatable), --include-clean, --fail-on, --quiet, --verbose.
+      Exit code follows --fail-on (default none, so the DoD command exits 0).
+- [x] convert: streams normalized rollouts to JSONL via schema.write_rollouts
+      (golden rule 6: safe on files larger than RAM); ids attached, unknown
+      keys preserved.
+- [x] TOML config (stdlib tomllib, no new dependency): RunConfig maps
+      [detectors.<name>], [aggregation], [severity] onto the frozen config
+      models; a bad file becomes a clean typer.BadParameter, not a traceback.
+- [x] Demo fixtures at tests/fixtures/demo/ (verifiers-eval shaped: results.jsonl
+      + metadata.json + README, all synthetic and labeled). Ten rows fire four
+      detectors (verifier_tamper, degenerate_repetition, answer_leakage_echo,
+      format_only_wins) and include clean rollouts for a realistic reward
+      histogram. Exceeds the "3+ detectors" bar.
+- [x] End-to-end tests (tests/test_cli/test_e2e.py, 20 tests): analyze writes a
+      self-contained HTML report (external-reference scan finds nothing) and a
+      byte-deterministic JSON sidecar; convert round-trips through read_rollouts;
+      detectors list shows six; schema export is a valid discriminated union;
+      --fail-on and unknown-detector / unrecognized-path error paths covered.
+- [x] Seam resolution: the DoD command
+      `uv run rolloutscope analyze tests/fixtures/demo --out report.html`
+      produces the HTML report plus (with --json) the sidecar, exit 0. No
+      contract friction surfaced at integration; schema/ untouched.
+- [x] Gate: `uv run pytest -q` 173 passed, 1 deselected; `uv run mypy src/`
+      clean on 30 files (strict); `uv run ruff check .` and
+      `uv run ruff format --check .` clean; no verifiers / prime-rl imports in
+      src; no em dashes in touched files; schema/ byte-identical to the freeze.
+
+Deviations:
+- ruff B008 flags typer's Argument()/Option() parameter-default factories.
+  Resolved with the documented `[tool.ruff.lint.flake8-bugbear]
+  extend-immutable-calls` config (those factories return immutable descriptor
+  objects), the standard typer-plus-ruff setup, rather than restructuring every
+  command signature. pyproject tooling config only; no schema or code contract
+  change.
+- analyze materializes rollouts into a list rather than streaming, because the
+  detector contract is over a whole Sequence (contrastive group analysis).
+  convert and the library aggregate remain streaming; documented on
+  build_report_data.
+
+TODOs carried forward: none new.
 
 ## Phase 7: docs and release hygiene
 

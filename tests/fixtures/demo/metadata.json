@@ -1,0 +1,12 @@
+{
+  "env_id": "demo-mixed-bench",
+  "model": "synthetic/demo-model",
+  "num_examples": 10,
+  "rollouts_per_example": 1,
+  "sampling_args": {"temperature": 1.0, "max_tokens": 512},
+  "date": "2026-07-05",
+  "version_info": {"verifiers": "synthetic-fixture"},
+  "state_columns": [],
+  "avg_reward": 0.76,
+  "note": "SYNTHETIC demo run, hand-built to exercise the rolloutscope detectors and report. No real model, evaluation, or dataset was used."
+}
