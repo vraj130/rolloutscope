@@ -33,9 +33,15 @@ dev = [
 rolloutscope = "rolloutscope.cli:app"
 
 [project.entry-points."rolloutscope.detectors"]
-# Detector discovery, pytest-style. Built-in detectors register here (Phase 4) through
+# Detector discovery, pytest-style. Built-in detectors register here through
 # the same mechanism third parties use:
 # my-detector = "my_pkg.detectors:MyDetector"
+verifier_tamper = "rolloutscope.detectors.verifier_tamper:VerifierTamperDetector"
+reward_saturation_group_collapse = "rolloutscope.detectors.reward_saturation_group_collapse:RewardSaturationGroupCollapseDetector"
+length_inflation = "rolloutscope.detectors.length_inflation:LengthInflationDetector"
+format_only_wins = "rolloutscope.detectors.format_only_wins:FormatOnlyWinsDetector"
+degenerate_repetition = "rolloutscope.detectors.degenerate_repetition:DegenerateRepetitionDetector"
+answer_leakage_echo = "rolloutscope.detectors.answer_leakage_echo:AnswerLeakageEchoDetector"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/rolloutscope"]

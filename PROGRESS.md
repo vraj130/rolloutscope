@@ -167,7 +167,45 @@ in dumps so golden tests assert full dumps, not raw bytes.
 
 ## Phase 4: detectors (sub-agent B)
 
-Status: pending
+Status: COMPLETE (2026-07-05), sub-agent B report follows. B was interrupted once by
+a session limit and resumed with context intact; no work was lost.
+
+- [x] detectors/base.py: Detector protocol detect(rollouts, config) -> list[Verdict],
+      DetectorConfig with six per-detector threshold sub-models (every threshold a
+      configurable Field labeled heuristic), entry-point registry over
+      entry_points(group="rolloutscope.detectors") with guarded loading and a
+      builtin fallback; shared text helpers in _text.py (one copy, not six).
+- [x] Six detectors implemented per the CLAUDE.md catalog, each with a docstring
+      listing known false-positive modes and evidence spans on every fired verdict:
+      verifier_tamper, reward_saturation_group_collapse (on-disk GRPO proxy, step
+      trend mode when step_index present), length_inflation, format_only_wins
+      (graceful degradation when metrics absent), degenerate_repetition,
+      answer_leakage_echo.
+- [x] Entry points: all six registered in pyproject and discoverable. Evidence:
+      orchestrator ran entry_points(group="rolloutscope.detectors") and got all six.
+- [x] Labeled fixtures: tests/fixtures/labeled/ 12 synthetic hacked/clean pairs plus
+      README; every detector separates its pair.
+- [x] Precision/recall artifact: tests/artifacts/detector_fixture_metrics.txt, all
+      six detectors precision 1.00 recall 1.00 with FP counted against ALL clean
+      files, zero cross-fires.
+- [x] TRACE integration test behind the integration marker, stdlib urllib only,
+      skips gracefully on network/auth failure (currently the datasets-server split
+      listing returns 401; license check passes).
+- [x] No fabricated citations: only confirmed TRACE arXiv:2601.20103 cited;
+      unverified sources (arXiv 2606.04923, 2605.02964) left as TODOs.
+- [x] Orchestrator gate: `uv run pytest -q` 153 passed 1 deselected;
+      `uv run mypy src/` clean on 30 files (strict); `uv run ruff check .` clean;
+      no em dashes in B's files; schema/ untouched.
+
+Contract friction (schema NOT amended): mypy rejects unknown kwargs on the frozen
+Verdict constructor, so extra markers (mode, reason) attach via
+Verdict.model_validate, which extra="allow" preserves at runtime.
+
+Sub-agent B TODOs carried forward:
+1. Pull and verify arXiv 2606.04923 (rubric-hacking patterns) and arXiv 2605.02964
+   (RHB tool-use categories) before citing any number; thresholds stay heuristic.
+2. v1: true GRPO zero-advantage signal via the TrainingSignals sidecar.
+3. TRACE viewer appears gated (HTTP 401); token-authenticated fetch is a follow-up.
 
 ## Phase 5: analysis and report (sub-agent C)
 
