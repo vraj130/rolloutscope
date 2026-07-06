@@ -2,6 +2,7 @@
 CLAUDE.md
 .claude/
 
+
 # python
 __pycache__/
 *.py[cod]

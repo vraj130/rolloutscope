@@ -1,0 +1,11 @@
+{
+  "env_id": "synthetic-arith",
+  "model": "synthetic/test-model",
+  "num_examples": 2,
+  "rollouts_per_example": 3,
+  "sampling_args": {"temperature": 1.0, "max_tokens": 512},
+  "date": "2026-07-05",
+  "version_info": {"verifiers": "synthetic-fixture"},
+  "state_columns": ["dataset_split", "judge_notes", "sampler_seed"],
+  "avg_reward": 0.64
+}
