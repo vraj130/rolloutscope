@@ -16,3 +16,14 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   IDs with the v1 join contract, streaming JSONL IO with skip-and-log, and a tested
   migration chain.
 - ADR-0001 recording the normalized-schema decision and its alternatives.
+- Adapters for verifiers eval output (results.jsonl plus metadata.json) and prime-rl
+  training rollouts (train_rollouts.jsonl across step directories), with
+  auto-detection, content-derived IDs, unknown-key preservation, and step_index
+  attached from on-disk layout only.
+- Six reward-hacking detectors (verifier_tamper, reward_saturation_group_collapse,
+  length_inflation, format_only_wins, degenerate_repetition, answer_leakage_echo)
+  with evidence spans, documented false-positive modes, configurable heuristic
+  thresholds, entry-point discovery, and labeled hacked/clean fixture pairs.
+- Streaming aggregates, verdict-to-finding assembly, and three renderers: rich
+  terminal summary, deterministic JSON, and a single-file self-contained HTML report
+  with server-side SVG charts.
