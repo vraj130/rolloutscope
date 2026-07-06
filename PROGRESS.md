@@ -345,4 +345,36 @@ TODOs carried forward: none new.
 
 ## Phase 8: final verification
 
-Status: pending
+Status: COMPLETE (2026-07-05)
+
+Fresh-clone simulation: `git clone` of the repo into a temp dir (committed state
+only; CLAUDE.md and .claude/ are gitignored and correctly absent), then
+`uv sync --extra dev --offline` (all deps resolved from cache, no network) and
+`uv run --offline pytest -q` gave 173 passed, 1 deselected. The DoD command
+`uv run rolloutscope analyze tests/fixtures/demo --out report.html --json findings.json`
+ran in that clone and produced both files; the HTML's only http token is the SVG
+namespace URI (`xmlns="http://www.w3.org/2000/svg"`), so it opens from file://.
+
+Coverage gate: `pytest --cov=rolloutscope.schema --cov=rolloutscope.detectors`
+reported 93% combined (well above the 85% bar); no file below 76%.
+
+Acceptance walk, every criterion from the build prompt with its evidence:
+
+| # | Criterion | Result | Evidence |
+|---|---|---|---|
+| 1 | Fresh clone syncs and tests green, offline, macOS, no GPU | PASS | clone + `uv sync --extra dev --offline` + `uv run --offline pytest -q` = 173 passed, 1 deselected |
+| 2 | analyze demo yields terminal summary, deterministic JSON, self-contained HTML from file:// | PASS | DoD command in clone; HTML external-ref scan finds only the SVG xmlns; JSON byte-identical across runs (e2e test) |
+| 3 | Six detectors, entry-point discoverable, each separates a labeled pair, documented FP modes, configurable thresholds, no fabricated numbers | PASS | entry_points reports all six; detector_fixture_metrics.txt shows precision 1.00 recall 1.00 each; thresholds are labeled-heuristic Fields |
+| 4 | schema/detectors/analysis/report import no verifiers or prime-rl; adapters never read advantages / is_trainable from disk | PASS | grep of the four core packages is empty; the only adapter mention of those keys is a doc comment, no key access |
+| 5 | Per-row schema_version, discriminated union with JSON Schema export, extras preserved, migration chain tested, IDs stable, hypothesis green | PASS | schema export shows the kind discriminator mapping; tests/test_schema incl. test_properties.py (hypothesis) pass |
+| 6 | Streaming IO: generator-based, bad rows skipped and logged, never fatal | PASS | schema/io.py and adapters/base.py iterators; skip-and-log covered by test_io and adapter tests |
+| 7 | Ruff and mypy clean, CI 3.11 to 3.13 via uv, schema + detectors coverage >= 85% | PASS | ruff check + format --check clean; mypy clean on 30 files; ci.yml matrix 3.11/3.12/3.13 via setup-uv; coverage 93% |
+| 8 | README quickstart works, ADR-0001, CONTRIBUTING with detector walkthrough, CHANGELOG 0.1.0, zero em dashes | PASS | README commands re-run from a fresh dir; all four docs present; full-repo em/en-dash sweep empty |
+| 9 | PROGRESS.md shows every gate checked with evidence, the freeze commit, sub-agent reports | PASS | this file: Phases 0 to 8 all COMPLETE with checklists; freeze recorded at 5f87593; sub-agent A/B/C reports in Phases 3/4/5 |
+
+Schema confirmed byte-identical to the freeze (empty `git diff` against 5f87593).
+
+Release: tagged v0.1.0 at the final commit (local annotated tag; no remote is
+configured, so nothing is pushed).
+
+Deviations: none. The v0 Definition of Done is met.
