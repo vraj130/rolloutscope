@@ -7,6 +7,8 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-07-05
+
 ### Added
 
 - Project scaffold: uv-managed environment, src layout, CI matrix (3.11 to 3.13),
@@ -27,3 +29,11 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Streaming aggregates, verdict-to-finding assembly, and three renderers: rich
   terminal summary, deterministic JSON, and a single-file self-contained HTML report
   with server-side SVG charts.
+- Command-line interface (typer): analyze (terminal summary, JSON sidecar,
+  self-contained HTML report, --fail-on exit codes), convert (raw artifacts to
+  normalized JSONL), detectors list, and schema export, plus TOML config loading over
+  the detector, aggregation, and severity settings.
+- Synthetic demo run fixture (tests/fixtures/demo) and an end-to-end test suite
+  covering the full adapter-to-report pipeline.
+- README quickstart, CONTRIBUTING guide with a third-party detector plugin
+  walkthrough, and this changelog.

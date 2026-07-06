@@ -303,7 +303,45 @@ TODOs carried forward: none new.
 
 ## Phase 7: docs and release hygiene
 
-Status: pending
+Status: COMPLETE (2026-07-05)
+
+- [x] README rewritten from the placeholder: what and why, uv install, a
+      quickstart whose commands were run verbatim from a fresh directory
+      (analyze the demo to HTML + JSON, detectors list, convert, schema
+      export), the accepted-input list, CI exit codes, the six-detector
+      catalog table with categories and signals, the TOML config example, the
+      design rules (schema-as-contract, content IDs, no upstream imports in
+      core, evidence-carrying detectors, self-contained report), and the dev
+      command suite. Evidence: README.md; all quickstart commands re-run green.
+- [x] CONTRIBUTING written with the third-party detector walkthrough
+      (criterion 8): dev setup, the non-negotiable conventions (uv only, no em
+      dashes, schema freeze, no upstream imports, mandatory evidence, fixtures),
+      and a four-step plugin guide (implement the Detector protocol, register
+      the rolloutscope.detectors entry point, install and confirm discovery,
+      ship a labeled fixture pair) plus the core-detector variant. The example
+      detector was executed to confirm its imports and API are correct.
+      Evidence: CONTRIBUTING.md; scratch run of the example detector.
+- [x] CHANGELOG cut to 0.1.0 (Keep a Changelog): the accumulated Added entries
+      moved under `## [0.1.0] - 2026-07-05` with the CLI, demo fixture, e2e
+      suite, and docs entries appended; an empty `## [Unreleased]` kept on top.
+      Evidence: CHANGELOG.md.
+- [x] Docstring pass: an introspection audit over every public module found
+      that every public function, class, and method carries a docstring
+      (CLAUDE.md docstring rule; detectors document their false-positive modes).
+      Evidence: audit script over rolloutscope.* printed all documented.
+- [x] Em-dash sweep across the whole tracked repo (em, en, and horizontal bar):
+      zero occurrences in any authored text. Evidence: git ls-files grep, empty.
+- [x] Gate: `uv run pytest -q` 173 passed, 1 deselected; `uv run ruff check .`
+      and `uv run ruff format --check .` clean; `uv run mypy src/` clean; the
+      exact README quickstart commands succeed from a fresh working directory.
+
+Deviations:
+- The CLAUDE.md skills map points at an engineering:documentation skill that is
+  not installed in this environment; the README, CONTRIBUTING, and docstrings
+  were written directly following the python-oss-library-scaffold release
+  hygiene guidance (semver, Keep a Changelog, library-first framing).
+
+TODOs carried forward: none new.
 
 ## Phase 8: final verification
 
