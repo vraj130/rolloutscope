@@ -156,4 +156,4 @@ writing your own detector as a plugin.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+Apache-2.0. See [LICENSE](LICENSE).

@@ -7,7 +7,7 @@ name = "rolloutscope"
 version = "0.1.0"
 description = "Offline rollout and reward-hacking debugger for the verifiers / prime-rl RL ecosystem"
 readme = "README.md"
-license = "MIT"
+license = "Apache-2.0"
 requires-python = ">=3.11,<3.14"
 authors = [{ name = "Vijay Raj Gohil", email = "vg2097@nyu.edu" }]
 keywords = ["reinforcement-learning", "reward-hacking", "observability", "rollouts", "verifiers"]

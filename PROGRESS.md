@@ -59,7 +59,7 @@ Status: COMPLETE (2026-07-05)
 - [x] Directory skeleton per CLAUDE.md layout with empty __init__.py files and a
       placeholder import test. Evidence: src/rolloutscope/{schema,adapters,detectors,
       analysis,report}/__init__.py, report/templates/, tests/test_placeholder.py.
-- [x] MIT LICENSE, .gitignore (Python + uv + macOS), CHANGELOG.md with Unreleased,
+- [x] LICENSE, .gitignore (Python + uv + macOS), CHANGELOG.md with Unreleased,
       PROGRESS.md seeded (done at Phase 0). Evidence: files present.
 - [x] Smoke checks. Evidence: `uv sync --extra dev` resolved and installed;
       `uv run python -c "import rolloutscope, pydantic, orjson, typer, rich, jinja2"`
