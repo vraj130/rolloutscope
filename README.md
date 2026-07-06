@@ -1,87 +1,39 @@
-# rolloutscope
+<p align="center">
+  <img src="docs/rolloutscope_logo_dark.svg" alt="rolloutscope: reward-hacking observability for RL rollouts" width="600">
+</p>
 
-Offline rollout and reward-hacking debugger for the verifiers / prime-rl RL ecosystem.
-
-rolloutscope ingests on-disk rollout artifacts (`results.jsonl`, `metadata.json`,
-`train_rollouts.jsonl`), normalizes them into a versioned schema, runs reward-hacking
-detectors over them, and emits a terminal summary, a JSON findings file, and a single
-self-contained HTML report.
-
-v0 is black-box and CPU-only: it analyzes logged text and numbers. It never loads a
-model, never needs a GPU, and never calls the network at analysis time. Point it at a
-finished run and it tells you where the reward was probably gamed, with the offending
-span attached to every flag.
-
-## Why
-
-RL training against automatic rewards drifts toward whatever the reward actually
-measures, which is not always the task. A judge that likes long answers, a rubric that
-scores format, a coding harness whose tests can be deleted: each is a reward signal a
-policy can climb without getting better. Those failures are visible in the logged
-rollouts if you know what to look for. rolloutscope looks, over a run you already have on
-disk, and shows its work.
-
-## Install
-
-rolloutscope uses [uv](https://docs.astral.sh/uv/) for everything.
-
-```bash
-uv sync --extra dev     # create the venv and install rolloutscope plus dev tools
-```
-
-Runtime dependencies are pydantic, orjson, typer, rich, and jinja2. There is no torch,
-no transformers, no CUDA: v0 does not load models.
+**rolloutscope reads the logs from a finished RL run and shows you where the model gamed
+its reward instead of doing the task, with the exact offending text highlighted, in a
+single HTML report you open in your browser.** It runs offline and CPU-only: no model,
+no GPU, no network at analysis time.
 
 ## Quickstart
 
-The repository ships a synthetic demo run (`tests/fixtures/demo/`, shaped like a real
-verifiers `evaluate()` output) that trips four detectors.
-
 ```bash
-# Analyze a run: terminal summary, JSON sidecar, and a self-contained HTML report.
-uv run rolloutscope analyze tests/fixtures/demo --out report.html --json findings.json
-
-# Open report.html from the file system (no server needed); it references nothing external.
+uv sync --extra dev
+uv run rolloutscope analyze tests/fixtures/demo --out report.html
 open report.html            # macOS; use xdg-open on Linux
 ```
 
-`analyze` prints a run summary and a findings table, then writes the reports you asked
-for. On the demo run it flags `verifier_tamper`, `degenerate_repetition`,
-`answer_leakage_echo`, and `format_only_wins`, each with the exact span that triggered it.
+That analyzes a bundled demo run and writes a self-contained HTML report. Point `analyze` at
+your own run instead (a verifiers `results.jsonl` directory, or prime-rl
+`train_rollouts.jsonl` step directories) to scan real rollouts, and add
+`--json findings.json` for a machine-readable sidecar. Bad rows are skipped and logged,
+never fatal, and the reader streams line by line, so inputs larger than RAM are fine.
 
-Other commands:
+To gate CI on findings, `analyze` exits 0 by default but takes `--fail-on info|warning|critical`.
+Other commands: `detectors list`, `convert`, `schema export`, `--help`.
 
-```bash
-uv run rolloutscope detectors list                 # the discovered detector registry
-uv run rolloutscope convert tests/fixtures/demo --out normalized.jsonl   # raw to schema JSONL
-uv run rolloutscope schema export --out schema.json # the normalized Rollout JSON Schema
-uv run rolloutscope --help                          # everything
-```
+## Why
 
-### What `analyze` accepts
+RL against an automatic reward drifts toward whatever the reward measures, which is not
+always the task. A judge that likes long answers, a rubric that scores format, a coding
+harness whose tests can be deleted: each is a signal a policy can climb without getting
+better. Those failures are visible in the logged rollouts if you know what to look for.
+rolloutscope looks, over a run you already have on disk, and shows its work: every flag
+carries the offending span, so a finding is something you can verify, not just a number.
 
-A path to a run directory or a single JSONL file. rolloutscope picks the adapter itself:
-
-- a verifiers eval run: a directory with `results.jsonl` (plus optional `metadata.json`),
-  or a direct `.jsonl` of trace rows;
-- a prime-rl training run: `train_rollouts.jsonl` files under per-step directories, or a
-  single such file.
-
-Bad rows are skipped and logged (run with `--verbose` to see them), never fatal; the
-reader streams line by line, so inputs larger than RAM are fine.
-
-### Exit codes for CI
-
-By default `analyze` always exits 0 and leaves the judgment to you. To gate a pipeline,
-raise the bar:
-
-```bash
-uv run rolloutscope analyze <run> --fail-on critical   # exit 1 if any critical finding fired
-```
-
-`--fail-on` takes `none` (default), `info`, `warning`, or `critical`.
-
-## Detectors
+## What it detects
 
 All six run in snapshot mode; the saturation and length detectors gain trend variants
 when the rollouts carry a `step_index`. Every threshold is a conservative, clearly
@@ -94,11 +46,37 @@ without a verified citation.
 | `reward_saturation_group_collapse` | reward_saturation | within-group reward variance collapsing to zero (the on-disk GRPO dead-group proxy), and its rise over steps |
 | `length_inflation` | rubric_judge_exploit | reward correlating with completion length while an independent correctness metric stays flat |
 | `format_only_wins` | rubric_judge_exploit | a format or parser metric near max while correctness is near zero and the scalar reward still clears a floor |
-| `degenerate_repetition` | degeneracy | high n-gram repetition and low distinct-token ratio on high-reward completions |
+| `degenerate_repetition` | degeneracy | high n-gram repetition and low distinct-token ratio on a single high-reward completion |
 | `answer_leakage_echo` | context_exploitation | the completion echoing the ground-truth `answer` or a reward criterion with no work shown |
 
 Each detector documents its known false-positive modes in its own docstring and ships at
 least one labeled hacked fixture and one clean fixture that it must separate.
+
+## Validation
+
+Beyond the synthetic fixtures, the detectors are checked against the Patronus TRACE
+dataset (arXiv:2601.20103), a labeled set of real reward-hacking coding-agent
+trajectories. Mapping 300 rows into the schema and running the two detectors this dataset
+can legitimately exercise:
+
+| detector | hacked fire rate | clean fire rate | gap |
+|---|---|---|---|
+| `verifier_tamper` | 0.56 (85/153) | 0.50 (73/147) | +0.06 |
+| `answer_leakage_echo` | 0.00 (0/153) | 0.00 (0/147) | +0.00 |
+
+Read honestly: `verifier_tamper` fires more on reward-hacking trajectories than on clean
+ones, but the separation is modest, because normal coding agents also edit tests and run
+commands that trip its heuristics, so the base rate is high. `answer_leakage_echo` stays
+silent because TRACE carries no ground-truth answer or grading criteria for it to key on;
+it is shown here to make clear the tool reports 0 rather than inventing findings.
+
+Reproduce it (the dataset is gated, so put a Hugging Face `HF_TOKEN` in a `.env` at the
+repo root):
+
+```bash
+uv run python scripts/trace_validation.py   # prints the table above
+uv run pytest -m integration                # the same check as a test
+```
 
 ## Configuration
 
@@ -145,7 +123,7 @@ uv run rolloutscope analyze <run> --config myconfig.toml
 ```bash
 uv sync --extra dev
 uv run pytest -q              # offline test suite
-uv run pytest -m integration  # optional network tests (TRACE download, skips if offline)
+uv run pytest -m integration  # optional network tests (TRACE, needs HF_TOKEN, skips otherwise)
 uv run ruff check .           # lint
 uv run ruff format .          # format
 uv run mypy src/              # types
