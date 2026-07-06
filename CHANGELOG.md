@@ -13,6 +13,12 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   .env through python-dotenv, so the optional network validation can reach the gated
   dataset.
 
+### Fixed
+
+- degenerate_repetition no longer fires on concatenated multi-turn transcripts (a
+  multi_turn rollout, or a completion holding more than one message); repetition is
+  measured within a single completion only.
+
 ## [0.1.0] - 2026-07-05
 
 ### Added
