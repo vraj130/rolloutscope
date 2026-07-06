@@ -9,6 +9,9 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- Opt-in reproducible validation script (scripts/trace_validation.py) that maps
+  Patronus TRACE rows into the schema and reports verifier_tamper and
+  answer_leakage_echo fire rates on hacked versus clean coding trajectories.
 - HF_TOKEN authentication for the TRACE integration test, loaded from a gitignored
   .env through python-dotenv, so the optional network validation can reach the gated
   dataset.
