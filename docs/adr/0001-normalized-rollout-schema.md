@@ -2,7 +2,7 @@
 
 **Status:** Accepted
 **Date:** 2026-07-05
-**Deciders:** rolloutscope maintainers (orchestrator session, Phase 2)
+**Deciders:** vijayraj gohil
 
 ## Context
 
@@ -118,8 +118,8 @@ chain.
 
 ## Action Items
 
-1. [x] Freeze the schema (commit 5f87593) and record the freeze in PROGRESS.md.
+1. [x] Freeze the schema (commit 5f87593)
 2. [x] Enforce the boundary: core packages import only `rolloutscope.schema`.
 3. [ ] Re-verify the pinned upstream references before the first post-0.1.0 release
-       and refresh the verifiers-ground-truth pins if stale.
+       and refresh the truth pins if stale.
 4. [ ] Write ADR-0002 when the v1 activation sidecar join is implemented.
