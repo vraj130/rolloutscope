@@ -7,6 +7,7 @@ from rich.console import Console
 from rolloutscope.analysis import aggregate_rollouts
 from rolloutscope.report import ReportData, render_terminal
 from rolloutscope.schema import EvidenceSpan, Finding, read_rollouts
+from rolloutscope.schema.execution import DetectorExecution, ExecutionManifest, UnitCounts
 
 
 def _console() -> Console:
@@ -64,3 +65,51 @@ def test_findings_ordered_by_severity_with_exemplars(eval_run_dir: Path) -> None
     for snippet in ("critical exemplar span", "warning exemplar span", "info exemplar span"):
         assert snippet in text
     assert "1/4" in text
+
+
+def test_detector_coverage_keeps_unit_mode_and_run_denominators_separate(
+    eval_run_dir: Path,
+) -> None:
+    finding = _finding("warning", "mixed", "mixed group finding", "proof").model_copy(
+        update={
+            "mode": "group",
+            "unit": "group",
+            "metrics": {"fired_count": 1.0, "eligible_checks": 2.0, "max_score": 0.7},
+        }
+    )
+    execution = ExecutionManifest(
+        tool_version="0.1.0",
+        schema_version="2.0",
+        input_format="normalized",
+    )
+    detector = DetectorExecution(
+        detector="mixed",
+        units=[
+            UnitCounts(
+                unit="group",
+                mode="group",
+                candidate=2,
+                eligible=2,
+                fired=1,
+                clean=1,
+                measurements={"run_id": "run-a"},
+            ),
+            UnitCounts(
+                unit="run",
+                mode="trend",
+                candidate=1,
+                eligible=1,
+                clean=1,
+                measurements={"run_id": "run-a"},
+            ),
+        ],
+    )
+    report = _report(eval_run_dir, [finding]).model_copy(
+        update={"execution": execution, "detector_results": [detector]}
+    )
+    console = _console()
+    render_terminal(report, console)
+    text = console.export_text()
+    assert "group" in text and "trend" in text and "run-a" in text
+    assert "1/2" in text and "0/1" in text
+    assert "1/3" not in text

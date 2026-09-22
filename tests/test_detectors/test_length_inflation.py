@@ -26,7 +26,7 @@ def test_evidence_cites_longest_completion(load_labeled):
     longest = max(rollouts, key=lambda r: len(primary_completion(r)[1]))
     for verdict in verdicts:
         span = verdict.evidence[0]
-        assert span.rollout_id == longest.rollout_id
+        assert span.rollout_id == longest.occurrence_id
         assert span.text
         assert span.text in primary_completion(longest)[1]
 
@@ -38,7 +38,10 @@ def test_silent_on_clean(load_labeled):
 
 def test_tightened_correlation_silences_hacked(load_labeled):
     rollouts = load_labeled("length_inflation_hacked")
-    tightened = DetectorConfig(length_inflation=LengthInflationConfig(min_correlation=1.01))
+    # Keep the threshold physically valid while making the fixture's measured
+    # correlation fall below it.
+    rollouts[-1].completion = "x"
+    tightened = DetectorConfig(length_inflation=LengthInflationConfig(min_correlation=1.0))
     assert [v for v in DETECTOR.detect(rollouts, tightened) if v.fired] == []
 
 

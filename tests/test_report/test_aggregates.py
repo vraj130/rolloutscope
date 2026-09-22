@@ -180,3 +180,29 @@ def test_empty_iterator(make_rollout: RolloutFactory) -> None:
 def test_histogram_config_must_be_ordered() -> None:
     with pytest.raises(ValidationError):
         AggregateConfig(histogram_min=1.0, histogram_max=0.0)
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"histogram_binz": 12},
+        {"histogram_min": float("nan")},
+        {"histogram_max": float("inf")},
+    ],
+)
+def test_aggregate_config_rejects_extra_and_nonfinite_values(payload) -> None:
+    with pytest.raises(ValidationError):
+        AggregateConfig.model_validate(payload)
+
+
+def test_cross_run_groups_and_steps_remain_separate(make_rollout: RolloutFactory) -> None:
+    rollouts = [
+        make_rollout(0.1, group_id="same", step_index=0).model_copy(update={"run_id": "run-a"}),
+        make_rollout(0.9, group_id="same", step_index=0).model_copy(update={"run_id": "run-b"}),
+    ]
+    aggregates = aggregate_rollouts(iter(rollouts))
+    assert set(aggregates.group_stats) == {'["run-a","same"]', '["run-b","same"]'}
+    assert [(item.run_id, item.step_index) for item in aggregates.step_series] == [
+        ("run-a", 0),
+        ("run-b", 0),
+    ]

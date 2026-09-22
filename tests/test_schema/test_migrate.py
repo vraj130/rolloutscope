@@ -25,7 +25,7 @@ FAKE_V0_ROW = {
 
 def test_v0_row_migrates_and_revalidates() -> None:
     migrated = migrate_row(dict(FAKE_V0_ROW))
-    assert migrated["schema_version"] == "1.0"
+    assert migrated["schema_version"] == "2.0"
     assert migrated["example_id"] == 7
     assert migrated["reward"] == 0.5
     assert "episode_id" not in migrated
@@ -38,7 +38,7 @@ def test_v0_row_migrates_and_revalidates() -> None:
 
 
 def test_current_row_passes_identity_unchanged() -> None:
-    row = {"schema_version": "1.0", "example_id": 1, "reward": 1.0}
+    row = {"schema_version": "2.0", "example_id": 1, "reward": 1.0}
     assert migrate_row(row) == row
 
 
@@ -49,7 +49,7 @@ def test_missing_version_treated_as_current() -> None:
 
 def test_newer_major_raises() -> None:
     with pytest.raises(UnsupportedSchemaVersionError):
-        migrate_row({"schema_version": "2.0", "example_id": 1, "reward": 1.0})
+        migrate_row({"schema_version": "3.0", "example_id": 1, "reward": 1.0})
 
 
 def test_unparseable_version_raises() -> None:

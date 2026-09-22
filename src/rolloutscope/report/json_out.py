@@ -9,11 +9,13 @@ byte-identical output regardless of dict insertion order.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from pathlib import Path
 
 import orjson
 
 from rolloutscope.report.model import ReportData
+from rolloutscope.schema import Verdict
 
 _OPTIONS = orjson.OPT_SORT_KEYS | orjson.OPT_INDENT_2 | orjson.OPT_APPEND_NEWLINE
 
@@ -42,9 +44,28 @@ def write_json(report: ReportData, path: Path) -> Path:
     Inputs: the report model and the output file path (parent directories are
     created if missing). Returns the path written.
     """
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(render_json_bytes(report))
+    from rolloutscope.output import atomic_write_bytes
+
+    atomic_write_bytes(path, render_json_bytes(report))
     return path
 
 
-__all__ = ["render_json", "render_json_bytes", "write_json"]
+def _verdict_chunks(verdicts: Iterable[Verdict]) -> Iterable[bytes]:
+    """Serialize verdicts as sorted-key JSONL records without bulk buffering."""
+    for verdict in verdicts:
+        yield orjson.dumps(verdict.model_dump(mode="json"), option=orjson.OPT_SORT_KEYS) + b"\n"
+
+
+def write_verdicts(report: ReportData, path: Path) -> Path:
+    """Stream every report verdict as deterministic JSONL to ``path``.
+
+    Inputs: the report retaining complete verdicts and an output path. The
+    shared output layer commits the file atomically after all chunks serialize.
+    """
+    from rolloutscope.output import atomic_write_chunks
+
+    atomic_write_chunks(path, _verdict_chunks(report.verdicts))
+    return path
+
+
+__all__ = ["render_json", "render_json_bytes", "write_json", "write_verdicts"]

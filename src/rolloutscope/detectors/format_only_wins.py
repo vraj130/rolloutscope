@@ -27,14 +27,23 @@ from collections.abc import Sequence
 from typing import ClassVar
 
 from rolloutscope.detectors._text import clamp01, matching_metric_keys, stable_rollout_id
-from rolloutscope.detectors.base import DetectorConfig
+from rolloutscope.detectors.base import DetectorConfig, FormatOnlyWinsConfig
 from rolloutscope.schema import EvidenceSpan, Rollout, Verdict
+
+
+def _metric_keys(rollout: Rollout, cfg: FormatOnlyWinsConfig) -> tuple[list[str], list[str]]:
+    """Return both required metric families for scoring and eligibility accounting."""
+    return (
+        matching_metric_keys(rollout.metrics, cfg.format_metric_patterns),
+        matching_metric_keys(rollout.metrics, cfg.correctness_metric_patterns),
+    )
 
 
 class FormatOnlyWinsDetector:
     """Per-rollout detector for format-dominated reward under a weight imbalance."""
 
     name: ClassVar[str] = "format_only_wins"
+    version: ClassVar[str] = "1"
     category: ClassVar[str] = "rubric_judge_exploit"
 
     def detect(self, rollouts: Sequence[Rollout], config: DetectorConfig) -> list[Verdict]:
@@ -50,10 +59,7 @@ class FormatOnlyWinsDetector:
         saw_format_key = False
         saw_correctness_key = False
         for rollout in rollouts:
-            format_keys = matching_metric_keys(rollout.metrics, cfg.format_metric_patterns)
-            correctness_keys = matching_metric_keys(
-                rollout.metrics, cfg.correctness_metric_patterns
-            )
+            format_keys, correctness_keys = _metric_keys(rollout, cfg)
             saw_format_key = saw_format_key or bool(format_keys)
             saw_correctness_key = saw_correctness_key or bool(correctness_keys)
             if not format_keys or not correctness_keys:
@@ -90,6 +96,14 @@ class FormatOnlyWinsDetector:
                         category=self.category,
                         evidence=[span],
                         rollout_ids=[rid],
+                        run_id=rollout.run_id,
+                        measurements={
+                            "reward": rollout.reward,
+                            "format_metric": top_format_key,
+                            "format_value": format_value,
+                            "correctness_metric": top_correct_key,
+                            "correctness_value": max_correct_value,
+                        },
                     )
                 )
         if not verdicts and not (saw_format_key and saw_correctness_key):

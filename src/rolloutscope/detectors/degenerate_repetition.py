@@ -28,7 +28,7 @@ from collections.abc import Sequence
 from typing import ClassVar
 
 from rolloutscope.detectors._text import clamp01, primary_completion, stable_rollout_id, word_tokens
-from rolloutscope.detectors.base import DetectorConfig
+from rolloutscope.detectors.base import DegenerateRepetitionConfig, DetectorConfig
 from rolloutscope.schema import EvidenceSpan, MultiTurnRollout, Rollout, Verdict
 
 
@@ -47,10 +47,25 @@ def _is_concatenated_transcript(rollout: Rollout) -> bool:
     return isinstance(completion, list) and len(completion) > 1
 
 
+def _ineligible_reason(rollout: Rollout, cfg: DegenerateRepetitionConfig) -> str | None:
+    """Shared applicability gate for detection and coverage accounting."""
+    if _is_concatenated_transcript(rollout):
+        return "multi_turn_transcript"
+    if rollout.reward < cfg.min_reward:
+        return "reward_below_minimum"
+    tokens = word_tokens(primary_completion(rollout)[1])
+    if len(tokens) < cfg.min_tokens:
+        return "too_few_tokens"
+    if len(tokens) < cfg.ngram_n:
+        return "too_few_tokens_for_ngram"
+    return None
+
+
 class DegenerateRepetitionDetector:
     """Per-rollout detector for mode-collapsed, repetitive high-reward outputs."""
 
     name: ClassVar[str] = "degenerate_repetition"
+    version: ClassVar[str] = "1"
     category: ClassVar[str] = "degeneracy"
 
     def detect(self, rollouts: Sequence[Rollout], config: DetectorConfig) -> list[Verdict]:
@@ -67,19 +82,13 @@ class DegenerateRepetitionDetector:
         cfg = config.degenerate_repetition
         verdicts: list[Verdict] = []
         for rollout in rollouts:
-            if _is_concatenated_transcript(rollout):
-                continue
-            if rollout.reward < cfg.min_reward:
+            if _ineligible_reason(rollout, cfg) is not None:
                 continue
             field, text = primary_completion(rollout)
             tokens = word_tokens(text)
-            if len(tokens) < cfg.min_tokens:
-                continue
             distinct_ratio = len(set(tokens)) / len(tokens)
             n = cfg.ngram_n
             ngrams = [tuple(tokens[i : i + n]) for i in range(len(tokens) - n + 1)]
-            if not ngrams:
-                continue
             repetition = 1.0 - (len(set(ngrams)) / len(ngrams))
             fired_distinct = distinct_ratio <= cfg.max_distinct_ratio
             fired_ngram = repetition >= cfg.min_ngram_repetition
@@ -109,6 +118,15 @@ class DegenerateRepetitionDetector:
                     category=self.category,
                     evidence=[span],
                     rollout_ids=[stable_rollout_id(rollout)],
+                    run_id=rollout.run_id,
+                    measurements={
+                        "reward": rollout.reward,
+                        "token_count": len(tokens),
+                        "distinct_token_ratio": distinct_ratio,
+                        "ngram_repetition_ratio": repetition,
+                        "ngram_n": n,
+                        "most_repeated_ngram_count": top_count,
+                    },
                 )
             )
         return verdicts

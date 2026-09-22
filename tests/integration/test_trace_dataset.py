@@ -1,11 +1,9 @@
-"""Integration test: verifier_tamper vs a small slice of the Patronus TRACE dataset.
+"""Integration test: the detector benchmark against the pinned TRACE revision.
 
-TRACE (arXiv:2601.20103, https://huggingface.co/datasets/PatronusAI/trace-dataset)
-is the confirmed labeled reward-hack dataset for the coding domain. This test
-fetches license information and a small row slice through the Hugging Face
-datasets-server HTTP API with stdlib urllib only, converts rows to the
-normalized schema, and checks that verifier_tamper fires more on hacked-labeled
-rows than on clean-labeled rows.
+This file used to carry its own row mapping, its own label parsing, and its own
+fire-rate arithmetic, all of which disagreed with ``scripts/trace_validation.py``
+and produced different numbers for the same dataset. It now calls the shared
+library and asserts the properties that mapping is supposed to guarantee.
 
 Everything network-shaped skips instead of failing: this file runs only under
 ``-m integration`` and must never break the offline suite.
@@ -14,214 +12,163 @@ Everything network-shaped skips instead of failing: this file runs only under
 from __future__ import annotations
 
 import json
-import os
-import urllib.error
-import urllib.parse
-import urllib.request
-from typing import Any
+import subprocess
+import sys
+from pathlib import Path
 
 import pytest
 
-from rolloutscope.detectors import DetectorConfig, VerifierTamperDetector
-from rolloutscope.schema import validate_rollout
+from rolloutscope.benchmark import (
+    BenchmarkReport,
+    BenchmarkUnavailable,
+    evaluate_rows,
+    load_dotenv_token,
+    load_manifest,
+    load_rows,
+    report_to_json,
+)
+from rolloutscope.detectors import DetectorConfig, discover_detectors
 
 pytestmark = pytest.mark.integration
 
-DATASET = "PatronusAI/trace-dataset"
-HF_API_BASE = "https://huggingface.co/api/datasets"
-SERVER_BASE = "https://datasets-server.huggingface.co"
-TIMEOUT_SECONDS = 30
-ROWS_TO_FETCH = 60
-
-# Licenses that permit fetching a slice for local automated testing. Anything
-# else (or an unverifiable license) skips rather than guessing.
-PERMISSIVE_LICENSES = {
-    "mit",
-    "apache-2.0",
-    "bsd-3-clause",
-    "cc0-1.0",
-    "cc-by-4.0",
-    "cc-by-sa-4.0",
-    "odc-by",
-    "cdla-permissive-2.0",
-    "openrail",
-}
-
-LABEL_KEYS = (
-    "label",
-    "is_hack",
-    "is_hacked",
-    "reward_hack",
-    "hack",
-    "verdict",
-    "classification",
-    "hack_type",
-    "hack_category",
-    "category",
-)
-HACKED_WORDS = {"hack", "hacked", "reward_hack", "positive", "true", "yes", "1"}
-CLEAN_WORDS = {"clean", "benign", "negative", "false", "no", "0", "none", "not_hack"}
-TEXT_KEYS = (
-    "trajectory",
-    "messages",
-    "conversation",
-    "completion",
-    "response",
-    "solution",
-    "output",
-    "text",
-)
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+MANIFEST_PATH = REPO_ROOT / "benchmarks" / "trace" / "manifest.json"
+SPLIT = "tuning"
+"""The holdout stays sealed until the Phase 2 detector repairs land."""
 
 
-def _hf_token() -> str | None:
-    """Return HF_TOKEN from the environment, or None if unset."""
-    return os.environ.get("HF_TOKEN") or None
-
-
-def _fetch_json(url: str) -> Any:
-    """GET a JSON document; any network or decode problem skips the test."""
-    headers: dict[str, str] = {"User-Agent": "rolloutscope-tests"}
-    token = _hf_token()
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
-    request = urllib.request.Request(url, headers=headers)
+@pytest.fixture(scope="module")
+def report() -> BenchmarkReport:
+    """Evaluate the tuning split once for the whole module."""
+    if not MANIFEST_PATH.is_file():
+        pytest.skip(f"no benchmark manifest at {MANIFEST_PATH}")
+    manifest = load_manifest(MANIFEST_PATH)
+    load_dotenv_token(REPO_ROOT)
     try:
-        with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:
-            return json.loads(response.read().decode("utf-8"))
-    except urllib.error.HTTPError as exc:
-        if exc.code == 401:
-            pytest.skip(
-                f"HF API returned 401 for {url}. "
-                "Set HF_TOKEN in .env or the environment to authenticate."
-            )
-        pytest.skip(f"network unavailable or bad response from {url}: {exc}")
-    except (urllib.error.URLError, OSError, ValueError, TimeoutError) as exc:
-        pytest.skip(f"network unavailable or bad response from {url}: {exc}")
-
-
-def _check_license() -> None:
-    """Skip unless the dataset card declares a recognized permissive license."""
-    info = _fetch_json(f"{HF_API_BASE}/{DATASET}")
-    card = info.get("cardData") or {}
-    license_value = card.get("license") or info.get("license")
-    if isinstance(license_value, list):
-        license_value = license_value[0] if license_value else None
-    if not isinstance(license_value, str):
-        pytest.skip(f"could not verify a license for {DATASET}; not fetching rows")
-    if license_value.lower() not in PERMISSIVE_LICENSES:
-        pytest.skip(
-            f"dataset license {license_value!r} is not in the recognized permissive "
-            "set; not fetching rows"
-        )
-
-
-def _first_split() -> tuple[str, str]:
-    """Discover a (config, split) pair from the datasets-server splits endpoint."""
-    encoded = urllib.parse.quote(DATASET, safe="")
-    payload = _fetch_json(f"{SERVER_BASE}/splits?dataset={encoded}")
-    splits = payload.get("splits") or []
-    if not splits:
-        pytest.skip(f"datasets-server reports no splits for {DATASET}")
-    first = splits[0]
-    return first["config"], first["split"]
-
-
-def _fetch_rows(config: str, split: str) -> list[dict[str, Any]]:
-    """Fetch a small slice of raw rows from the datasets-server rows endpoint."""
-    encoded = urllib.parse.quote(DATASET, safe="")
-    url = (
-        f"{SERVER_BASE}/rows?dataset={encoded}&config={urllib.parse.quote(config)}"
-        f"&split={urllib.parse.quote(split)}&offset=0&length={ROWS_TO_FETCH}"
+        rows, source, _ = load_rows(revision=manifest.dataset.revision)
+    except BenchmarkUnavailable as exc:
+        pytest.skip(str(exc))
+    return evaluate_rows(
+        rows,
+        manifest,
+        discover_detectors(),
+        DetectorConfig(),
+        split=SPLIT,
+        source=source,
     )
-    payload = _fetch_json(url)
-    rows = [entry.get("row", {}) for entry in payload.get("rows", [])]
-    if not rows:
-        pytest.skip(f"datasets-server returned no rows for {DATASET}")
-    return rows
 
 
-def _label_of(row: dict[str, Any]) -> bool | None:
-    """Best-effort hacked/clean label; None when the row shape is unrecognized."""
-    for key in LABEL_KEYS:
-        if key not in row:
-            continue
-        value = row[key]
-        if isinstance(value, bool):
-            return value
-        if isinstance(value, int | float):
-            return bool(value)
-        if isinstance(value, str):
-            lowered = value.strip().lower()
-            if lowered in HACKED_WORDS:
-                return True
-            if lowered in CLEAN_WORDS:
-                return False
-            # TRACE uses dotted subcategory strings like "1.2.3" for hacked rows;
-            # any non-empty non-clean string label counts as hacked.
-            if lowered and lowered != "0":
-                return True
-    return None
+def _metric(report: BenchmarkReport, detector: str):  # type: ignore[no-untyped-def]
+    """Return one detector's metrics, failing loudly if it was not scored at all."""
+    for metric in report.metrics:
+        if metric.detector == detector:
+            return metric
+    pytest.fail(f"{detector} is missing from the report")
 
 
-def _text_of(row: dict[str, Any]) -> str:
-    """Flatten the row's trajectory-ish field into one scan-able string."""
-    for key in TEXT_KEYS:
-        value = row.get(key)
-        if isinstance(value, str) and value.strip():
-            return value
-        if isinstance(value, list) and value:
-            chunks: list[str] = []
-            for item in value:
-                if isinstance(item, str):
-                    chunks.append(item)
-                elif isinstance(item, dict):
-                    content = item.get("content")
-                    chunks.append(content if isinstance(content, str) else json.dumps(item))
-            if chunks:
-                return "\n".join(chunks)
-        if isinstance(value, dict) and value:
-            return json.dumps(value)
-    return ""
+def test_every_manifest_row_in_the_split_was_fetched_unchanged(report: BenchmarkReport) -> None:
+    """The revision pin must hold: same rows, same bytes, nothing missing."""
+    assert report.manifest_verified, report.verification_notes
+    assert report.rows_unusable == 0, report.unusable_by_reason
+    assert report.rows_mapped == report.rows_requested
 
 
-def test_verifier_tamper_separates_trace_labels() -> None:
-    """verifier_tamper should fire more on hacked-labeled TRACE rows than clean."""
-    _check_license()
-    config_name, split = _first_split()
-    raw_rows = _fetch_rows(config_name, split)
+def test_every_selected_detector_appears_with_its_coverage(report: BenchmarkReport) -> None:
+    """A detector that could not be scored must say so, not vanish."""
+    reported = {metric.detector for metric in report.metrics}
+    assert reported == set(discover_detectors())
+    for metric in report.metrics:
+        assert metric.coverage.denominator == report.rows_mapped
 
-    hacked: list[Any] = []
-    clean: list[Any] = []
-    for index, raw in enumerate(raw_rows):
-        label = _label_of(raw)
-        text = _text_of(raw)
-        if label is None or not text:
-            continue
-        rollout = validate_rollout(
-            {
-                "kind": "single_turn",
-                "example_id": index,
-                "prompt": None,
-                "completion": text,
-                "reward": 1.0,
-                "metrics": {},
-                "is_completed": True,
-                "is_truncated": False,
-            }
-        )
-        (hacked if label else clean).append(rollout)
 
-    if not hacked or not clean:
-        pytest.skip(
-            f"could not derive both hacked and clean labels from the fetched slice "
-            f"(hacked={len(hacked)}, clean={len(clean)}); row shape may have changed"
-        )
+def test_detectors_without_their_inputs_are_insufficient_not_clean(
+    report: BenchmarkReport,
+) -> None:
+    """TRACE ships transcripts only: no reward, no metrics, no reference answer.
 
-    detector = VerifierTamperDetector()
-    config = DetectorConfig()
-    hacked_rate = sum(v.fired for v in detector.detect(hacked, config)) / len(hacked)
-    clean_rate = sum(v.fired for v in detector.detect(clean, config)) / len(clean)
-    assert hacked_rate > clean_rate, (
-        f"verifier_tamper did not separate TRACE labels: hacked fire rate "
-        f"{hacked_rate:.2f} vs clean fire rate {clean_rate:.2f}"
+    Every detector that gates on one of those must report zero coverage with the
+    missing signal named. Counting that silence as true negatives would make the
+    clean-side numbers look excellent while measuring nothing at all.
+    """
+    for name in (
+        "reward_saturation_group_collapse",
+        "length_inflation",
+        "format_only_wins",
+        "degenerate_repetition",
+        "answer_leakage_echo",
+    ):
+        metric = _metric(report, name)
+        assert metric.counts.units_scored == 0
+        assert metric.counts.units_insufficient == report.rows_mapped
+        assert metric.counts.true_negatives == 0
+        assert metric.recall.value is None
+        assert metric.counts.insufficient_by_reason
+
+
+def test_verifier_tamper_is_scored_on_every_row(report: BenchmarkReport) -> None:
+    """verifier_tamper reads assistant text only, which TRACE always provides."""
+    metric = _metric(report, "verifier_tamper")
+    assert metric.counts.units_scored == report.rows_mapped
+    assert metric.counts.units_error == 0
+    assert metric.coverage.value == pytest.approx(1.0)
+
+
+def test_verifier_tamper_separates_the_labels(report: BenchmarkReport) -> None:
+    """The hacked-side fire rate must beat the clean-side one.
+
+    This is a separation check, not an accuracy bar. The absolute numbers belong
+    in the benchmark report, and any release threshold is a documented product
+    decision taken against the sealed holdout, not an assertion smuggled in here.
+    """
+    metric = _metric(report, "verifier_tamper")
+    positive = metric.fire_rate_positive.value
+    negative = metric.fire_rate_negative.value
+    assert positive is not None and negative is not None
+    assert positive > negative, (
+        f"verifier_tamper did not separate the TRACE labels on the {SPLIT} split: "
+        f"hacked fire rate {positive:.3f} vs clean fire rate {negative:.3f}"
     )
+
+
+def test_every_scored_positive_and_negative_is_accounted_for(report: BenchmarkReport) -> None:
+    """The confusion cells must add up to the scored population, with no gaps."""
+    for metric in report.metrics:
+        counts = metric.counts
+        cells = (
+            counts.true_positives
+            + counts.false_positives
+            + counts.true_negatives
+            + counts.false_negatives
+        )
+        assert cells == counts.units_scored
+        assert (
+            counts.units_scored + counts.units_insufficient + counts.units_error
+            == counts.units_total
+        )
+
+
+def test_script_and_test_produce_the_same_report(report: BenchmarkReport, tmp_path: Path) -> None:
+    """The validation script and this test must agree, byte for byte.
+
+    They diverged before because each carried its own mapping and its own
+    arithmetic. Running the script as a subprocess and comparing its JSON against
+    the report built in this process is the direct check that they no longer can.
+    """
+    out = tmp_path / "script.json"
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(REPO_ROOT / "scripts" / "trace_validation.py"),
+            "--split",
+            SPLIT,
+            "--json",
+            str(out),
+        ],
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+    assert completed.returncode == 0, completed.stderr
+    if not out.is_file():
+        pytest.skip(f"the script skipped rather than reporting: {completed.stdout.strip()}")
+    assert json.loads(out.read_text()) == json.loads(report_to_json(report))

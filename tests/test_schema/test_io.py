@@ -64,7 +64,7 @@ def test_read_applies_migration_chain(tmp_path: Path) -> None:
     migrated = rollouts[0]
     assert migrated.example_id == 9
     assert migrated.reward == 0.25
-    assert migrated.schema_version == "1.0"
+    assert migrated.schema_version == "2.0"
 
 
 def test_unsupported_version_skipped_not_fatal(tmp_path: Path, caplog) -> None:

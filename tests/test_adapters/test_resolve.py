@@ -9,6 +9,7 @@ from rolloutscope.adapters import (
     ADAPTERS,
     PRIME_RL_TRAIN,
     VERIFIERS_EVAL,
+    NormalizedAdapter,
     PrimeRlTrainAdapter,
     VerifiersEvalAdapter,
     resolve_adapter,
@@ -22,8 +23,9 @@ GOOD_ROW = (
 
 
 def test_registry_order_is_the_documented_tie_break() -> None:
-    assert isinstance(ADAPTERS[0], VerifiersEvalAdapter)
-    assert isinstance(ADAPTERS[1], PrimeRlTrainAdapter)
+    assert isinstance(ADAPTERS[0], NormalizedAdapter)
+    assert isinstance(ADAPTERS[1], VerifiersEvalAdapter)
+    assert isinstance(ADAPTERS[2], PrimeRlTrainAdapter)
 
 
 def test_routes_verifiers_layouts(eval_run_dir: Path, multi_turn_path: Path) -> None:

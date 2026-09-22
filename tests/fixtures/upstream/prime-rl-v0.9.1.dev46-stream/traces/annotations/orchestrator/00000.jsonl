@@ -1,0 +1,3 @@
+{"advantage": 0.5, "step": 0, "subset": "effective", "trace_id": "trace-0001"}
+{"advantage": -0.5, "step": 0, "subset": "effective", "trace_id": "trace-0002"}
+{"advantage": 0.0, "step": 0, "subset": "all", "trace_id": "trace-0003"}

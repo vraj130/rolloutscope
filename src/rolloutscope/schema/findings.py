@@ -11,14 +11,17 @@ golden rule 4).
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import ConfigDict, Field, JsonValue, model_validator
+
+from rolloutscope.schema.models import JsonSafeModel
 
 Severity = Literal["info", "warning", "critical"]
+AnalysisUnit = Literal["rollout", "group", "step", "run"]
 
 
-class EvidenceSpan(BaseModel):
+class EvidenceSpan(JsonSafeModel):
     """The offending span that made a detector fire.
 
     ``field`` names the rollout field the span lives in (for example
@@ -28,7 +31,7 @@ class EvidenceSpan(BaseModel):
     re-resolving offsets.
     """
 
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow", allow_inf_nan=False)
 
     rollout_id: str
     field: str
@@ -38,7 +41,17 @@ class EvidenceSpan(BaseModel):
     note: str | None = None
 
 
-class Verdict(BaseModel):
+class SourceOccurrence(JsonSafeModel):
+    """Typed source location for one occurrence referenced by a verdict."""
+
+    model_config = ConfigDict(extra="allow", allow_inf_nan=False)
+
+    occurrence_id: str
+    source_path: str
+    line: int = Field(ge=1)
+
+
+class Verdict(JsonSafeModel):
     """Structured output of one detector over one rollout or one group.
 
     ``score`` is a heuristic confidence or severity in [0, 1]; ``category`` is the
@@ -48,14 +61,19 @@ class Verdict(BaseModel):
     (D-003); a fired verdict must carry at least one.
     """
 
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow", allow_inf_nan=False)
 
     detector: str
     fired: bool
-    score: float
+    score: float = Field(ge=0.0, le=1.0)
     category: str
     evidence: list[EvidenceSpan] = Field(default_factory=list)
     rollout_ids: list[str] = Field(default_factory=list)
+    mode: str = "snapshot"
+    unit: AnalysisUnit = "rollout"
+    run_id: str | None = None
+    source_occurrences: list[SourceOccurrence] = Field(default_factory=list)
+    measurements: dict[str, JsonValue] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def _fired_needs_evidence(self) -> Verdict:
@@ -64,7 +82,7 @@ class Verdict(BaseModel):
         return self
 
 
-class Finding(BaseModel):
+class Finding(JsonSafeModel):
     """Report-level aggregation of verdicts from one detector.
 
     ``metrics`` holds the numbers behind the finding (rates, correlations,
@@ -73,12 +91,15 @@ class Finding(BaseModel):
     (each already carries its rollout_id).
     """
 
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow", allow_inf_nan=False)
 
     severity: Severity
     title: str
     description: str
     detector: str
     metrics: dict[str, float] = Field(default_factory=dict)
-    config_used: dict[str, Any] = Field(default_factory=dict)
+    config_used: dict[str, JsonValue] = Field(default_factory=dict)
     exemplars: list[EvidenceSpan] = Field(default_factory=list)
+    rollout_ids: list[str] = Field(default_factory=list)
+    mode: str = "snapshot"
+    unit: AnalysisUnit = "rollout"

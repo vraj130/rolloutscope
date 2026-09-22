@@ -6,6 +6,7 @@ import pytest
 
 from rolloutscope.analysis import SeverityThresholds, assemble_findings, severity_for_score
 from rolloutscope.schema import Verdict
+from rolloutscope.schema.execution import DetectorExecution, UnitCounts
 
 VerdictFactory = Callable[..., Verdict]
 
@@ -111,3 +112,88 @@ def test_flagged_rollouts_deduplicated(make_verdict: VerdictFactory) -> None:
 def test_thresholds_must_be_ordered() -> None:
     with pytest.raises(ValueError, match="warning_at"):
         SeverityThresholds(critical_at=0.4, warning_at=0.6)
+
+
+def test_execution_coverage_supplies_the_real_denominator(
+    make_verdict: VerdictFactory,
+) -> None:
+    verdict = make_verdict(detector="det_a", category="cat_x", score=0.7)
+    execution = DetectorExecution(
+        detector="det_a",
+        category="cat_x",
+        units=[UnitCounts(candidate=7, eligible=5, fired=1, clean=4, insufficient_data=2)],
+        verdict_count=1,
+    )
+    finding = assemble_findings([verdict], executions=[execution])[0]
+    assert finding.metrics["eligible_checks"] == 5.0
+    assert finding.metrics["fired_rate"] == pytest.approx(0.2)
+    assert finding.metrics["candidate_checks"] == 7.0
+    assert finding.metrics["insufficient_data"] == 2.0
+
+
+def test_all_flagged_ids_survive_bounded_exemplars(make_verdict: VerdictFactory) -> None:
+    verdicts = [
+        make_verdict(score=0.9 - index / 100, rollout_ids=[f"source-line-{index}"])
+        for index in range(10)
+    ]
+    finding = assemble_findings(verdicts, exemplar_limit=2)[0]
+    assert len(finding.exemplars) == 2
+    assert finding.rollout_ids == [f"source-line-{index}" for index in range(10)]
+
+
+@pytest.mark.parametrize("status", ["insufficient_data", "unsupported"])
+def test_unchecked_execution_is_never_reported_clean(status: str) -> None:
+    units = (
+        [UnitCounts(candidate=1, insufficient_data=1, reason_counts={"missing_data": 1})]
+        if status == "insufficient_data"
+        else []
+    )
+    execution = DetectorExecution(
+        detector="unavailable",
+        category="cat_x",
+        status=status,
+        units=units,
+    )
+    assert assemble_findings([], executions=[execution], include_clean=True) == []
+
+
+def test_failed_execution_discards_finding_even_if_verdict_was_supplied(
+    make_verdict: VerdictFactory,
+) -> None:
+    execution = DetectorExecution(
+        detector="det_a",
+        category="cat_x",
+        status="failed",
+        units=[UnitCounts(candidate=1, errors=1)],
+    )
+    assert (
+        assemble_findings(
+            [make_verdict(detector="det_a", category="cat_x")], executions=[execution]
+        )
+        == []
+    )
+
+
+def test_same_mode_with_different_units_produces_distinct_findings(
+    make_verdict: VerdictFactory,
+) -> None:
+    rollout_verdict = make_verdict(detector="mixed", category="cat_x").model_copy(
+        update={"mode": "snapshot", "unit": "rollout"}
+    )
+    group_verdict = make_verdict(detector="mixed", category="cat_x").model_copy(
+        update={"mode": "snapshot", "unit": "group"}
+    )
+    execution = DetectorExecution(
+        detector="mixed",
+        category="cat_x",
+        units=[
+            UnitCounts(unit="rollout", candidate=1, eligible=1, fired=1),
+            UnitCounts(unit="group", candidate=1, eligible=1, fired=1),
+        ],
+        verdict_count=2,
+    )
+    findings = assemble_findings([rollout_verdict, group_verdict], executions=[execution])
+    assert {(finding.mode, finding.unit) for finding in findings} == {
+        ("snapshot", "rollout"),
+        ("snapshot", "group"),
+    }

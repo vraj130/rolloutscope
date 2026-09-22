@@ -1,9 +1,8 @@
 """Normalized rollout data contract for rolloutscope.
 
-Adapted from the rollout-schema-design skill's candidate schema and kept
+Kept
 field-compatible with the verifiers RolloutOutput contract (verifiers @ 5885ab9c).
-Upstream names win on any conflict. Deltas from the candidate are recorded in
-PLAN.md (D-003 through D-009).
+Upstream names win on any conflict.
 
 Design rules, all load-bearing:
 - Rollout is a discriminated union on ``kind`` (single_turn | multi_turn).
@@ -17,14 +16,90 @@ Design rules, all load-bearing:
 
 from __future__ import annotations
 
+import math
+import re
 from typing import Annotated, Any, Literal, TypeAlias
 
-from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    TypeAdapter,
+    field_validator,
+    model_validator,
+)
+from pydantic import JsonValue as PydanticJsonValue
 
-SCHEMA_VERSION = "1.0"
+JsonValue = PydanticJsonValue
+
+SCHEMA_VERSION = "2.0"
 
 
-class Message(BaseModel):
+def _check_json_safe(value: Any, path: str = "value") -> None:
+    """Reject values that cannot round-trip through the supported JSON writer."""
+    if value is None or isinstance(value, str | bool):
+        return
+    if isinstance(value, float) and not math.isfinite(value):
+        raise ValueError(f"{path}: non-finite numeric values are not supported")
+    if isinstance(value, float):
+        return
+    if isinstance(value, int):
+        if not -(2**63) <= value < 2**64:
+            raise ValueError(f"{path}: integer exceeds the JSON writer's 64-bit range")
+        return
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if not isinstance(key, str):
+                raise ValueError(f"{path}: JSON object keys must be strings")
+            _check_json_safe(item, f"{path}.{key}")
+        return
+    if isinstance(value, list):
+        for index, item in enumerate(value):
+            _check_json_safe(item, f"{path}[{index}]")
+        return
+    if isinstance(value, BaseModel):
+        _check_json_safe(value.__dict__, path)
+        _check_json_safe(value.__pydantic_extra__ or {}, f"{path}.extras")
+        return
+    raise ValueError(f"{path}: {type(value).__name__} is not JSON serializable")
+
+
+class JsonSafeModel(BaseModel):
+    """Validate nested numerics and arbitrary values against the JSON contract."""
+
+    model_config = ConfigDict(allow_inf_nan=False, validate_default=True)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _raw_json_safe(cls, value: Any) -> Any:
+        _check_json_safe(value)
+        return value
+
+    @model_validator(mode="after")
+    def _json_safe(self) -> JsonSafeModel:
+        _check_json_safe(self.__dict__)
+        _check_json_safe(self.__pydantic_extra__ or {}, "extras")
+        return self
+
+
+class FiniteModel(JsonSafeModel):
+    """Preserve provider fields while rejecting numeric values JSON cannot round-trip."""
+
+    model_config = ConfigDict(extra="allow", allow_inf_nan=False)
+
+
+class SourceProvenance(FiniteModel):
+    """Original source position, retained across normalized exports and reanalysis."""
+
+    source_path: str
+    line: int = Field(ge=1)
+    adapter: str
+    adapter_version: str = "1"
+    namespace: str | None = None
+    legacy_ids: dict[str, str] = Field(default_factory=dict)
+
+
+class Message(FiniteModel):
     """One chat message. ``role`` is a free string (providers add roles beyond the
     classic system/user/assistant/tool set); provider-specific keys survive via
     ``extra="allow"``."""
@@ -36,7 +111,7 @@ class Message(BaseModel):
     tool_calls: list[dict[str, Any]] | None = None
 
 
-class StepTokens(BaseModel):
+class StepTokens(FiniteModel):
     """Training-time token stream for one trajectory step.
 
     Field names match verifiers TrajectoryStepTokens exactly. Extra upstream keys
@@ -54,7 +129,7 @@ class StepTokens(BaseModel):
     is_truncated: bool = False
 
 
-class TimeSpan(BaseModel):
+class TimeSpan(FiniteModel):
     """A timed span in seconds (Unix timestamps), mirroring verifiers TimeSpan.
     ``duration`` is a computed field upstream and arrives already materialized in
     dumps, so it is stored as plain data here."""
@@ -66,7 +141,7 @@ class TimeSpan(BaseModel):
     duration: float | None = None
 
 
-class Timing(BaseModel):
+class Timing(FiniteModel):
     """Rollout-level timing, a permissive mirror of verifiers RolloutTiming (D-004).
 
     Every field is optional so partial or evolved upstream timing dicts round-trip
@@ -86,7 +161,7 @@ class Timing(BaseModel):
     overhead: float | None = None
 
 
-class TokenUsage(BaseModel):
+class TokenUsage(FiniteModel):
     """Token usage counters; ``final_input_tokens`` / ``final_output_tokens`` and any
     future upstream keys survive via ``extra="allow"``."""
 
@@ -96,7 +171,7 @@ class TokenUsage(BaseModel):
     output_tokens: float = 0.0
 
 
-class TrajectoryStep(BaseModel):
+class TrajectoryStep(FiniteModel):
     """One environment turn, field-compatible with verifiers TrajectoryStep.
 
     ``response`` is the raw provider response object, kept as passthrough (D-009).
@@ -115,7 +190,7 @@ class TrajectoryStep(BaseModel):
     extras: dict[str, Any] = Field(default_factory=dict)
 
 
-class RolloutBase(BaseModel):
+class RolloutBase(FiniteModel):
     """Fields shared by both rollout variants.
 
     Required fields mirror the verifiers RolloutOutput required set; everything
@@ -144,7 +219,25 @@ class RolloutBase(BaseModel):
     rollout_id: str | None = None
     group_id: str | None = None
     run_id: str | None = None
+    environment_namespace: str | None = None
+    task_namespace: str | None = None
     step_index: int | None = None
+    occurrence_id: str | None = None
+    content_fingerprint: str | None = None
+    scoring_revision: str | None = None
+    provenance: SourceProvenance | None = None
+    identity_aliases: dict[str, str] = Field(default_factory=dict)
+
+    @field_validator("schema_version")
+    @classmethod
+    def _version_supported(cls, version: str) -> str:
+        if not re.fullmatch(r"\d+\.\d+(?:\.\d+)?", version):
+            raise ValueError(f"unparseable schema_version {version!r}")
+        if int(version.split(".")[0]) != int(SCHEMA_VERSION.split(".")[0]):
+            raise ValueError(
+                "schema version requires migration; use validate_rollout or read_rollouts"
+            )
+        return version
 
 
 class SingleTurnRollout(RolloutBase):
@@ -172,7 +265,7 @@ Rollout: TypeAlias = Annotated[
 ROLLOUT_ADAPTER: TypeAdapter[SingleTurnRollout | MultiTurnRollout] = TypeAdapter(Rollout)
 
 
-class TrainingSignals(BaseModel):
+class TrainingSignals(FiniteModel):
     """Optional sidecar for RL training signals (never on the base row).
 
     ``advantages`` and ``is_trainable`` exist only in memory during prime-rl
@@ -188,6 +281,7 @@ class TrainingSignals(BaseModel):
     step_index: int | None = None
     advantages: list[float] | None = None
     is_trainable: bool | None = None
+    occurrence_id: str | None = None
 
 
 def infer_kind(row: dict[str, Any]) -> dict[str, Any]:
@@ -210,7 +304,9 @@ def validate_rollout(row: dict[str, Any]) -> SingleTurnRollout | MultiTurnRollou
     Output: a validated SingleTurnRollout or MultiTurnRollout. Raises
     pydantic.ValidationError on rows that do not fit the contract.
     """
-    return ROLLOUT_ADAPTER.validate_python(infer_kind(row))
+    from rolloutscope.schema.migrate import migrate_row
+
+    return ROLLOUT_ADAPTER.validate_python(infer_kind(migrate_row(row)))
 
 
 def rollout_json_schema() -> dict[str, Any]:

@@ -22,6 +22,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Sequence
+from dataclasses import dataclass, field
 from statistics import fmean, pvariance
 from typing import ClassVar
 
@@ -70,10 +71,52 @@ def _correctness_mean(rollouts: Sequence[Rollout], patterns: Sequence[str]) -> f
     return fmean(values) if values else None
 
 
+@dataclass
+class _TrendInputs:
+    """Shared step prerequisites and exact values consumed by the trend detector."""
+
+    steps: list[int]
+    reason: str | None = None
+    fractions: list[float] = field(default_factory=list)
+    reward_means: list[float] = field(default_factory=list)
+    correctness_means: list[float | None] = field(default_factory=list)
+    per_step_dead: dict[int, list[_GroupKey]] = field(default_factory=dict)
+    per_step_groups: dict[int, dict[_GroupKey, list[Rollout]]] = field(default_factory=dict)
+
+
+def _trend_inputs(
+    rollouts: Sequence[Rollout], cfg: RewardSaturationGroupCollapseConfig
+) -> _TrendInputs:
+    """Compute trend inputs once per caller, preserving actual step eligibility guards."""
+    inputs = _TrendInputs(steps=distinct_steps(rollouts))
+    if not inputs.steps:
+        inputs.reason = "missing_step_index"
+        return inputs
+    if len(inputs.steps) < cfg.min_steps:
+        inputs.reason = "too_few_steps"
+        return inputs
+    for step in inputs.steps:
+        step_rollouts = [r for r in rollouts if r.step_index == step]
+        groups = _group(step_rollouts)
+        eligible, dead = _dead_stats(groups, cfg)
+        if not eligible:
+            inputs.reason = "step_without_eligible_groups"
+            return inputs
+        inputs.fractions.append(len(dead) / len(eligible))
+        inputs.per_step_dead[step] = dead
+        inputs.per_step_groups[step] = groups
+        inputs.reward_means.append(fmean(r.reward for r in step_rollouts))
+        inputs.correctness_means.append(
+            _correctness_mean(step_rollouts, cfg.correctness_metric_patterns)
+        )
+    return inputs
+
+
 class RewardSaturationGroupCollapseDetector:
     """Group-level detector for reward variance collapse and its trend over steps."""
 
     name: ClassVar[str] = "reward_saturation_group_collapse"
+    version: ClassVar[str] = "1"
     category: ClassVar[str] = "reward_saturation"
 
     def detect(self, rollouts: Sequence[Rollout], config: DetectorConfig) -> list[Verdict]:
@@ -85,7 +128,7 @@ class RewardSaturationGroupCollapseDetector:
         reaches ``dead_fraction_threshold``; when step_index is present on at
         least ``min_steps`` distinct steps, a trend verdict fires on a rising
         dead-group fraction with flat-or-falling correctness metrics. Verdicts
-        carry ``mode`` ("group" or "trend") as an extra field.
+        carry typed group/trend modes and group/run analysis units.
         """
         cfg = config.reward_saturation_group_collapse
         verdicts: list[Verdict] = []
@@ -125,8 +168,6 @@ class RewardSaturationGroupCollapseDetector:
                 ),
             )
             verdicts.append(
-                # model_validate keeps the extra "mode" marker (Verdict is
-                # extra="allow") without passing unknown kwargs to __init__.
                 Verdict.model_validate(
                     {
                         "detector": self.name,
@@ -136,6 +177,16 @@ class RewardSaturationGroupCollapseDetector:
                         "evidence": [span],
                         "rollout_ids": [stable_rollout_id(r) for r in members],
                         "mode": "group",
+                        "unit": "group",
+                        "run_id": members[0].run_id,
+                        "measurements": {
+                            "group_id": gid,
+                            "step_index": step,
+                            "group_size": len(members),
+                            "reward_mean": fmean(rewards),
+                            "reward_variance": pvariance(rewards),
+                            "dead_group_fraction": dead_fraction,
+                        },
                     }
                 )
             )
@@ -147,27 +198,13 @@ class RewardSaturationGroupCollapseDetector:
         cfg: RewardSaturationGroupCollapseConfig,
     ) -> list[Verdict]:
         """Step-mode trend verdict: rising dead fraction plus reward saturation."""
-        steps = distinct_steps(rollouts)
-        if len(steps) < cfg.min_steps:
+        inputs = _trend_inputs(rollouts, cfg)
+        if inputs.reason is not None:
             return []
-        fractions: list[float] = []
-        per_step_dead: dict[int, list[_GroupKey]] = {}
-        per_step_groups: dict[int, dict[_GroupKey, list[Rollout]]] = {}
-        correctness_means: list[float | None] = []
-        reward_means: list[float] = []
-        for step in steps:
-            step_rollouts = [r for r in rollouts if r.step_index == step]
-            groups = _group(step_rollouts)
-            eligible, dead = _dead_stats(groups, cfg)
-            if not eligible:
-                return []
-            fractions.append(len(dead) / len(eligible))
-            per_step_dead[step] = dead
-            per_step_groups[step] = groups
-            reward_means.append(fmean([r.reward for r in step_rollouts]))
-            correctness_means.append(
-                _correctness_mean(step_rollouts, cfg.correctness_metric_patterns)
-            )
+        steps = inputs.steps
+        fractions = inputs.fractions
+        reward_means = inputs.reward_means
+        correctness_means = inputs.correctness_means
         rise = fractions[-1] - fractions[0]
         if rise < cfg.min_dead_fraction_rise:
             return []
@@ -183,11 +220,12 @@ class RewardSaturationGroupCollapseDetector:
         ):
             return []
         final_step = steps[-1]
-        final_dead = per_step_dead[final_step]
+        final_dead = inputs.per_step_dead[final_step]
         if not final_dead:
             return []
-        dead_members = [r for key in final_dead for r in per_step_groups[final_step][key]]
+        dead_members = [r for key in final_dead for r in inputs.per_step_groups[final_step][key]]
         rendering = " -> ".join(f"{fraction:.2f}" for fraction in fractions)
+        run_ids = {rollout.run_id for rollout in rollouts}
         span = EvidenceSpan(
             rollout_id=stable_rollout_id(dead_members[0]),
             field="reward",
@@ -207,6 +245,17 @@ class RewardSaturationGroupCollapseDetector:
                     "evidence": [span],
                     "rollout_ids": [stable_rollout_id(r) for r in dead_members],
                     "mode": "trend",
+                    "unit": "run",
+                    "run_id": next(iter(run_ids)) if len(run_ids) == 1 else None,
+                    "measurements": {
+                        "steps": steps,
+                        "dead_group_fractions": fractions,
+                        "dead_fraction_rise": rise,
+                        "reward_means": reward_means,
+                        "correctness_means": correctness_means,
+                        "correctness_corroborated": first_correct is not None
+                        and last_correct is not None,
+                    },
                 }
             )
         ]

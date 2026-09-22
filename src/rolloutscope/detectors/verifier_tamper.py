@@ -16,19 +16,28 @@ Known false-positive modes:
 
 from __future__ import annotations
 
-import re
 from collections.abc import Sequence
-from typing import ClassVar
+from typing import ClassVar, cast
+
+from pydantic import JsonValue
 
 from rolloutscope.detectors._text import completion_sources, iter_tool_calls, stable_rollout_id
 from rolloutscope.detectors.base import DetectorConfig
 from rolloutscope.schema import EvidenceSpan, Rollout, Verdict
 
 
+def _has_inspectable_output(rollout: Rollout) -> bool:
+    """Whether text or a tool invocation is available to the scanner."""
+    return any(text for _, text in completion_sources(rollout, include_tool_calls=True)) or any(
+        True for _ in iter_tool_calls(rollout)
+    )
+
+
 class VerifierTamperDetector:
     """Per-rollout scanner for test-edit and verifier short-circuit patterns."""
 
     name: ClassVar[str] = "verifier_tamper"
+    version: ClassVar[str] = "1"
     category: ClassVar[str] = "verifier_tampering"
 
     def detect(self, rollouts: Sequence[Rollout], config: DetectorConfig) -> list[Verdict]:
@@ -40,12 +49,14 @@ class VerifierTamperDetector:
         evidence span with offsets into the extracted text form of the field.
         """
         cfg = config.verifier_tamper
-        compiled = {label: re.compile(pattern) for label, pattern in cfg.patterns.items()}
-        edit_tool = re.compile(cfg.edit_tool_name_regex, re.IGNORECASE)
-        test_path = re.compile(cfg.test_path_regex)
+        compiled = cfg.compiled_patterns
+        edit_tool = cfg.compiled_edit_tool_name
+        test_path = cfg.compiled_test_path
 
         verdicts: list[Verdict] = []
         for rollout in rollouts:
+            if not _has_inspectable_output(rollout):
+                continue
             rid = stable_rollout_id(rollout)
             spans: list[EvidenceSpan] = []
             labels: set[str] = set()
@@ -90,6 +101,12 @@ class VerifierTamperDetector:
                         category=self.category,
                         evidence=spans,
                         rollout_ids=[rid],
+                        run_id=rollout.run_id,
+                        measurements={
+                            "reward": rollout.reward,
+                            "distinct_pattern_count": len(labels),
+                            "pattern_labels": cast(list[JsonValue], sorted(labels)),
+                        },
                     )
                 )
         return verdicts

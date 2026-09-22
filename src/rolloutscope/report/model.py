@@ -15,7 +15,8 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 
 from rolloutscope.analysis.aggregates import Aggregates
-from rolloutscope.schema import Finding
+from rolloutscope.schema import Finding, Verdict
+from rolloutscope.schema.execution import DetectorExecution, ExecutionManifest
 
 _SEVERITY_RANKS: dict[str, int] = {"critical": 0, "warning": 1, "info": 2}
 
@@ -27,6 +28,11 @@ class InputFile(BaseModel):
     name: str
     sha256: str
     size_bytes: int | None = None
+    relative_path: str | None = None
+    format: str | None = None
+    adapter_version: str | None = None
+    role: str = "rollout input"
+    metadata: dict[str, str] = Field(default_factory=dict)
 
 
 class ReportData(BaseModel):
@@ -43,6 +49,9 @@ class ReportData(BaseModel):
     input_files: list[InputFile] = Field(default_factory=list)
     aggregates: Aggregates
     findings: list[Finding] = Field(default_factory=list)
+    execution: ExecutionManifest | None = None
+    detector_results: list[DetectorExecution] = Field(default_factory=list)
+    verdicts: list[Verdict] = Field(default_factory=list)
 
 
 def severity_rank(severity: str) -> int:
@@ -76,13 +85,36 @@ def hash_file(path: Path, chunk_size: int = 1 << 20) -> str:
     return digest.hexdigest()
 
 
-def describe_input(path: Path) -> InputFile:
+def describe_input(
+    path: Path,
+    *,
+    relative_to: Path | None = None,
+    format: str | None = None,
+    adapter_version: str | None = None,
+    role: str = "rollout input",
+    metadata: dict[str, str] | None = None,
+) -> InputFile:
     """Build the reproducibility record for one input file.
 
-    Input: the file path. Returns an InputFile with the file's base name,
-    streaming sha256 hash, and size in bytes.
+    Input: the file path plus optional source metadata. Returns an InputFile
+    with a stable display name, streaming sha256 hash, and size in bytes.
     """
-    return InputFile(name=path.name, sha256=hash_file(path), size_bytes=path.stat().st_size)
+    relative_path: str | None = None
+    if relative_to is not None:
+        try:
+            relative_path = str(path.resolve().relative_to(relative_to.resolve()))
+        except ValueError:
+            relative_path = str(path)
+    return InputFile(
+        name=relative_path or path.name,
+        sha256=hash_file(path),
+        size_bytes=path.stat().st_size,
+        relative_path=relative_path,
+        format=format,
+        adapter_version=adapter_version,
+        role=role,
+        metadata=metadata or {},
+    )
 
 
 __all__ = [

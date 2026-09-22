@@ -18,9 +18,10 @@ from rolloutscope.adapters.base import (
     BaseAdapter,
     RunManifest,
     SourceFile,
+    metadata_namespaces,
     read_run_metadata,
 )
-from rolloutscope.schema import run_id_from_manifest, run_id_from_name
+from rolloutscope.schema.ids import run_id_from_path
 
 
 class VerifiersEvalAdapter(BaseAdapter):
@@ -46,10 +47,9 @@ class VerifiersEvalAdapter(BaseAdapter):
         """Discover the eval run at path.
 
         Input: a run directory containing results.jsonl, or a direct path to a
-        .jsonl file. run_id comes from run_id_from_manifest(metadata.json) when
-        the manifest sits next to results.jsonl; otherwise it falls back to
-        run_id_from_name of the run directory (for results.jsonl) or of the
-        file name (for any other jsonl, which has no paired manifest). Raises
+        .jsonl file. Run identity derives from the resolved run directory for
+        results.jsonl, and from the resolved file path for standalone files.
+        Mutable metadata never affects identity. Raises
         FileNotFoundError when path holds nothing loadable.
         """
         path = path.resolve()
@@ -57,28 +57,33 @@ class VerifiersEvalAdapter(BaseAdapter):
             results = path / RESULTS_FILENAME
             if not results.is_file():
                 raise FileNotFoundError(f"no {RESULTS_FILENAME} in {path}")
-            return self._manifest(results, metadata_dir=path, run_name=path.name)
+            return self._manifest(results, metadata_dir=path)
         if not path.is_file():
             raise FileNotFoundError(f"no such file or directory: {path}")
         if path.name == RESULTS_FILENAME:
-            return self._manifest(path, metadata_dir=path.parent, run_name=path.parent.name)
-        return self._manifest(path, metadata_dir=None, run_name=path.name)
+            return self._manifest(path, metadata_dir=path.parent)
+        return self._manifest(path, metadata_dir=None)
 
-    def _manifest(self, results: Path, *, metadata_dir: Path | None, run_name: str) -> RunManifest:
+    def _manifest(self, results: Path, *, metadata_dir: Path | None) -> RunManifest:
         """Build the manifest for one results file.
 
         Inputs: the results file path, the directory to look for metadata.json
-        in (None to skip the lookup), and the fallback run name. The single
+        in (None to skip the lookup). The single
         source file always has step_index None: eval layout provides no step
         ordering and it is never guessed.
         """
         metadata = read_run_metadata(metadata_dir) if metadata_dir is not None else None
-        if metadata is not None:
-            run_id = run_id_from_manifest(metadata)
-        else:
-            run_id = run_id_from_name(run_name)
+        environment_namespace, task_namespace = metadata_namespaces(metadata)
+        metadata_path = metadata_dir / "metadata.json" if metadata_dir is not None else None
         return RunManifest(
-            run_id=run_id,
-            files=(SourceFile(path=results, step_index=None),),
+            run_id=run_id_from_path(metadata_dir if metadata_dir is not None else results),
+            files=(SourceFile(path=results, step_index=None, format=self.name),),
             metadata=metadata or {},
+            root=results.parent,
+            format=self.name,
+            metadata_sources=(metadata_path,)
+            if metadata_path is not None and metadata_path.is_file()
+            else (),
+            environment_namespace=environment_namespace,
+            task_namespace=task_namespace,
         )

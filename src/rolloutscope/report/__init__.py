@@ -5,7 +5,7 @@ no detector logic lives here and no template logic lives anywhere else.
 """
 
 from rolloutscope.report.html import render_html, write_html
-from rolloutscope.report.json_out import render_json, render_json_bytes, write_json
+from rolloutscope.report.json_out import render_json, render_json_bytes, write_json, write_verdicts
 from rolloutscope.report.model import (
     InputFile,
     ReportData,
@@ -32,4 +32,5 @@ __all__ = [
     "severity_rank",
     "write_html",
     "write_json",
+    "write_verdicts",
 ]

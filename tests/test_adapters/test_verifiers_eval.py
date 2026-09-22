@@ -13,16 +13,25 @@ from rolloutscope.schema import (
     SingleTurnRollout,
     group_id,
     rollout_id,
-    run_id_from_manifest,
-    run_id_from_name,
     validate_rollout,
 )
+from rolloutscope.schema.ids import run_id_from_path
 
 # Literal ids computed once from the frozen Phase 2 fixtures; they must never
 # drift, because rollout_id is content-derived from disk bytes.
-EVAL_RUN_ID = "run-8eb1f2dd23ea"
+EVAL_RUN_ID = run_id_from_path(Path(__file__).parent.parent / "fixtures" / "verifiers_eval_run")
 EVAL_ROW0_ROLLOUT_ID = "r654f1b7843785977"
-MULTI_TURN_RUN_ID = "run-e2887f0d1c8d"
+MULTI_TURN_RUN_ID = run_id_from_path(
+    Path(__file__).parent.parent / "fixtures" / "multi_turn_rollout.jsonl"
+)
+IDENTITY_FIELDS = {
+    "occurrence_id",
+    "content_fingerprint",
+    "scoring_revision",
+    "provenance",
+    "environment_namespace",
+    "task_namespace",
+}
 
 GOOD_ROW = (
     '{"example_id": 0, "prompt": [{"role": "user", "content": "hi"}], '
@@ -58,19 +67,23 @@ def test_satisfies_adapter_protocol() -> None:
 def test_golden_eval_run(eval_run_dir: Path) -> None:
     rollouts = list(VERIFIERS_EVAL.load(eval_run_dir))
     raw_rows = read_raw(eval_run_dir / "results.jsonl")
-    metadata = orjson.loads((eval_run_dir / "metadata.json").read_bytes())
 
     assert len(rollouts) == 5
     assert all(isinstance(r, SingleTurnRollout) for r in rollouts)
 
-    run_id = run_id_from_manifest(metadata)
+    run_id = run_id_from_path(eval_run_dir)
     assert run_id == EVAL_RUN_ID
     for rollout, raw in zip(rollouts, raw_rows, strict=True):
-        assert rollout == expected_rollout(raw, run_id, None)
+        assert rollout.model_dump(exclude=IDENTITY_FIELDS) == expected_rollout(
+            raw, run_id, None
+        ).model_dump(exclude=IDENTITY_FIELDS)
         assert rollout.step_index is None
 
     assert rollouts[0].rollout_id == EVAL_ROW0_ROLLOUT_ID
     assert rollouts[0].run_id == EVAL_RUN_ID
+    assert all(r.environment_namespace == "synthetic-arith" for r in rollouts)
+    assert all(r.task_namespace == "synthetic-arith" for r in rollouts)
+    assert all(r.provenance.namespace == EVAL_RUN_ID for r in rollouts)
     assert [r.group_id for r in rollouts] == ["grp-0", "grp-0", "grp-0", "grp-1", "grp-1"]
     assert [r.reward for r in rollouts] == [1.0, 0.2, 0.8, 0.2, 1.0]
     assert rollouts[0].metrics == {"correct_answer": 1.0, "format_reward": 1.0}
@@ -102,6 +115,8 @@ def test_load_run_manifest_carries_metadata(eval_run_dir: Path) -> None:
     assert [f.step_index for f in manifest.files] == [None]
     assert manifest.metadata["env_id"] == "synthetic-arith"
     assert manifest.metadata["rollouts_per_example"] == 3
+    assert manifest.environment_namespace == "synthetic-arith"
+    assert manifest.task_namespace is None
 
 
 def test_generic_jsonl_multi_turn(multi_turn_path: Path) -> None:
@@ -109,25 +124,82 @@ def test_generic_jsonl_multi_turn(multi_turn_path: Path) -> None:
     assert len(rollouts) == 1
     rollout = rollouts[0]
     assert isinstance(rollout, MultiTurnRollout)
-    assert rollout.run_id == run_id_from_name("multi_turn_rollout.jsonl") == MULTI_TURN_RUN_ID
+    assert rollout.run_id == run_id_from_path(multi_turn_path) == MULTI_TURN_RUN_ID
     assert len(rollout.trajectory) == 2
     assert rollout.trajectory[0].trajectory_id == "traj-0001"
     assert rollout.stop_condition == "no_tools_called"
     assert rollout.tool_defs is not None
     assert rollout.model_dump()["sandbox_id"] == "sbx-42"
     raw = read_raw(multi_turn_path)[0]
-    assert rollout == expected_rollout(raw, rollout.run_id, None)
+    assert rollout.model_dump(exclude=IDENTITY_FIELDS) == expected_rollout(
+        raw, rollout.run_id, None
+    ).model_dump(exclude=IDENTITY_FIELDS)
 
 
-def test_run_id_falls_back_to_directory_name(eval_run_dir: Path, tmp_path: Path) -> None:
+def test_run_id_uses_resolved_path_without_metadata(eval_run_dir: Path, tmp_path: Path) -> None:
     bare_run = tmp_path / "bare_run"
     bare_run.mkdir()
     shutil.copy(eval_run_dir / "results.jsonl", bare_run / "results.jsonl")
     manifest = VERIFIERS_EVAL.load_run(bare_run)
-    assert manifest.run_id == run_id_from_name("bare_run")
+    assert manifest.run_id == run_id_from_path(bare_run)
     assert manifest.metadata == {}
+    assert manifest.environment_namespace is None
+    assert manifest.task_namespace is None
     rollouts = list(VERIFIERS_EVAL.load(bare_run))
-    assert all(r.run_id == run_id_from_name("bare_run") for r in rollouts)
+    assert all(r.run_id == run_id_from_path(bare_run) for r in rollouts)
+    assert all(r.environment_namespace == run_id_from_path(bare_run) for r in rollouts)
+    assert all(r.task_namespace == run_id_from_path(bare_run) for r in rollouts)
+
+
+def test_explicit_namespaces_override_env_id_and_ignore_mutable_summaries(tmp_path: Path) -> None:
+    run = tmp_path / "namespaced"
+    run.mkdir()
+    (run / "results.jsonl").write_text(GOOD_ROW + "\n")
+    (run / "metadata.json").write_text(
+        orjson.dumps(
+            {
+                "environment_namespace": "org/evaluation-env",
+                "env_id": "legacy-env-id",
+                "task_namespace": "dataset/split-v1",
+                "cost": {"total": 12.5},
+                "avg_reward": 0.25,
+            }
+        ).decode()
+    )
+    manifest = VERIFIERS_EVAL.load_run(run)
+    assert manifest.environment_namespace == "org/evaluation-env"
+    assert manifest.task_namespace == "dataset/split-v1"
+    rollout = next(VERIFIERS_EVAL.load_manifest(manifest))
+    assert rollout.environment_namespace == "org/evaluation-env"
+    assert rollout.task_namespace == "dataset/split-v1"
+    assert rollout.provenance.namespace == manifest.run_id
+    assert rollout.run_id != rollout.environment_namespace
+
+    (run / "metadata.json").write_text(
+        orjson.dumps(
+            {
+                "environment_namespace": "org/evaluation-env",
+                "env_id": "legacy-env-id",
+                "task_namespace": "dataset/split-v1",
+                "cost": {"total": 99.0},
+                "avg_reward": 0.9,
+            }
+        ).decode()
+    )
+    assert next(VERIFIERS_EVAL.load(run)) == rollout
+
+
+def test_arbitrary_row_task_metadata_is_preserved_but_not_guessed_as_namespace(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "raw.jsonl"
+    row = orjson.loads(GOOD_ROW)
+    row["task"] = {"key": "task/individual-example", "hash": "mutable-or-per-row"}
+    path.write_bytes(orjson.dumps(row) + b"\n")
+    rollout = next(VERIFIERS_EVAL.load(path))
+    assert rollout.model_dump()["task"] == row["task"]
+    assert rollout.environment_namespace == rollout.run_id
+    assert rollout.task_namespace == rollout.run_id
 
 
 def test_bad_rows_skipped_and_logged(tmp_path: Path, caplog) -> None:

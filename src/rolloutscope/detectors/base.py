@@ -21,11 +21,12 @@ from __future__ import annotations
 
 import importlib
 import logging
+import re
 from collections.abc import Sequence
 from importlib.metadata import entry_points
-from typing import Protocol, cast, runtime_checkable
+from typing import Annotated, Any, Protocol, cast, runtime_checkable
 
-from pydantic import BaseModel, Field
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, PrivateAttr
 
 from rolloutscope.schema import Rollout, Verdict
 
@@ -95,27 +96,45 @@ _DEFAULT_CRITERIA_LINE_REGEX = (
 )
 
 
-class VerifierTamperConfig(BaseModel):
+def _valid_regex(value: str) -> str:
+    """Validate a regex at its config field, including named pattern-map entries."""
+    try:
+        re.compile(value)
+    except re.error as exc:
+        raise ValueError(f"invalid regular expression: {exc}") from exc
+    return value
+
+
+Regex = Annotated[str, AfterValidator(_valid_regex)]
+
+
+class StrictDetectorConfig(BaseModel):
+    """Reject misspelled settings and nonfinite values, including defaults."""
+
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False, validate_default=True)
+
+
+class VerifierTamperConfig(StrictDetectorConfig):
     """Configuration for the verifier_tamper detector.
 
     All defaults are conservative heuristics chosen for this project, not
     values sourced from any paper.
     """
 
-    patterns: dict[str, str] = Field(
+    patterns: dict[str, Regex] = Field(
         default_factory=lambda: dict(_DEFAULT_TAMPER_PATTERNS),
         description=(
             "Label-to-regex map of tampering patterns scanned over completion and "
             "trajectory text, tool-call renderings included (heuristic defaults)."
         ),
     )
-    test_path_regex: str = Field(
+    test_path_regex: Regex = Field(
         default=_DEFAULT_TEST_PATH_REGEX,
         description=(
             "Regex that identifies test-file paths inside tool-call arguments (heuristic default)."
         ),
     )
-    edit_tool_name_regex: str = Field(
+    edit_tool_name_regex: Regex = Field(
         default=_DEFAULT_EDIT_TOOL_REGEX,
         description=(
             "Case-insensitive regex over tool names that counts a tool call as file-editing "
@@ -140,8 +159,35 @@ class VerifierTamperConfig(BaseModel):
         description="Score increment per additional distinct label, capped at 1.0 (heuristic).",
     )
 
+    _compiled_patterns: dict[str, re.Pattern[str]] = PrivateAttr(default_factory=dict)
+    _compiled_test_path: re.Pattern[str] = PrivateAttr()
+    _compiled_edit_tool_name: re.Pattern[str] = PrivateAttr()
 
-class RewardSaturationGroupCollapseConfig(BaseModel):
+    def model_post_init(self, __context: object) -> None:
+        """Compile validated patterns once when the effective config is created."""
+        self._compiled_patterns = {
+            label: re.compile(pattern) for label, pattern in self.patterns.items()
+        }
+        self._compiled_test_path = re.compile(self.test_path_regex)
+        self._compiled_edit_tool_name = re.compile(self.edit_tool_name_regex, re.IGNORECASE)
+
+    @property
+    def compiled_patterns(self) -> dict[str, re.Pattern[str]]:
+        """Return the precompiled tamper-pattern map."""
+        return self._compiled_patterns
+
+    @property
+    def compiled_test_path(self) -> re.Pattern[str]:
+        """Return the precompiled test-path matcher."""
+        return self._compiled_test_path
+
+    @property
+    def compiled_edit_tool_name(self) -> re.Pattern[str]:
+        """Return the precompiled edit-tool matcher."""
+        return self._compiled_edit_tool_name
+
+
+class RewardSaturationGroupCollapseConfig(StrictDetectorConfig):
     """Configuration for the reward_saturation_group_collapse detector.
 
     All defaults are conservative heuristics, assuming rewards roughly in
@@ -170,6 +216,7 @@ class RewardSaturationGroupCollapseConfig(BaseModel):
     dead_fraction_threshold: float = Field(
         default=0.5,
         ge=0.0,
+        le=1.0,
         description="Fraction of dead groups at or above which group verdicts fire (heuristic).",
     )
     saturated_reward_min: float = Field(
@@ -188,6 +235,8 @@ class RewardSaturationGroupCollapseConfig(BaseModel):
     )
     min_dead_fraction_rise: float = Field(
         default=0.25,
+        ge=0.0,
+        le=1.0,
         description=(
             "Minimum rise in dead-group fraction between first and last step for the trend "
             "verdict (heuristic)."
@@ -210,7 +259,7 @@ class RewardSaturationGroupCollapseConfig(BaseModel):
     )
 
 
-class LengthInflationConfig(BaseModel):
+class LengthInflationConfig(StrictDetectorConfig):
     """Configuration for the length_inflation detector.
 
     All defaults are conservative heuristics; none come from a paper.
@@ -223,6 +272,8 @@ class LengthInflationConfig(BaseModel):
     )
     min_correlation: float = Field(
         default=0.8,
+        ge=-1.0,
+        le=1.0,
         description=(
             "Pearson correlation of length vs reward at or above which it fires (heuristic)."
         ),
@@ -264,7 +315,7 @@ class LengthInflationConfig(BaseModel):
     )
 
 
-class FormatOnlyWinsConfig(BaseModel):
+class FormatOnlyWinsConfig(StrictDetectorConfig):
     """Configuration for the format_only_wins detector.
 
     All defaults are conservative heuristics, assuming metrics roughly in
@@ -305,7 +356,7 @@ class FormatOnlyWinsConfig(BaseModel):
     )
 
 
-class DegenerateRepetitionConfig(BaseModel):
+class DegenerateRepetitionConfig(StrictDetectorConfig):
     """Configuration for the degenerate_repetition detector.
 
     All defaults are conservative heuristics; none come from a paper.
@@ -340,7 +391,7 @@ class DegenerateRepetitionConfig(BaseModel):
     )
 
 
-class AnswerLeakageEchoConfig(BaseModel):
+class AnswerLeakageEchoConfig(StrictDetectorConfig):
     """Configuration for the answer_leakage_echo detector.
 
     All defaults are conservative heuristics; none come from a paper.
@@ -369,7 +420,7 @@ class AnswerLeakageEchoConfig(BaseModel):
             "(heuristic defaults)."
         ),
     )
-    criteria_line_regex: str = Field(
+    criteria_line_regex: Regex = Field(
         default=_DEFAULT_CRITERIA_LINE_REGEX,
         description=(
             "Regex marking a prompt line as a reward criterion candidate (heuristic default)."
@@ -390,8 +441,19 @@ class AnswerLeakageEchoConfig(BaseModel):
         default=0.7, ge=0.0, le=1.0, description="Score for a criterion echo verdict (heuristic)."
     )
 
+    _compiled_criteria_line: re.Pattern[str] = PrivateAttr()
 
-class DetectorConfig(BaseModel):
+    def model_post_init(self, __context: object) -> None:
+        """Compile the validated criterion-line pattern once per effective config."""
+        self._compiled_criteria_line = re.compile(self.criteria_line_regex)
+
+    @property
+    def compiled_criteria_line(self) -> re.Pattern[str]:
+        """Return the precompiled criterion-line matcher."""
+        return self._compiled_criteria_line
+
+
+class DetectorConfig(StrictDetectorConfig):
     """Top-level detector configuration: one sub-model per built-in detector.
 
     Every threshold is configurable; the defaults are conservative heuristics
@@ -436,29 +498,73 @@ class Detector(Protocol):
         ...
 
 
-def load_detectors(group: str = DETECTOR_ENTRY_POINT_GROUP) -> dict[str, Detector]:
-    """Discover and instantiate all detectors registered under ``group``.
-
-    Input: the entry-point group name. Output: a dict mapping entry-point name
-    to a detector instance. A broken plugin (import error, instantiation
-    error) is skipped with a logged warning and never crashes discovery.
-    """
+def _load_registered_detectors(
+    registered: Sequence[Any], diagnostics: dict[str, str] | None
+) -> dict[str, Detector]:
+    """Instantiate a fixed snapshot of registered entry points."""
     discovered: dict[str, Detector] = {}
-    for ep in entry_points(group=group):
+    for ep in registered:
+        ep_name = str(getattr(ep, "name", "<unnamed>"))
         try:
             loaded = ep.load()
         except Exception as exc:  # one broken plugin must not crash discovery
-            logger.warning("skipping detector entry point %r: failed to load (%s)", ep.name, exc)
+            logger.warning("skipping detector entry point %r: failed to load (%s)", ep_name, exc)
+            if diagnostics is not None:
+                diagnostics[ep_name] = f"failed to load: {type(exc).__name__}: {exc}"
             continue
         try:
             detector = loaded() if isinstance(loaded, type) else loaded
         except Exception as exc:  # same policy for instantiation
             logger.warning(
-                "skipping detector entry point %r: failed to instantiate (%s)", ep.name, exc
+                "skipping detector entry point %r: failed to instantiate (%s)", ep_name, exc
             )
+            if diagnostics is not None:
+                diagnostics[ep_name] = f"failed to instantiate: {type(exc).__name__}: {exc}"
             continue
-        discovered[ep.name] = cast(Detector, detector)
+        try:
+            detector_name = detector.name
+            category = detector.category
+            detect = detector.detect
+            declared_version = getattr(detector, "version", "unknown")
+        except Exception as exc:
+            message = f"failed to inspect detector metadata: {type(exc).__name__}: {exc}"
+            logger.warning("skipping detector entry point %r: %s", ep_name, message)
+            if diagnostics is not None:
+                diagnostics[ep_name] = message
+            continue
+        if (
+            detector_name != ep_name
+            or not isinstance(detector_name, str)
+            or not isinstance(category, str)
+            or not callable(detect)
+            or not isinstance(declared_version, str)
+        ):
+            message = "invalid detector protocol or entry-point name mismatch"
+            logger.warning("skipping detector entry point %r: %s", ep_name, message)
+            if diagnostics is not None:
+                diagnostics[ep_name] = message
+            continue
+        if ep_name in discovered:
+            message = "duplicate detector entry-point name"
+            logger.warning("skipping detector entry point %r: %s", ep_name, message)
+            if diagnostics is not None:
+                diagnostics[ep_name] = message
+            continue
+        discovered[ep_name] = cast(Detector, detector)
     return discovered
+
+
+def load_detectors(
+    group: str = DETECTOR_ENTRY_POINT_GROUP, *, diagnostics: dict[str, str] | None = None
+) -> dict[str, Detector]:
+    """Discover and instantiate all detectors registered under ``group``.
+
+    Input: the entry-point group name. Output: a dict mapping entry-point name
+    to a detector instance. A broken plugin (import error, instantiation, or
+    metadata-access error) is skipped with a logged warning and recorded in
+    ``diagnostics``.
+    """
+    return _load_registered_detectors(list(entry_points(group=group)), diagnostics)
 
 
 def builtin_detectors() -> dict[str, Detector]:
@@ -476,17 +582,18 @@ def builtin_detectors() -> dict[str, Detector]:
     return detectors
 
 
-def discover_detectors(group: str = DETECTOR_ENTRY_POINT_GROUP) -> dict[str, Detector]:
+def discover_detectors(
+    group: str = DETECTOR_ENTRY_POINT_GROUP, *, diagnostics: dict[str, str] | None = None
+) -> dict[str, Detector]:
     """Return all discoverable detectors, preferring entry points.
 
-    Falls back to :func:`builtin_detectors` (with a logged warning) only when
-    entry-point discovery yields nothing, which indicates missing install
-    metadata rather than an intentionally empty registry.
+    Falls back only when registration metadata is absent. A registered plugin
+    that fails to load is recorded in ``diagnostics`` and never hidden by fallback.
     """
-    detectors = load_detectors(group)
-    if not detectors:
+    registered = list(entry_points(group=group))
+    if not registered:
         logger.warning(
             "no detector entry points found for group %r; falling back to built-ins", group
         )
         return builtin_detectors()
-    return detectors
+    return _load_registered_detectors(registered, diagnostics)

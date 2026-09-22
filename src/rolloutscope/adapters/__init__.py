@@ -19,25 +19,30 @@ from rolloutscope.adapters.base import (
     RunManifest,
     SourceFile,
     iter_normalized_rows,
+    metadata_namespaces,
     normalize_row,
     read_run_metadata,
     step_index_from_name,
 )
+from rolloutscope.adapters.normalized import NormalizedAdapter
 from rolloutscope.adapters.prime_rl_train import PrimeRlTrainAdapter
 from rolloutscope.adapters.verifiers_eval import VerifiersEvalAdapter
 
 VERIFIERS_EVAL = VerifiersEvalAdapter()
 PRIME_RL_TRAIN = PrimeRlTrainAdapter()
+NORMALIZED = NormalizedAdapter()
 
 # Tie-break order for resolve_adapter, first match wins.
-ADAPTERS: tuple[Adapter, ...] = (VERIFIERS_EVAL, PRIME_RL_TRAIN)
+ADAPTERS: tuple[Adapter, ...] = (NORMALIZED, VERIFIERS_EVAL, PRIME_RL_TRAIN)
 
 
 def resolve_adapter(path: Path) -> Adapter:
     """Pick the adapter whose detect() accepts path (used by the CLI later).
 
     Input: any filesystem path. Tie-break order, first match wins:
-    verifiers_eval, then prime_rl_train. The two are mutually exclusive on real
+    normalized (schema marker), verifiers_eval, then prime_rl_train.
+    Mixed files dispatch each row by schema marker and preserve normalized IDs.
+    The two upstream adapters are mutually exclusive on real
     pinned layouts: a genuine prime-rl step directory never contains
     results.jsonl (the orchestrator names its eval output
     eval_rollouts_{env_name}.jsonl), and the verifiers adapter refuses files
@@ -54,17 +59,20 @@ def resolve_adapter(path: Path) -> Adapter:
 __all__ = [
     "ADAPTERS",
     "METADATA_FILENAME",
+    "NORMALIZED",
     "PRIME_RL_TRAIN",
     "RESULTS_FILENAME",
     "TRAIN_ROLLOUTS_FILENAME",
     "VERIFIERS_EVAL",
     "Adapter",
     "BaseAdapter",
+    "NormalizedAdapter",
     "PrimeRlTrainAdapter",
     "RunManifest",
     "SourceFile",
     "VerifiersEvalAdapter",
     "iter_normalized_rows",
+    "metadata_namespaces",
     "normalize_row",
     "read_run_metadata",
     "resolve_adapter",

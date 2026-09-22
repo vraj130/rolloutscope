@@ -22,6 +22,7 @@ from rolloutscope.detectors.base import (
     load_detectors,
 )
 from rolloutscope.detectors.degenerate_repetition import DegenerateRepetitionDetector
+from rolloutscope.detectors.execution import execute_detector
 from rolloutscope.detectors.format_only_wins import FormatOnlyWinsDetector
 from rolloutscope.detectors.length_inflation import LengthInflationDetector
 from rolloutscope.detectors.reward_saturation_group_collapse import (
@@ -47,5 +48,6 @@ __all__ = [
     "VerifierTamperDetector",
     "builtin_detectors",
     "discover_detectors",
+    "execute_detector",
     "load_detectors",
 ]

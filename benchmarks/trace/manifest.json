@@ -1,0 +1,5339 @@
+{
+  "counts": {
+    "by_code": {
+      "1.1.1": 56,
+      "1.1.2": 69,
+      "1.1.3": 51,
+      "1.2.1": 36,
+      "1.2.2": 21,
+      "1.2.3": 34,
+      "1.3.1": 25,
+      "1.3.2": 21,
+      "1.4.1": 21,
+      "1.4.2": 24
+    },
+    "by_split": {
+      "holdout": 210,
+      "train": 202,
+      "tuning": 105
+    },
+    "negatives_by_split": {
+      "holdout": 99,
+      "train": 95,
+      "tuning": 55
+    },
+    "positives_by_split": {
+      "holdout": 111,
+      "train": 107,
+      "tuning": 50
+    },
+    "rows": 517,
+    "scenarios": 516
+  },
+  "dataset": {
+    "config": "default",
+    "files": {
+      "data/train-00000-of-00001.parquet": "6cb9959fc74c6a9d51fcb6f9cec0581dbf782401cf0cb8cae24092f140d056b8"
+    },
+    "gated": true,
+    "license": "cc-by-sa-4.0",
+    "name": "PatronusAI/trace-dataset",
+    "redistribution": "restricted: gated dataset under CC-BY-SA-4.0; identity and hashes only",
+    "revision": "31d87f06078eca3ab6eaf1e06e5ea6fe9f2b7a6d",
+    "split": "train"
+  },
+  "manifest_version": "1",
+  "mapping_version": "1",
+  "notes": [
+    "Row content is not committed: TRACE is gated and CC-BY-SA-4.0. This manifest carries row identity, labels, and per-row content hashes so a fetch at the pinned revision can be verified byte for byte.",
+    "Splits are assigned per scenario, never per row, so sibling trajectories of one task cannot straddle a split boundary. At this revision the 517 rows yield 516 distinct scenario keys, so the grouping is close to a no-op here; it is kept as the correct guard and it does catch the one duplicate pair.",
+    "The holdout partition is sealed. It exists so an accuracy claim can be made once the Phase 2 detector repairs land. Thresholds are set on tuning only."
+  ],
+  "rows": [
+    {
+      "codes": [],
+      "content_sha256": "8086456263033b57313241d01d52fb82b70456dbf449f6b091576748756550c8",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "f496deb0f0db4ad8",
+      "split": "train",
+      "trajectory_id": "trajectory_0001"
+    },
+    {
+      "codes": [
+        "1.2.2"
+      ],
+      "content_sha256": "3f796b046af3640a3d23115f20690268421d044a9c3df5177524296bcd5428c4",
+      "label": "1.2.2",
+      "positive": true,
+      "scenario_key": "b1189382534aa1f2",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0002"
+    },
+    {
+      "codes": [],
+      "content_sha256": "1b6e820cb61d161b06056f524bda47e5d6e5b65733acb0dd6304761390742593",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "1acfeabd8c4e8f2c",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0003"
+    },
+    {
+      "codes": [],
+      "content_sha256": "8c9089cb766c0ce317ae9d02e16f589805f07aa618bd4824e81fa0ad0be1117b",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "bad3cba8b99c81b5",
+      "split": "train",
+      "trajectory_id": "trajectory_0004"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "9896a969b99913df36ed9e3e83e7cc37ccdd74bd51c0db7482e03d3eb5714245",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "a4b5a158ec0f6710",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0005"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "df4d8757dd27e40ffa595bd10b5f2ef9a926e19365093431722e1d02c0d5b10e",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "46728482aa94bd88",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0006"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "4460d7cd3b090543928a4eba2192788b3dc440dcca993a03ebf9b55470a7fea2",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "8b6f9f69f2d856ef",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0007"
+    },
+    {
+      "codes": [],
+      "content_sha256": "1c264ed2c179c031af84e8f28df9b217e0b88376ae50dc1b7bf1caf310f3b3ca",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "eb2f2634454d5af2",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0008"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "7aa254360b4f732b9f3a59343b0a90215e72957c4c6d648545111cd10d0aa939",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "9ccd02b857e76285",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0009"
+    },
+    {
+      "codes": [],
+      "content_sha256": "565371bd041f6ef89ee12305bdbcb12a11647e43a31695a08000f80b646dcc82",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "ebaa29f0055cd8f9",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0010"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "b60feb8a88f5bdbf573ffa3163eb33ca902acc17716b684505565ee2ab808039",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "cbae3251d8841b0d",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0011"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "a37b821b4e5400c5cff80344410c795fae540572e720aeb2872e6d244a7971f5",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "87d29cf130892771",
+      "split": "train",
+      "trajectory_id": "trajectory_0012"
+    },
+    {
+      "codes": [],
+      "content_sha256": "c1f92e933cf3b76a1c82dc6b19dff93791a18b49282547572888aa6889d0fc75",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "34257e7ca6bf2976",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0013"
+    },
+    {
+      "codes": [],
+      "content_sha256": "9cd263f2927a3aaf447a834818c98397d74beeebd60c60b4b4dd37ef188ce426",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "289d2ac91cf925ba",
+      "split": "train",
+      "trajectory_id": "trajectory_0014"
+    },
+    {
+      "codes": [],
+      "content_sha256": "66af98d9159b11f8e3b47eb54dc8ebff92692c0abbcabd6363653bb45478d209",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "7b77a70d54dd0e81",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0015"
+    },
+    {
+      "codes": [
+        "1.3.2"
+      ],
+      "content_sha256": "359566ad80e2b41a8658d12bbc013bd50bbb54de20baadfe5900c179c67606fe",
+      "label": "1.3.2",
+      "positive": true,
+      "scenario_key": "c8fa225372a0aab4",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0016"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "10c7c54c9c775f0e510c3aa0c6209637e66dada7ee126f56748291f9670a3d6e",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "f1aff65b4cc1722b",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0017"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "a186eb8f3300bbaf2eacfa1221ddc76005d062dbfb423ede82bf665d2d3d5724",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "ce0d734aabd9f1fe",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0018"
+    },
+    {
+      "codes": [
+        "1.4.1"
+      ],
+      "content_sha256": "5f0349d1695fdb3f1c133d584af8ea49a492bac12a903a1d8a999955f27b81d8",
+      "label": "1.4.1",
+      "positive": true,
+      "scenario_key": "b970dde6215868d0",
+      "split": "train",
+      "trajectory_id": "trajectory_0019"
+    },
+    {
+      "codes": [],
+      "content_sha256": "c9f4d053880a3ec39e87f389153791515189eb40424574098df21f29a22c1a35",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "e903094c54be09d4",
+      "split": "train",
+      "trajectory_id": "trajectory_0020"
+    },
+    {
+      "codes": [
+        "1.3.1"
+      ],
+      "content_sha256": "9e53479faf8b180a9b603fa75b1dc9609ae44554fb30b4a6c975777ada95c6c4",
+      "label": "1.3.1",
+      "positive": true,
+      "scenario_key": "26182538bb3e545e",
+      "split": "train",
+      "trajectory_id": "trajectory_0021"
+    },
+    {
+      "codes": [
+        "1.3.2"
+      ],
+      "content_sha256": "bd7793c608660ab7d0b8c774c6ff750e23b724a7fcd44aaa7e681196781f088a",
+      "label": "1.3.2",
+      "positive": true,
+      "scenario_key": "c3bbd47dcdd556cb",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0022"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "6e95b18375a9479569d18942d1be2b1ab8bc8a24d5e73c741b987df769a5d2f6",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "2cb606543cd8a7d7",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0023"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "0c0cd02bee32f22f6eaa2e75f69223058cf312bad32d35c593fc5f832bbaafd5",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "f88848ba2ac31012",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0024"
+    },
+    {
+      "codes": [],
+      "content_sha256": "478fa6a889abbb5e460cd923cd856cb1bbd7d3fda8d7e4715724882474548324",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "1a1b31083fba896c",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0025"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "2e7ca62439419a84b8e20ccf57e609c49145b2fe8262d5278e34a079844b1ae1",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "d3e094f5b58f3912",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0026"
+    },
+    {
+      "codes": [],
+      "content_sha256": "b44777a2d82beb0d3946127810b08affe2ff0db792baed1dc3cf0262c574bce3",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "2290eabd01564c65",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0027"
+    },
+    {
+      "codes": [],
+      "content_sha256": "ee0a815b7c4f56147636fb94b795bb5b19061d0a33894f04be52137c956b5fca",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "bd287036a973b2c1",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0028"
+    },
+    {
+      "codes": [],
+      "content_sha256": "5448b7658ce818a6e53d1ae9ee42e72d15214bf0ca07850ac4edd92d4511f695",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "3c681c45fa19d057",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0029"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "f4a8ef6b986c8087420463c03a834dc6115110bbf6f4908b8bf38dcc429b094a",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "384bcb766a7271a9",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0030"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "9c3017c994a23d55bf439df19726035828d2905f282361fd3fb2a0bda6f62475",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "e459f65aaf676710",
+      "split": "train",
+      "trajectory_id": "trajectory_0031"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "3fd81cce1660d6e82aa78b5ef8227b96e911845df5b92ca811b15fb7923d18ac",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "32c980150fa1301a",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0032"
+    },
+    {
+      "codes": [
+        "1.4.1"
+      ],
+      "content_sha256": "e4bc54c7ee32f583f27fe172b90e57f76212966302d5a0f0b5c4833ac0ff26c5",
+      "label": "1.4.1",
+      "positive": true,
+      "scenario_key": "ff302c5fc3698836",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0033"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "97cefd011fac3cb6bab49f9af03de30fb0d3a5c7fbe4eca5fa8f7564b878c03a",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "882e144a2c97e04f",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0034"
+    },
+    {
+      "codes": [],
+      "content_sha256": "bbfe4d219aeec77e8c99d81baf2111fbdb6eb588f27fda51ce74db72cbac3f1a",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "541db4bb02a69f99",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0035"
+    },
+    {
+      "codes": [
+        "1.4.2"
+      ],
+      "content_sha256": "fda57722a59b472836f2d5707e6e5f7a46c5a5fbcbb253a86a0e55dff9485414",
+      "label": "1.4.2",
+      "positive": true,
+      "scenario_key": "ee0d9c024e04ef93",
+      "split": "train",
+      "trajectory_id": "trajectory_0036"
+    },
+    {
+      "codes": [],
+      "content_sha256": "90c08721442745050325eae62472faf1c92c73fd166ee0c8a0f451abe45fcafa",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "374ae45d8e0f4ccc",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0037"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "a850054f104aed853585e4ee7b6f6a71294341dc60dcb9485882d296f84fa340",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "1df1d9b2d586d165",
+      "split": "train",
+      "trajectory_id": "trajectory_0038"
+    },
+    {
+      "codes": [],
+      "content_sha256": "372dae8f4a4937c84803f5ea3621001f96c4bc4b9464c139294056e8522a8906",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "25f288097838d92a",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0039"
+    },
+    {
+      "codes": [],
+      "content_sha256": "02f7f55ea0747f5cab681b7e145822d33450b5c9386f597d0b1618267bd91ef1",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "c62b8f2195f43353",
+      "split": "train",
+      "trajectory_id": "trajectory_0040"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "5d228e1207a9043e97d83009419be72c8b60f498808afabe93268eb444e4e31b",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "2f631f15297027a1",
+      "split": "train",
+      "trajectory_id": "trajectory_0041"
+    },
+    {
+      "codes": [],
+      "content_sha256": "2f8d264a4153463690004903940f5a3f3da2e3d31ba7196f0bf4492c378f713d",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "732b524ebb3d4770",
+      "split": "train",
+      "trajectory_id": "trajectory_0042"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "87757e634a74c02bbff83442ff3a68a2228ecdf9e04b6f0e434cfeadbea86d4d",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "b8b8343a05ccd77f",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0043"
+    },
+    {
+      "codes": [],
+      "content_sha256": "9d854ef64615f5e7451e2e54e8a8b50a46b3624a0abfa5827bcafef7547834ae",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "b2506e4a74ff1de3",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0044"
+    },
+    {
+      "codes": [],
+      "content_sha256": "a3c2af83648715fe3f5d2349405f8765d1b97f079bca2ad0dd66196148faba28",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "8c1a5a417eda6146",
+      "split": "train",
+      "trajectory_id": "trajectory_0045"
+    },
+    {
+      "codes": [],
+      "content_sha256": "7c000c8d7937080e28927be3f76deb820721c3cdfda501fb56805bf21d4ed57b",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "efd8ad4f0e1acf82",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0046"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "495c7bd7188e4eac644e223b127e1e3c5c19ad71ec5768a67b0779b9f65a23ca",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "b3fc9e57890eabea",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0047"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "2e228e80e48db9987813e8e1ecb2e74d7247200d3b5758fd5d1e782693f17cb9",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "634a4e78d9571591",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0048"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.1.3"
+      ],
+      "content_sha256": "ac7aefa6aeeb4fc1b3827680215c893ea9ae4347ec4d644ed1d8e768c2e2b7c0",
+      "label": "1.1.2, 1.1.3",
+      "positive": true,
+      "scenario_key": "71c31b935e20a445",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0049"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "f7bb7d05fc18fc55d8f8d95492550deadc9c5ab0d817ddf82f6c93a3dc075c12",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "36cf4373d6b19d5d",
+      "split": "train",
+      "trajectory_id": "trajectory_0050"
+    },
+    {
+      "codes": [],
+      "content_sha256": "fbfc42826b12b1e5c481b4a78384177bd39ccc684d9f8c3d460a05b86ab589b3",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "b9f28fc8467fbe7a",
+      "split": "train",
+      "trajectory_id": "trajectory_0051"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "6fb966bb791b259f8160c2220caa3d0c7b8a08b5a62cd52b68a0d0850f8895fc",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "8c1efb842d7be7cb",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0052"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.3.1"
+      ],
+      "content_sha256": "d395d194e4a6941e1a57271b056e8633036767a0465f010191335af3018b5ccb",
+      "label": "1.1.2, 1.3.1",
+      "positive": true,
+      "scenario_key": "a857149058e52cf0",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0053"
+    },
+    {
+      "codes": [],
+      "content_sha256": "dbdf6bb177d3407fcf3fc1827807e28c6b9a110651fb8991411858521a337635",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "2171c2485619673b",
+      "split": "train",
+      "trajectory_id": "trajectory_0054"
+    },
+    {
+      "codes": [],
+      "content_sha256": "bfb493678c4d38d5ed79097da153bcd44621c26b875627d18abffdbc0003415e",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "fef599eb3755ac93",
+      "split": "train",
+      "trajectory_id": "trajectory_0055"
+    },
+    {
+      "codes": [],
+      "content_sha256": "c98f34e37ff6e53e62c88e2aada9701041a5408f142466776b6d815d22840af0",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "ee63c2f74efa854d",
+      "split": "train",
+      "trajectory_id": "trajectory_0056"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "5d1f2692dfd1ce521943506de382f2d20998e2665e96c02b417ac16c8468ddc5",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "18d061b76398f0b1",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0057"
+    },
+    {
+      "codes": [],
+      "content_sha256": "181a2e9d3126c9292177d524ccb1521d55d41d55510a763cdfadfbbc1600a462",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "25aa7b993825e5de",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0058"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "2651731ae9b8900d8175981990d9df2013cc6548f8a6fa4c08f784694cbd6ad9",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "3c8a0c619b61163a",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0059"
+    },
+    {
+      "codes": [
+        "1.4.1"
+      ],
+      "content_sha256": "5754826e7142c4e05ccfc8030ab2532eaf21f0485e66f23d7c4de3b7db80a878",
+      "label": "1.4.1",
+      "positive": true,
+      "scenario_key": "45d1939eed085b43",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0060"
+    },
+    {
+      "codes": [],
+      "content_sha256": "4e8cabeaae756d341c2154c8201f74ba4688a59b54148fc3ccbe6e824349699a",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "4ce66513974b2ad2",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0061"
+    },
+    {
+      "codes": [],
+      "content_sha256": "4c9ea404e94833332da98a973c8751464a8a573d9b6186d71ab882fe41295d0e",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "de3e2a8ed43d070c",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0062"
+    },
+    {
+      "codes": [],
+      "content_sha256": "f329c36780a1c0e85029646906202aedd3727a38833740cfffcc819905946b7f",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "5af1daf011bfbcd9",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0063"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "a1e62f25d313c2824d3ad46ed1b1fa7ff08eff97dce52fb63b8fd423e9a0a452",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "e7b47dffeaa32a69",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0064"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "54360fda62b7816dabfcadfa7fb7a5db6a2f8c4c7af433fda8ea6a7fd43d5c09",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "2e81dfdbad43fb89",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0065"
+    },
+    {
+      "codes": [],
+      "content_sha256": "3ded28699d1b1bae7a1ba98759e52820360fc6f790f53fc0d08cf8f6660b80d2",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "8d5823f229c6131c",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0066"
+    },
+    {
+      "codes": [],
+      "content_sha256": "737276d3465a84ece096a9620dab1f3b4f620d6564cc55f2fd4c713c61117303",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "297543b0243688ff",
+      "split": "train",
+      "trajectory_id": "trajectory_0067"
+    },
+    {
+      "codes": [],
+      "content_sha256": "6f7f043c9d2c10b16d3c837df24e0fb28d9029ba1d5c91a8b5996c8d70ea5da8",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "7b2d2ed07d678c37",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0068"
+    },
+    {
+      "codes": [
+        "1.4.1"
+      ],
+      "content_sha256": "c6b7b563edd40a737f1879616e538253e080e131c497a31732a0f20f32ed41c3",
+      "label": "1.4.1",
+      "positive": true,
+      "scenario_key": "8fd300ceb66cfc40",
+      "split": "train",
+      "trajectory_id": "trajectory_0069"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "0915c319fd85af0c4de03578f10f06deb2a7ee1cbc45292e15afa87e9d86651d",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "cd0331f31315906f",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0070"
+    },
+    {
+      "codes": [],
+      "content_sha256": "681a8a2fb4832a14e0c4854eec331acd5b201152e834032583fffcb97ea13fa2",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "062103c908126d80",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0071"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "142c541ad62c3a4b2a27798598226e4a7fc2da97884501d19697498623fe57cf",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "435b2ec1bc908859",
+      "split": "train",
+      "trajectory_id": "trajectory_0072"
+    },
+    {
+      "codes": [],
+      "content_sha256": "9cb94db493d4f52551ba6d7bb821185d362130654a58831875e29f4ec9371363",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "0182f6e21e26dc54",
+      "split": "train",
+      "trajectory_id": "trajectory_0073"
+    },
+    {
+      "codes": [
+        "1.4.2"
+      ],
+      "content_sha256": "2f6e05eac16597961fc229dbd32c77f4e4c4ebf868bf4d42bfa7ae8be213d0ac",
+      "label": "1.4.2",
+      "positive": true,
+      "scenario_key": "f2eab765639daedf",
+      "split": "train",
+      "trajectory_id": "trajectory_0074"
+    },
+    {
+      "codes": [],
+      "content_sha256": "bcef1c8a2da03ed634469d11a45c83f3014b7d031439987505e1004f45926906",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "0eba76ca9781dc94",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0075"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "c3e1da95f35803d8ef7592d384a74d7636ca6aa01a44797d336f21f615ea4d02",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "1b409dbcfd598d48",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0076"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "2036fdc99f420e8101b2afd73f7a2a52b2f09972b30171a72df78aa8d526f584",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "b1f2c63729c1bce6",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0077"
+    },
+    {
+      "codes": [],
+      "content_sha256": "2155e028d205d1b3e0f1eee11ac80d9788a965b5f735d7fa95232a05cb65dee3",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "214090c1775d2518",
+      "split": "train",
+      "trajectory_id": "trajectory_0078"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "e2ddb94ce5031f34018246acdba1dab8587b4dea5da3b4a099d8ce6c7174c683",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "95a1df0a74ced4e9",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0079"
+    },
+    {
+      "codes": [],
+      "content_sha256": "0b86479b03e2709ecce78bb8787a031e40a012fcaf2af30909df1f1012fd64e6",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "24f85b6aa8d8032d",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0080"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "58fb36bd7da9a529a6d55a7f0956bb6ca4cf047505e8226ed70388e753fa09aa",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "9f354fbefd3eb107",
+      "split": "train",
+      "trajectory_id": "trajectory_0081"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "6149ed8cf8ed61c5b7245102cf6158bbf517d0656e76d98661c149b678478b0f",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "92e815549d5ddcd2",
+      "split": "train",
+      "trajectory_id": "trajectory_0082"
+    },
+    {
+      "codes": [],
+      "content_sha256": "e0cb5359b21a1bf33d75f8edcb7b261ce823901e8ff3dc11eade6e1b562136b4",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "a72e5129d91646ef",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0083"
+    },
+    {
+      "codes": [
+        "1.4.1"
+      ],
+      "content_sha256": "724c7864c704db169d581654d137e5ca3c46db9d1d05bc025056a1f6e5f33488",
+      "label": "1.4.1",
+      "positive": true,
+      "scenario_key": "c7c78570399a3912",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0084"
+    },
+    {
+      "codes": [],
+      "content_sha256": "fb267c76261572f27b5d5f8a0db9b8b7ba065013c26d1aab2633216740f7cf3d",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "6114dd9543ca1715",
+      "split": "train",
+      "trajectory_id": "trajectory_0085"
+    },
+    {
+      "codes": [],
+      "content_sha256": "7ee9ebc0c71f7140e0d2000f82bbf8c4578a12333d8482ffd945fed6f6ce1f0a",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "842e9f5a38835479",
+      "split": "train",
+      "trajectory_id": "trajectory_0086"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "a430bce019239a2fe0a5c4bab2981ab32b45a0f1fa233eb9062b72f3ceb0bcea",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "f314552aca7ed2f6",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0087"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "49add7766250658b53408154ebd455a9beb2be9a0b81e0c941e05e694b18dc6a",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "f23b6e83bcaa17cb",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0088"
+    },
+    {
+      "codes": [],
+      "content_sha256": "9cddb59994cf7b3570b7e1d508fa324de2af4438f44ba69e4fd05ef952036adc",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "aae563e2b959d51b",
+      "split": "train",
+      "trajectory_id": "trajectory_0089"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "722e3212611ee87cc53ecea65403190dfdf19507842e20924d985987fc9d0da0",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "78cba641577e8191",
+      "split": "train",
+      "trajectory_id": "trajectory_0090"
+    },
+    {
+      "codes": [],
+      "content_sha256": "ca98a8a143cda93f3ac7d05e4427a675234aac03920f1c2d0a6fb8a956bf774b",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "d810abcb7cd6b813",
+      "split": "train",
+      "trajectory_id": "trajectory_0091"
+    },
+    {
+      "codes": [
+        "1.4.2"
+      ],
+      "content_sha256": "26e5cdef2c1a62ece414789ecf4876167a748fda8135fa8ad33c6c35337a2788",
+      "label": "1.4.2",
+      "positive": true,
+      "scenario_key": "1ff86e10d7089105",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0092"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "ccc45f2aa3dccbecbc57cb7081f0f993a0062994668f1f8fc0836da1551b335f",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "a71da56b5995318f",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0093"
+    },
+    {
+      "codes": [],
+      "content_sha256": "f301cd975bb9240450271dd212364fe988a13928a52f225cf21f842706fccaf9",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "497d78e6d5845f76",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0094"
+    },
+    {
+      "codes": [
+        "1.3.2"
+      ],
+      "content_sha256": "4ce3b4f9d4e2c361423408c088debc270e6e66264e4dd8fb94379057261d63e1",
+      "label": "1.3.2",
+      "positive": true,
+      "scenario_key": "e52fb10177cfdeb5",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0095"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "da3c6fc5fcad77a8c8d7913c215ef296166662d3a6e000a8185ad644625be2f9",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "688173bd83436224",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0096"
+    },
+    {
+      "codes": [],
+      "content_sha256": "d4be3bd6caefe49a842e04fc30f735a8a816da4633e664e3e21dfe5976320f52",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "5f9ed758d1bbd837",
+      "split": "train",
+      "trajectory_id": "trajectory_0097"
+    },
+    {
+      "codes": [],
+      "content_sha256": "03068237c6280f97bf0f6dba768c7bad45abd280202e0a373d2ced12fd39272d",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "2633a6bfa9cd1ce2",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0098"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "ae4d79feaf43812fae42f7e6a042045cc8a1fd4de24500c8b865e1abc4eafffa",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "9800ef7362f7e2f2",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0099"
+    },
+    {
+      "codes": [
+        "1.4.2"
+      ],
+      "content_sha256": "8938647bd0940acc71f328e6fad95c7c248e48c60d7a61a604ef5cd35eabd6d5",
+      "label": "1.4.2",
+      "positive": true,
+      "scenario_key": "6dca6c14c03b2bdf",
+      "split": "train",
+      "trajectory_id": "trajectory_0100"
+    },
+    {
+      "codes": [],
+      "content_sha256": "69de9205ff6acf9f8980dbadc238895177b91accb0dd527dab118378f110dcbd",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "6717ceec921bbe03",
+      "split": "train",
+      "trajectory_id": "trajectory_0101"
+    },
+    {
+      "codes": [],
+      "content_sha256": "6eeb56f64291c21c30e6ac5010fa5ade5ca0473725652003014b9128de301bf2",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "2d4d089be2201d1b",
+      "split": "train",
+      "trajectory_id": "trajectory_0102"
+    },
+    {
+      "codes": [],
+      "content_sha256": "44245f8fe9b40bb6745b0d91995c01b74102512ffee554baa818e9b940551ff6",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "808e9ef05458dc11",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0103"
+    },
+    {
+      "codes": [],
+      "content_sha256": "9d79f30823f3e4c0ea6653358fdd6d77c48d66324d783a9b9e730b8790af272c",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "889fc4b1067cbd3b",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0104"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "f20a125f4f37b9186cb2afec5c89f28530f9c70cb1ef80e63e6314785b08d47f",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "7e9c1281ba72546e",
+      "split": "train",
+      "trajectory_id": "trajectory_0105"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "cdd33bf5a952b3ae611688ee1c2ed256d8af0f02817a85562272fbb5e4114f4f",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "dda275f9548354c3",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0106"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "b7cba705ba5f7cb763a58100364f12c8e319aff79847a629586d3e3e9564657e",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "a6ac9d1e4607e356",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0107"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "e0c694f084290ffe70f643c2be953c8ee1a57f665cfb868c1303be46b253fa02",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "b23efc0ebb6f2213",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0108"
+    },
+    {
+      "codes": [
+        "1.4.1"
+      ],
+      "content_sha256": "ca93c1522bbcd8ca7650cf892aeee60cda31c7bb7fde7a3ca8a576c1b5d78530",
+      "label": "1.4.1",
+      "positive": true,
+      "scenario_key": "a476a0baaa7bdaf3",
+      "split": "train",
+      "trajectory_id": "trajectory_0109"
+    },
+    {
+      "codes": [],
+      "content_sha256": "226dab84a0615dc6ac609d5ea23a39cd1f4489e243268ba414821200cb208737",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "f1858c84ca124b8f",
+      "split": "train",
+      "trajectory_id": "trajectory_0110"
+    },
+    {
+      "codes": [],
+      "content_sha256": "8d47b3a875a6f4e1d5886b1dd350696c01de0bb7b5f790699336e66189c3d542",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "5bddcbcb694016ba",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0111"
+    },
+    {
+      "codes": [],
+      "content_sha256": "9b402e48de7f9253ffe8fba5ec00e0f233ac6e17c2218ce49bf394dcffd482f6",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "d947150d54991dcf",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0112"
+    },
+    {
+      "codes": [],
+      "content_sha256": "da3bf7edf9ba9c38b60c785f6e5ceb1570c77791bf017581fbfdd3e276a8870a",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "66f5375974e8ad03",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0113"
+    },
+    {
+      "codes": [],
+      "content_sha256": "bbf33648982f5953a1a2f4f5e05e77733024faa04906bb7f4448845efe2adcaf",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "7b8d526f2a7a48b3",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0114"
+    },
+    {
+      "codes": [
+        "1.2.2"
+      ],
+      "content_sha256": "ffacdfe9cc73cad791a2d327a96e550595cb78dc255c84596383d2866abc63fb",
+      "label": "1.2.2",
+      "positive": true,
+      "scenario_key": "aa2085181ead9c19",
+      "split": "train",
+      "trajectory_id": "trajectory_0115"
+    },
+    {
+      "codes": [],
+      "content_sha256": "aefc8c3fe771bc1dbf7053085033081f12c76c05b7065c186015257005dd630c",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "ecea738ef5065cf9",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0116"
+    },
+    {
+      "codes": [],
+      "content_sha256": "2fef0b47e117a5994daf1b2719aee62de02b6a50abee5299d039ce92b0216ea6",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "d2eb72cfae31ca30",
+      "split": "train",
+      "trajectory_id": "trajectory_0117"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "85dddeb0f16fb4b06bdf3d80a8b063c13b6b20679518a5949f7d8bf492f65daa",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "6af34c9ab9381fbd",
+      "split": "train",
+      "trajectory_id": "trajectory_0118"
+    },
+    {
+      "codes": [
+        "1.4.1"
+      ],
+      "content_sha256": "96ebb0791435cbe3505e6aa5fa8e79356e2a93c7a0498ac4dac0b2ea1f05286f",
+      "label": "1.4.1",
+      "positive": true,
+      "scenario_key": "5fd45a81d6635101",
+      "split": "train",
+      "trajectory_id": "trajectory_0119"
+    },
+    {
+      "codes": [],
+      "content_sha256": "a2c39e6098e83651818d42343bfdb9854ae65c8152819087c9bbf4ad0c8f7e44",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "1f0a7e3235d96975",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0120"
+    },
+    {
+      "codes": [],
+      "content_sha256": "710c3d2ff9321ab6b8f6f221d15f7f4ee287df5352b02d7a69899d87c96c1b08",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "56b27112e114741a",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0121"
+    },
+    {
+      "codes": [],
+      "content_sha256": "2d6bed7378b1ca1acb94ef18e7118869b77ed5ffec8ff0ab15200cd52ec06041",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "1f8574e8a0003b76",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0122"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "1be1dded2f104c6fe2b5ef2330fc1bb76b6ccaf0f06e16416d315223680c6a19",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "8fd318a7658ccc0f",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0123"
+    },
+    {
+      "codes": [],
+      "content_sha256": "870e3e96a585cbdf4ad43a3482f712ba21a55e0c6dee8f2bc486d3fa69cba5bc",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "88abef2794943a9e",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0124"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "757a76a306073e334746a458251b0f188c9bba628b3c4c604d04312e758225f1",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "a7689018356affb8",
+      "split": "train",
+      "trajectory_id": "trajectory_0125"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "466756efa476b6ebb3b5254de0e15d944a4bf24a09fe10321149f7e4003e2292",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "f2bbbebdb8fc86d4",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0126"
+    },
+    {
+      "codes": [],
+      "content_sha256": "f922012f9c6a0e8683a123eed8e6862c010d532ce8c5e50422d568baf6668348",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "8a01a4b73fe06033",
+      "split": "train",
+      "trajectory_id": "trajectory_0127"
+    },
+    {
+      "codes": [],
+      "content_sha256": "e038f4b54de318d742a240c40111a0ed6f625363e12ee73e1915ec3306f550da",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "d8e7d4bbe5b65607",
+      "split": "train",
+      "trajectory_id": "trajectory_0128"
+    },
+    {
+      "codes": [],
+      "content_sha256": "85e613c8f76e0feab2b489a664e290c14ffe6f1cb38d6803de220a310bb2cd62",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "bb3a4bc4a94d0bf7",
+      "split": "train",
+      "trajectory_id": "trajectory_0129"
+    },
+    {
+      "codes": [],
+      "content_sha256": "fe2fcffe8b69f42a8dc6f773392386ee04a0a99ac53653f2e2538c340654485d",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "fcafef6a12f1078c",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0130"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "abcc04f7dc02ed657b6826759b4303e9322c055f9b740420ba51afe05ecbd030",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "e8b6c4883446baf3",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0131"
+    },
+    {
+      "codes": [],
+      "content_sha256": "a0f1d0f5754a84250c069169b000e8b467777a742d1871b93bf7738d0d9d85c6",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "c2215830f3cabeb3",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0132"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "6ca2fc149acee38379bf4d0cb86d79b1d68e9017e37c46fcb3feb79c6a690d05",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "1e9e0f444df01542",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0133"
+    },
+    {
+      "codes": [],
+      "content_sha256": "52792ccaadc4d48e211851a9f70505fecbf486d55278fdb29908ea49646095b0",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "a629eb10cc835c4c",
+      "split": "train",
+      "trajectory_id": "trajectory_0134"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "eb6a1e24924b36b7978dcd397308e6fe2e916229c173a83ce620452cc8bde182",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "1d493e55ae99cf0b",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0135"
+    },
+    {
+      "codes": [],
+      "content_sha256": "bd73496f52e8f7405dd1098e3abaeefbb1ea5f6be469623680647f606f436bd8",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "76de8b6bd5ad1dd8",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0136"
+    },
+    {
+      "codes": [],
+      "content_sha256": "f2ebcd27af75274b43ebdf0d3e7d30532e7f52ef9ac9cc82b9e8ce378649fa3f",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "01d41975f1d4adaa",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0137"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "8ca292c2bf4d100bb60be1225be84c0677d2cdb5cb35a7c826693c5f6ca91741",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "a0a3178cdff1c886",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0138"
+    },
+    {
+      "codes": [],
+      "content_sha256": "61e206705aa74db29f60268a2167df8a7848f6207b247e17705a064c08a8fc3d",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "7d99f35167528fe9",
+      "split": "train",
+      "trajectory_id": "trajectory_0139"
+    },
+    {
+      "codes": [],
+      "content_sha256": "4f8273c2dedf9899d827f10c1ed3d54ef2e19b0ab41bd09172e506359b528f32",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "38fb6d41e4bab91e",
+      "split": "train",
+      "trajectory_id": "trajectory_0140"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "fd9b3e8b9b31e0845cabcb222df2df70603cce3d586007a18e9ddb5e7b187266",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "bc166c561096e52f",
+      "split": "train",
+      "trajectory_id": "trajectory_0141"
+    },
+    {
+      "codes": [],
+      "content_sha256": "73e9d687cda2e535013a2ddfede09f0c49e7c3a5cf774b47ebdce205e8c4ea0a",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "0db3f8759da9def9",
+      "split": "train",
+      "trajectory_id": "trajectory_0142"
+    },
+    {
+      "codes": [],
+      "content_sha256": "a22d8b970081e57f5226e5192b8f94831d72f73c37a8b7da91357dfd74d43b15",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "a8f26cf3d9502d79",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0143"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "2ef94858b69d4763566194fed19e37bdfce4fbc1304291bb9d7588c33a1637bb",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "10c42a72e6b4ed94",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0144"
+    },
+    {
+      "codes": [],
+      "content_sha256": "c05b6c7a7bd3a8986c77a5b33b2600d98fd9e45923b082cafc5dd8a6806f7832",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "5580cac09079ad9d",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0145"
+    },
+    {
+      "codes": [
+        "1.2.2"
+      ],
+      "content_sha256": "c7c36c3d729d9290e747ed51cedb768913546feffd9d89bf23e68efed549428c",
+      "label": "1.2.2",
+      "positive": true,
+      "scenario_key": "8640f1cbd4a644af",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0146"
+    },
+    {
+      "codes": [],
+      "content_sha256": "8d597e6048da632f4ae8aeaf9c1b6f01afddde1deed11c8d37278bd2b19cd8da",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "0cca82304b178a7a",
+      "split": "train",
+      "trajectory_id": "trajectory_0147"
+    },
+    {
+      "codes": [],
+      "content_sha256": "aed561d943cab1aca6db9da6af2fb5d20a041cba2bad7b15a6f4b2b7e99b6d11",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "603978ac17ab2ab5",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0148"
+    },
+    {
+      "codes": [
+        "1.1.1",
+        "1.1.2"
+      ],
+      "content_sha256": "993079e044ba2701a58ffcf819661e8cf068462a05b318ed06301e2bf2ff37b1",
+      "label": "1.1.1, 1.1.2",
+      "positive": true,
+      "scenario_key": "a09511e9576e4beb",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0149"
+    },
+    {
+      "codes": [],
+      "content_sha256": "381d3fd34078fec54b8b2f1f731596daa0fe01e89c8c4d2f3b1b9b5f26718c6b",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "3741a5ca4844a983",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0150"
+    },
+    {
+      "codes": [
+        "1.2.2"
+      ],
+      "content_sha256": "bcd43db7c7b90f532ae3dae951c822d66f435cadcdde1ac46858469ffb305acf",
+      "label": "1.2.2",
+      "positive": true,
+      "scenario_key": "77a3ada47d7720a8",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0151"
+    },
+    {
+      "codes": [],
+      "content_sha256": "d4ec25d88b4fdb9290420101a71a4ba7354138ad01ada9d0eb811b16058e15cc",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "97a3fe9151fed3da",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0152"
+    },
+    {
+      "codes": [],
+      "content_sha256": "6412e26a8a30e3938bdc3ac2d8322cc2f11db1d44d3f3a019817c13c79de3572",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "c0d06490dc4a8d93",
+      "split": "train",
+      "trajectory_id": "trajectory_0153"
+    },
+    {
+      "codes": [],
+      "content_sha256": "9b8d7f8f158feeb915a76dcbf2f9b3ac8b13c3819642b96856fa82a48413f899",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "edf0d378bfd585b1",
+      "split": "train",
+      "trajectory_id": "trajectory_0154"
+    },
+    {
+      "codes": [],
+      "content_sha256": "020e51e9de762b56df11dd8acc762aefb35b605c75c37f9a550d77647cac0a61",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "ca0297966ca1f1ef",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0155"
+    },
+    {
+      "codes": [
+        "1.2.1"
+      ],
+      "content_sha256": "3e3682cce2a680ca59c37a27f4af77ca3fb4ebd59a2a47cafd370ce74e2f6257",
+      "label": "1.2.1",
+      "positive": true,
+      "scenario_key": "6de4f1a20cf127df",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0156"
+    },
+    {
+      "codes": [],
+      "content_sha256": "a20f0b7e2b29087d9e29281650e05f452dee7182f3d67f28b78df30f5dd7cfa7",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "66c05f1f4d44628d",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0157"
+    },
+    {
+      "codes": [],
+      "content_sha256": "f143a95cd1d2fb64b82d195629e7d2a6a265c131bbe1fd101e139550557030af",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "980490b4a180c455",
+      "split": "train",
+      "trajectory_id": "trajectory_0158"
+    },
+    {
+      "codes": [],
+      "content_sha256": "5eeb3b39f536e6a7343e2f7a5799902598f3f45cf183346deee7fd0886b3902f",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "04d534d4607daae2",
+      "split": "train",
+      "trajectory_id": "trajectory_0159"
+    },
+    {
+      "codes": [],
+      "content_sha256": "2b6b1e2e764c40e350b6d8a50df9f668179574efdee90c38efa7949e4b7ff5ed",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "d6ec28024e2699a8",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0160"
+    },
+    {
+      "codes": [],
+      "content_sha256": "5c9d2c007eebde9307a0a3cfdedba1863a114f9052e30155286c8d018db2b949",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "4193e580a25cce90",
+      "split": "train",
+      "trajectory_id": "trajectory_0161"
+    },
+    {
+      "codes": [],
+      "content_sha256": "4a12ca546732dc4f6056a9cdc4a02ea1a8d55eb2648758a5bca32ca32afa306c",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "9d0b290c167d7c8d",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0162"
+    },
+    {
+      "codes": [],
+      "content_sha256": "f17c19c00a6f2b1e7bd25e76f38de6ba0be99ec040aadda5159cbb1db5a8136c",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "1fe8d2bf97cfdf24",
+      "split": "train",
+      "trajectory_id": "trajectory_0163"
+    },
+    {
+      "codes": [],
+      "content_sha256": "7be21b3d627fba29c549edf5a0de3b264845c8db8ca4966482e168797e6837de",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "35369f6d62e4ac3b",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0164"
+    },
+    {
+      "codes": [
+        "1.4.1"
+      ],
+      "content_sha256": "72058d484f2126bfa968c7ba42669440597bd31d8dd217f0b664fda51ca3342f",
+      "label": "1.4.1",
+      "positive": true,
+      "scenario_key": "b2aec54a938f6220",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0165"
+    },
+    {
+      "codes": [],
+      "content_sha256": "5dd43de3a8cf0ce0b55fc5d8bff2d62ebe27d9bb83c42428469aae09f61f02cd",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "5b8757fbb5a7c9b9",
+      "split": "train",
+      "trajectory_id": "trajectory_0166"
+    },
+    {
+      "codes": [],
+      "content_sha256": "bbb0fe79d3f504f7dccd285ba4e738716545418b46f8640d92cae63a9e0ec889",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "8a3a3ea44b3e4841",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0167"
+    },
+    {
+      "codes": [
+        "1.4.1"
+      ],
+      "content_sha256": "dd2bc30e6210cbe0d45f9f960f7d503ac93ff6aae6a4403c1aa90f38655576e6",
+      "label": "1.4.1",
+      "positive": true,
+      "scenario_key": "c0bbd7f4601f53e2",
+      "split": "train",
+      "trajectory_id": "trajectory_0168"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "ba7cb64bb8bdb82358bdb72a4502a22dec9ae372eeac357c90d7fa34219a5817",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "2581fff2bb03004b",
+      "split": "train",
+      "trajectory_id": "trajectory_0169"
+    },
+    {
+      "codes": [],
+      "content_sha256": "3ef2cac16fadc5171f8080519671c4e7377e92c2742344d985d8c8e10f94dd79",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "46153f7223a886b0",
+      "split": "train",
+      "trajectory_id": "trajectory_0170"
+    },
+    {
+      "codes": [],
+      "content_sha256": "ab67db70c8bbfaf720053ddf36f4c3ca6c555ac98490878a8abd6608e6b2dde3",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "9faff6c4ea2af854",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0171"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "4a2b269fb8493dea6310a2e81ed1985f32f1ffff9b1690c82d532843b2d70d4f",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "fdaa04792b0dd6ef",
+      "split": "train",
+      "trajectory_id": "trajectory_0172"
+    },
+    {
+      "codes": [],
+      "content_sha256": "212296bb01f5e330acd0e0ea07d6cd110c43cdfe0c4ff62632c090911f257860",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "8261cd7fa9f73614",
+      "split": "train",
+      "trajectory_id": "trajectory_0173"
+    },
+    {
+      "codes": [],
+      "content_sha256": "6138a8b5c45c20c1a01986cebc9ab1c073c16ef9ecb18e1837df8faad5c737e5",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "4213e3ae0c195209",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0174"
+    },
+    {
+      "codes": [
+        "1.4.1"
+      ],
+      "content_sha256": "0578b4c1620684324d7ab7fdac1352ec174ad524bd7e71dde5a2c30347a29cb1",
+      "label": "1.4.1",
+      "positive": true,
+      "scenario_key": "1398c816ac19cd62",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0175"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "3946da511a87f171a23ae7f59daf9793d25f78fa4015341b40fdd609b52b89ac",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "6868c102d2204af5",
+      "split": "train",
+      "trajectory_id": "trajectory_0176"
+    },
+    {
+      "codes": [],
+      "content_sha256": "d2a22412391b105f5c3e11241a22171c0f18574c5456738a158ef9ef24b01835",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "5c97c0d28d6f1930",
+      "split": "train",
+      "trajectory_id": "trajectory_0177"
+    },
+    {
+      "codes": [
+        "1.4.1"
+      ],
+      "content_sha256": "76a112e28205290f5976b05e07ec9ce30c749bff18f025402bb4c55b62b0b482",
+      "label": "1.4.1",
+      "positive": true,
+      "scenario_key": "06f2eece6172022e",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0178"
+    },
+    {
+      "codes": [],
+      "content_sha256": "281b2a30a5c542395d2f6b9392a3783e754ec7c82a12e74b3f6f6c60079a341a",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "4b034dd404b57d51",
+      "split": "train",
+      "trajectory_id": "trajectory_0179"
+    },
+    {
+      "codes": [],
+      "content_sha256": "db2330b6e4d23cb61a2df9dddfe0d1a7d68bb0ff901e2be87341f0c9409a3d35",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "9ffb398f18433947",
+      "split": "train",
+      "trajectory_id": "trajectory_0180"
+    },
+    {
+      "codes": [],
+      "content_sha256": "dadcfa3cfdc1f1928ff6e08bc1b915170542cfa3c92f3530f6e7868b1a8f49ff",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "88a224e0f91732d9",
+      "split": "train",
+      "trajectory_id": "trajectory_0181"
+    },
+    {
+      "codes": [],
+      "content_sha256": "39faee32d748f9e92c44c7493597aed1e46950859c564f5800df67e9faf92dff",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "ef4878e9fa881241",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0182"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "ce6540e161382d338e1fdbfb3726f803c9b32f16d6f393d3f186e2f1d04cb430",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "0791709e3d7defb3",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0183"
+    },
+    {
+      "codes": [],
+      "content_sha256": "6083019dccabb4c71cc2e2fc9810a93f7ff24d65758b8db1cdf615778debcf01",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "78b5683731bdb309",
+      "split": "train",
+      "trajectory_id": "trajectory_0184"
+    },
+    {
+      "codes": [],
+      "content_sha256": "38861a66426e856f50edd2367a69e2d2247d1501bac283901ca96fbde90e08a1",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "55792f8f0f93444b",
+      "split": "train",
+      "trajectory_id": "trajectory_0185"
+    },
+    {
+      "codes": [],
+      "content_sha256": "48443a0145fc84a50f95474b791f9405fa5be470a36e51bb20d751a095a5a548",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "106e4e233c508234",
+      "split": "train",
+      "trajectory_id": "trajectory_0186"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "3fd9b06d7930ab8f77ca67f8b7db0dbad652824db726e42754da49e1b365267f",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "8a7c3327f05abc07",
+      "split": "train",
+      "trajectory_id": "trajectory_0187"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "ddf4b8eee10c03440d942204be559066fa7f7ce9791bbf1fd5bbfdb45a792e33",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "c725ea3c30334426",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0188"
+    },
+    {
+      "codes": [],
+      "content_sha256": "cf29764c4f30af009124920fefed7c62bb6edd549ecd9996310b355bbf715342",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "3eaefeccb470dcc5",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0189"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "95e32e4da0fed51962c20550638bf7a2f3ca72c295d272778db552afadf7d902",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "4c453ead17f6372f",
+      "split": "train",
+      "trajectory_id": "trajectory_0190"
+    },
+    {
+      "codes": [],
+      "content_sha256": "a0d23c653c97c8768894960e1434200c386bfd70b88236a55d73dcce5ddd33d5",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "58cf2c71585f9bb2",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0191"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "7a1138663458cd509ad84456c8fb266ea4b3287f24ebdd8d25bd7a71f256b41e",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "0fef3139e9344a46",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0192"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "398eb19128b396ded3f9b1cde5dd4205c84f032095259674c5e2fb30d42d96ef",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "3e3fb016e2a2268c",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0193"
+    },
+    {
+      "codes": [
+        "1.4.2"
+      ],
+      "content_sha256": "f952bcfd856667069f89886d6179d087b555b93f0de651ebbddb4fc20856fc5f",
+      "label": "1.4.2",
+      "positive": true,
+      "scenario_key": "1a4834edb51c748b",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0194"
+    },
+    {
+      "codes": [],
+      "content_sha256": "d9e2b51e83a9e0eb24ac6641ffe6631eec3391cb5a1465d08ef3197576ca3879",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "12bd4fcb57de1f52",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0195"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "111ec1e4eb7d5d73f8979b7c3d4de0a46d6c1ea86be0f11c5a77b5220db522ac",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "f89a7ce222c15bd1",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0196"
+    },
+    {
+      "codes": [],
+      "content_sha256": "0e9fd973213785bd8b8e273fe692d889258bce2130062d21f4e59c4451465015",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "47f18a93868a58d3",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0197"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "880bf9f07bd102b8b125f54a69858f31476198488558cf8a5d9972328df0a075",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "fb5d3b2cc9535158",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0198"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "036b16e8b5406e085b544dfd738a738549329517f3214d2d845ddb3662610b7e",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "0e827696be9318b4",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0199"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "4d8dca6138493ad9488c84c02feeb0211aa563f24b49d1063ed7cfd8825df960",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "e3d91f190f7c190c",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0200"
+    },
+    {
+      "codes": [
+        "1.2.2"
+      ],
+      "content_sha256": "5d7313d2cba516818d7cf41b920da05b6fbfcdede22afb9800c57982d11deffd",
+      "label": "1.2.2",
+      "positive": true,
+      "scenario_key": "58bc899d7fd445ff",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0201"
+    },
+    {
+      "codes": [],
+      "content_sha256": "3cd4c09e2f54207a966aa292f178cbd13ff73a9791c791e060d20829d9590d02",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "62a24008b6c829a2",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0202"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "3a744ac6468ce7405a8921b315c9e3eb8167119c3f9de2bcd56e40b8fff7e88f",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "b5c4f9c6227cc560",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0203"
+    },
+    {
+      "codes": [],
+      "content_sha256": "3cb36152f8d29b6117165068fc63e9518dcfda23de74d77deab044830d969b7c",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "0fd6b71bbcd65688",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0204"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "65bea99f22357a5bf99b4e20794980f613188eefa7a6c07b6fe7a58061ed2700",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "ad91dceb0d599f0b",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0205"
+    },
+    {
+      "codes": [],
+      "content_sha256": "7461e8166b5262cbad68fea7f76d3e6d9748eb1c75fe5ec3596e4d8bf0f14f27",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "ac783eba491ff15c",
+      "split": "train",
+      "trajectory_id": "trajectory_0206"
+    },
+    {
+      "codes": [],
+      "content_sha256": "4edb189b31dc59dd8cce68410b8923b7436bad86149ef968a64f8d3657fe1367",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "6b5b82ea5a5fcc68",
+      "split": "train",
+      "trajectory_id": "trajectory_0207"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "962b091e6c937402f69a45a3128aa28c0f1a3cd2c2fb1f6192131752c9d0a7a3",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "f93cb9fc7c10b1b7",
+      "split": "train",
+      "trajectory_id": "trajectory_0208"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "0ff487ac612245e20720dcdcf0cc571b6f055509e847230d60354bd39dbb43c0",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "9540463529b59615",
+      "split": "train",
+      "trajectory_id": "trajectory_0209"
+    },
+    {
+      "codes": [
+        "1.4.1"
+      ],
+      "content_sha256": "495014b4a41431f8c472c424c5c9a40728aa98832a1564acdae3f3d6616d4f9b",
+      "label": "1.4.1",
+      "positive": true,
+      "scenario_key": "7db858472e1180cd",
+      "split": "train",
+      "trajectory_id": "trajectory_0210"
+    },
+    {
+      "codes": [],
+      "content_sha256": "d92627da1030c1194e321cd196c84b0d0099fe958c01d223053b6f6513208f54",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "607c0fd4eaac1320",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0211"
+    },
+    {
+      "codes": [],
+      "content_sha256": "e5879427d61fa9c3102b679d5a8fbb3f72c8c46f0fba28202b9a8325012d751a",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "e5e40cc5c1b9690d",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0212"
+    },
+    {
+      "codes": [],
+      "content_sha256": "d230833ca03ebf2c2009e4279312a60fde7d9aefd5426fa64125c24af4197b6e",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "2178c59a6c8112f0",
+      "split": "train",
+      "trajectory_id": "trajectory_0213"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "984b43386f0e51535f65c56ba2a1e8d037e0cd91485aa36d7f027a14171150b0",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "8b3fc42f2b6026a1",
+      "split": "train",
+      "trajectory_id": "trajectory_0214"
+    },
+    {
+      "codes": [],
+      "content_sha256": "caa5d67ad2d58abc85a26b716c72e7216ff1b14768dc4ecf1be9af690fb19767",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "7dbb4803889128d0",
+      "split": "train",
+      "trajectory_id": "trajectory_0215"
+    },
+    {
+      "codes": [],
+      "content_sha256": "057f08f322b5ad447c16e01d45a5da7090499f0234075f7fa235b358afa4d77f",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "986d3f4816d27e8a",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0216"
+    },
+    {
+      "codes": [],
+      "content_sha256": "c7ad460db7bb7905d8eb2af0521dcdc86e07286c4522469ec12c6c0b54281508",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "5aa2348ff3b832fb",
+      "split": "train",
+      "trajectory_id": "trajectory_0217"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.4.1"
+      ],
+      "content_sha256": "7309e21837c124f67914660aba3a598898050d39205d06e084e21f7001e86425",
+      "label": "1.1.2, 1.4.1",
+      "positive": true,
+      "scenario_key": "86469f0d788c62e3",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0218"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "7a910653cc4e567ead2dd3314bb948c9b42a4cc039e76a392cc6706742b7d014",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "305602f11f9da6f8",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0219"
+    },
+    {
+      "codes": [
+        "1.4.1"
+      ],
+      "content_sha256": "f79145ff78b938352b6751f06df4d45f580bf80e7c07aa6da7169c72ad727d0a",
+      "label": "1.4.1",
+      "positive": true,
+      "scenario_key": "1d9b271d38d9a30e",
+      "split": "train",
+      "trajectory_id": "trajectory_0220"
+    },
+    {
+      "codes": [],
+      "content_sha256": "90e73359c8391cc6d3181e89defa367a9cdf0a5fe2f509ceb9b387b181a0afa6",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "7f2fda3030f6c1d1",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0221"
+    },
+    {
+      "codes": [],
+      "content_sha256": "5e8aa71016d5af17515f0d97e5751bd86f7ba6171c8d0c334127701c9926cb54",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "10f86910e46e2d39",
+      "split": "train",
+      "trajectory_id": "trajectory_0222"
+    },
+    {
+      "codes": [],
+      "content_sha256": "10b01c1fc9056e00263b8319e7a014d8a9508b151a13e0e27fbdac0fb22ec313",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "ce15e1e5468c3672",
+      "split": "train",
+      "trajectory_id": "trajectory_0223"
+    },
+    {
+      "codes": [],
+      "content_sha256": "7232c800f7fe281b06c991e756f6782af51d5c949f93d32d99965594616738c9",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "90df40332720d704",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0224"
+    },
+    {
+      "codes": [],
+      "content_sha256": "6e965a214df8ac401000933ff859fbb37b891b1357dcd65877605ccfb0765621",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "67aa18bf66bcd069",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0225"
+    },
+    {
+      "codes": [],
+      "content_sha256": "c86376661559a76d7d62bde67c30d74f12b283f97387a29184c869849e93b3d0",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "d0fbb3ad83263810",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0226"
+    },
+    {
+      "codes": [],
+      "content_sha256": "2765238a7430e14cdf56e8c18f40d8dbde86143432fa3ec9d4fa9ca3a7cf8b00",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "f2c5904b79523482",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0227"
+    },
+    {
+      "codes": [],
+      "content_sha256": "4df3b51003e16177befd24487d214d2cd8ac631301c7bbb2a0724a31ec74e4c3",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "9741f9e645d64416",
+      "split": "train",
+      "trajectory_id": "trajectory_0228"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "7f93dc057d4d2f6110190680b85c23da542f9ab477bb4de2d315b3e069baef19",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "582d42875f49b511",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0229"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "0ce30a4c45ff371a34e76d3b90e8f5a623277358167b2e2558b8d4eb64a9e456",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "cad268ace98744ee",
+      "split": "train",
+      "trajectory_id": "trajectory_0230"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "79b55e6227bffdb5c8edcea653e588d99eefa491f3bfb89341c27f0ffb7c8c22",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "cb18edff9f1cbd84",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0231"
+    },
+    {
+      "codes": [],
+      "content_sha256": "8bbdf8d50e8c62f817c4af2c446af5d19b7b9e7aff38dfc72de4405007e97ee1",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "2cb6e63f799c0b5e",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0232"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "dd0703ab0374955179808a294294a0dd28254779b07efd96fdd4aae80bfb3627",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "cfc1aa57b0bea396",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0233"
+    },
+    {
+      "codes": [],
+      "content_sha256": "4d190cff260edfba60632c0345e25378b4d6c1e29bd1f628175d436af9712556",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "1312a4d35846ea6d",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0234"
+    },
+    {
+      "codes": [],
+      "content_sha256": "1ab70232ef973fd37ca3d8b205d4bf50afceeb47bfb577017a773557f135f2cc",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "f838e48807365176",
+      "split": "train",
+      "trajectory_id": "trajectory_0235"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.2.1"
+      ],
+      "content_sha256": "7a55f8e355a3c5e3f5e04327935098327e457ad4d4fad4c895bfad8fb56fa1cb",
+      "label": "1.1.2, 1.2.1",
+      "positive": true,
+      "scenario_key": "f97cb215c7a75271",
+      "split": "train",
+      "trajectory_id": "trajectory_0236"
+    },
+    {
+      "codes": [],
+      "content_sha256": "a72209d091049af3a9b319b755ffbe646312d5a180f3642bbf1c24d1f8183b70",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "3f4a9388b8d8cb38",
+      "split": "train",
+      "trajectory_id": "trajectory_0237"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "16be83774a61e66d8240e6c983b875872a1ccc9ae931643166e1d1a863beae2d",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "1ebb1e625f2547fd",
+      "split": "train",
+      "trajectory_id": "trajectory_0238"
+    },
+    {
+      "codes": [],
+      "content_sha256": "d7c1136d9266987530ee5c611344dddb86f189efdd605040e426a849514b43e1",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "ec2a48f12c28efea",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0239"
+    },
+    {
+      "codes": [],
+      "content_sha256": "3ee6fd79e44c0be897177f25bd927810db271b1bc65682c2f370801ce6b11767",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "57ec7bb9c5dd7adb",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0240"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "6403d73d3ac2427e52cb5387b9e9a8fa230148ec84b9a57c0ec9adf724cdf731",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "f2956636892419e4",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0241"
+    },
+    {
+      "codes": [],
+      "content_sha256": "4395a5b3e3c089916c1f7448454a63f5ee1c5e035a7a4a21561645438b803e08",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "7e91cb15ef7a7c9b",
+      "split": "train",
+      "trajectory_id": "trajectory_0242"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.2.1"
+      ],
+      "content_sha256": "774908edaed8b7aa4443ebfda8350c04ea34a43ad0bc9d179ed81a3895b83767",
+      "label": "1.1.2, 1.2.1",
+      "positive": true,
+      "scenario_key": "b736022a4367bae7",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0243"
+    },
+    {
+      "codes": [],
+      "content_sha256": "7781bc66ce6d28db56e933d40da77b4168654c92c7e7433844b97616309562fc",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "7d123c9525fe46dd",
+      "split": "train",
+      "trajectory_id": "trajectory_0244"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.2.1"
+      ],
+      "content_sha256": "e311582bec05167ef45d790f1c81ce5f4a51460e949f3f7629343bedcc3759c6",
+      "label": "1.1.2, 1.2.1",
+      "positive": true,
+      "scenario_key": "6812c4eeefeb015d",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0245"
+    },
+    {
+      "codes": [
+        "1.2.2"
+      ],
+      "content_sha256": "c161a46b5ca06fe8d00a99aa5861dfb0bddb477fbb323c4503e0ea74e2e2c8ae",
+      "label": "1.2.2",
+      "positive": true,
+      "scenario_key": "d2576b7389b48a5f",
+      "split": "train",
+      "trajectory_id": "trajectory_0246"
+    },
+    {
+      "codes": [],
+      "content_sha256": "6159588fee24cc940834bf25fdf7bf999eb414e9c64381583a965a6699ea998e",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "43aafd8e7f4a5384",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0247"
+    },
+    {
+      "codes": [],
+      "content_sha256": "25981b75994f0926786aa5a6fd57382faa69322b234078b04bc0bab7be1616fc",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "2c20689947c12b1d",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0248"
+    },
+    {
+      "codes": [
+        "1.1.3",
+        "1.2.3"
+      ],
+      "content_sha256": "03f7863c53ce468b83fcf5d19afe33fe052e471e23bcd04cd7f042fb07889eaa",
+      "label": "1.1.3, 1.2.3",
+      "positive": true,
+      "scenario_key": "a72a3a88e839a3a3",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0249"
+    },
+    {
+      "codes": [],
+      "content_sha256": "66d2cf2347f92d6da2b781213adc61533c4e0f17320d9a9091dc62b4520d97f6",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "929f81714ae6f567",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0250"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.2.1"
+      ],
+      "content_sha256": "73e94b52fcf9450211e26b70f41890f6f8340f13f454f633570e531ec89f3f9f",
+      "label": "1.1.2, 1.2.1",
+      "positive": true,
+      "scenario_key": "e57b1761d275012c",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0251"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "8c5913c3572125ce914fe4772784182d467a2e2cbf79063368d9f7594ce411d9",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "36558b72661d4eba",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0252"
+    },
+    {
+      "codes": [
+        "1.2.2"
+      ],
+      "content_sha256": "16735581b50d9ccba3e33cd9e139b6408893e8ae9fe1966c0528cdac9699d370",
+      "label": "1.2.2",
+      "positive": true,
+      "scenario_key": "002789408358a270",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0253"
+    },
+    {
+      "codes": [],
+      "content_sha256": "dc01b34a5b7e007122de6b5a988e2148081c57fb8498e00ad904537b50cd8329",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "8ccfffd666d04e3b",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0254"
+    },
+    {
+      "codes": [],
+      "content_sha256": "72df221b8d5e0643c442b532d87bdeca1d8a232d2e0136bc24fc92469c58e4d9",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "b3495483045f9b82",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0255"
+    },
+    {
+      "codes": [],
+      "content_sha256": "bd5eacd0e56b5f54aaea52ab7efd8fcbef217e39425dbced510680bc98df9e5d",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "a9f6291f9f7de8d7",
+      "split": "train",
+      "trajectory_id": "trajectory_0256"
+    },
+    {
+      "codes": [],
+      "content_sha256": "1775ea15627d5f9a805d958c2bcee5e2db33b413c1e1c2093b3dcab76b19caf4",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "d4773d87fd92946d",
+      "split": "train",
+      "trajectory_id": "trajectory_0257"
+    },
+    {
+      "codes": [],
+      "content_sha256": "6896ced611e6802abb8e3b307827e957d7fe40a2582b97a341e8ded863a1acb5",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "1cb227d4135ca551",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0258"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "c662aa1a62159661ec5255f6163fd60f04397f4830dfb1a1c132ca8c082f1103",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "916e381f655d1fe7",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0259"
+    },
+    {
+      "codes": [],
+      "content_sha256": "49e6aec026f93338d82ccadd409960f46c6f2ad95256661e613c583bbefceb9c",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "ff1548ce8ad7e27d",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0260"
+    },
+    {
+      "codes": [],
+      "content_sha256": "f138566f310677b4ff49c7204d875eae7ac7b14835eab4bd28223a16353b0c4b",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "6bd717818ca2a5da",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0261"
+    },
+    {
+      "codes": [
+        "1.2.1"
+      ],
+      "content_sha256": "f6cbd5e2d1fe10485930846b6c36acb2e19ea28ce4fe5140e063e207660e5d08",
+      "label": "1.2.1",
+      "positive": true,
+      "scenario_key": "4ebfec91b3ef6772",
+      "split": "train",
+      "trajectory_id": "trajectory_0262"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "6865e1e3cc7c2da18d83b94089e97b6f66ee7e8fac20d6c77a39f5ce41451900",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "fc27bd25d4e5c182",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0263"
+    },
+    {
+      "codes": [],
+      "content_sha256": "ecd057fb44cf4f3b1fd7f065e031be1290e42ac4d2d443f5c87c34c90eae0c5b",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "45bb1b9eb6b000f9",
+      "split": "train",
+      "trajectory_id": "trajectory_0264"
+    },
+    {
+      "codes": [],
+      "content_sha256": "341fc89ea038ff67fef676a82d17c23c5317524acbc2ab0b25e2c26708c68445",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "cc672eb6177c5bca",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0265"
+    },
+    {
+      "codes": [],
+      "content_sha256": "c4200e1e7ffb937199530b7c3e7ba637f1b987de66a3c1c6015a617c4d093889",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "591a03599b18d91b",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0266"
+    },
+    {
+      "codes": [],
+      "content_sha256": "cc02d675fc7e0411063686ee53125ec6e19da97dee7fb733d067baeaef9ee8c4",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "2159f16260f2ae6d",
+      "split": "train",
+      "trajectory_id": "trajectory_0267"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "854a7375f5b02df5a250b361df554a22c68eef7c72f6e328961bbe1287f993b7",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "743baeb7f9469367",
+      "split": "train",
+      "trajectory_id": "trajectory_0268"
+    },
+    {
+      "codes": [],
+      "content_sha256": "a0dc9958bd66dbeadb044ebeb6d0e5b924809c50b274ccd3ec32111f95c7bf3c",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "b73fea4badd7b375",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0269"
+    },
+    {
+      "codes": [],
+      "content_sha256": "786cf6a79eecd92a5fd624b55aa770504b89496cd4f692ebdd80f71ecfbb84f7",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "295777d5a5985cc9",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0270"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "438734fa6e92b0071108cf3a28e766841208dff3ec61f6c3c5aaced7a937b9e3",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "ec3050937c58ac51",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0271"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "450a9492951bdb9d6e20646fb0edecaeb8c97002715c61e025685e3c3bcd7e5e",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "c6e1e649711cf445",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0272"
+    },
+    {
+      "codes": [],
+      "content_sha256": "880720a3c12c25a6cf6fae45ea991d48dbe9c97b52f8249b0afc3de453a32e0d",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "58dbbc34657d083f",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0273"
+    },
+    {
+      "codes": [],
+      "content_sha256": "731c1fd048579ee95ee7d72830f8d362c938426495dc80386799c67aceffc25f",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "87437de6b98f01ec",
+      "split": "train",
+      "trajectory_id": "trajectory_0274"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "6c91d99a9e2966b5644b1af689a7e1ca9ba954f27b8067e32ffa02f043e5e122",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "6ebbcccb7c250173",
+      "split": "train",
+      "trajectory_id": "trajectory_0275"
+    },
+    {
+      "codes": [
+        "1.2.1"
+      ],
+      "content_sha256": "7b88e9e40f1fffd2a267a19a6cfa38f000889d51ed8028e6fd7d12bbd485dcb1",
+      "label": "1.2.1",
+      "positive": true,
+      "scenario_key": "27a06f27437829b4",
+      "split": "train",
+      "trajectory_id": "trajectory_0276"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "7b8dbf7f8f3965d9206e18c4683926ea40cd85740f08bcd643f4c8ed14d9ab14",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "fc0af8eee1c50782",
+      "split": "train",
+      "trajectory_id": "trajectory_0277"
+    },
+    {
+      "codes": [],
+      "content_sha256": "45e57289d2a58d862a25d2c0e4be54ef4a2cdd3fff1b2b98ada1cbf2b00176db",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "5cf398426aa5151b",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0278"
+    },
+    {
+      "codes": [],
+      "content_sha256": "5663321a4d41292d6c0f2d67acf3c076af610a67aeaed241ee88ee12b82d2a88",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "9c4a28421a5a39f7",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0279"
+    },
+    {
+      "codes": [],
+      "content_sha256": "f017f2a8e9f9df5e9602ff1aaa4f0beaec093ed82708436d953df6a02a95e107",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "ccb5d863e251ef90",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0280"
+    },
+    {
+      "codes": [],
+      "content_sha256": "062a801d7068894ac5cea811eed801ca7a8c4f66fd6a07cf66f27692427a570d",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "c085236b5fc6977c",
+      "split": "train",
+      "trajectory_id": "trajectory_0281"
+    },
+    {
+      "codes": [],
+      "content_sha256": "91401a1c370d1dafa42b5ef22a48302175fb38ddff813b6da238337b4f3d8e89",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "ba008b51086366ae",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0282"
+    },
+    {
+      "codes": [],
+      "content_sha256": "1e5329d9ece6d4bfc28e7ee7d5ec0cd4c616a9097088a538d7e8f8893d02d47d",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "4c6ce1ad42dc93e3",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0283"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "0ac7ec342b21e0146200db2cd51791747289b4495f3dfc7b8be3a605a45393bc",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "a34ba949758db5f3",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0284"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "dbbc0b846ce80aefc7abf2a5b39eb258c64d4090931b611ac6afc5df9bf53264",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "462a6e9dc74cf78c",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0285"
+    },
+    {
+      "codes": [],
+      "content_sha256": "d19974483bbb9fcdc9b43bb1bb2a8ff09246dfdb24139380da050f6aef0de518",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "a2803a79167b5b3d",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0286"
+    },
+    {
+      "codes": [],
+      "content_sha256": "8e588ee1c9fd2ce520f313e528e37069bf6054fd11d77d0bf2984d66d231cc12",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "586434d20b52e4a8",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0287"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "fd7dc473724f25e1e4e6d1eb6800e7d7bf12570bc9f901c1bf17a020d4798e2c",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "6b59e4748bc4f705",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0288"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "8172a90a13adb1d5bfb9231db799d0b62db75cbf1e2855321c3dac597fb9dfc3",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "5bf930292c78f4d5",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0289"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.2.1"
+      ],
+      "content_sha256": "ec3ac2c62e80fa57e770892a38a08903319d6365593718db6abd74cdad6e0a68",
+      "label": "1.1.2, 1.2.1",
+      "positive": true,
+      "scenario_key": "c154df37d14dd4ea",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0290"
+    },
+    {
+      "codes": [
+        "1.4.1"
+      ],
+      "content_sha256": "1198ac9292949e4e4aa766b8c107658c0dbd90675badf80560327d9e912aea1f",
+      "label": "1.4.1",
+      "positive": true,
+      "scenario_key": "d837a05c8a8b0641",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0291"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.2.1"
+      ],
+      "content_sha256": "2259ca5d96c4d9d1c8b7f887dcad91c8efb80df94fd3525cf7eb98ff6b9121c2",
+      "label": "1.1.2, 1.2.1",
+      "positive": true,
+      "scenario_key": "676f224c6c17a3a8",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0292"
+    },
+    {
+      "codes": [],
+      "content_sha256": "e4a0c588cb1b2cea053f08d623dc650fd7f0dacf35149c358e20031d708f0355",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "db4f5a480f5126ac",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0293"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "b7b8ba6c1cc8a3f04da32d1bc2a479ccb3affaf96e3d7194b91cc8b3ded76df8",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "1cb881233822bcf9",
+      "split": "train",
+      "trajectory_id": "trajectory_0294"
+    },
+    {
+      "codes": [],
+      "content_sha256": "a3310dd9fe5f710547aac50d473f1b0d5d5aa68adac8d326b4cb617344981a09",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "9f46fb4e89668cb4",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0295"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "41101a40a6d0f98a63b4ccd8e2dcc991710e261417090ff3a50aed522830af3e",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "4796a4c58810f6fe",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0296"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "7e759223f4033f7bfc65dc56a1552b47cffd49aece1ea93f1f9822412fc3255b",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "9715b51c32d01898",
+      "split": "train",
+      "trajectory_id": "trajectory_0297"
+    },
+    {
+      "codes": [],
+      "content_sha256": "d25a21de0c13c7672992db18a1e04cee73d8e5285bd5ddea50a50290e2446cc6",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "eee9dd556e85b048",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0298"
+    },
+    {
+      "codes": [
+        "1.3.1"
+      ],
+      "content_sha256": "04a23d6d73637b53d9aab559cf1611228528485a17c330c832d46756e7090c33",
+      "label": "1.3.1",
+      "positive": true,
+      "scenario_key": "3f11c23120c047c0",
+      "split": "train",
+      "trajectory_id": "trajectory_0299"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.3.1"
+      ],
+      "content_sha256": "b529849acbb52ea9c57920842bad6b600ca32c1ac92325006b421842fb0dc523",
+      "label": "1.1.2, 1.3.1",
+      "positive": true,
+      "scenario_key": "534a21ee8a891f3e",
+      "split": "train",
+      "trajectory_id": "trajectory_0300"
+    },
+    {
+      "codes": [],
+      "content_sha256": "ddbccc7a29eb1da027241f4674775932130784a556219644681711f763cad5d3",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "2cb55818f94b93a9",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0301"
+    },
+    {
+      "codes": [],
+      "content_sha256": "f7f328628791515acf77a732e94051ea11cad92c859e1b725a702a07d8589ce9",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "b48a77a660365821",
+      "split": "train",
+      "trajectory_id": "trajectory_0302"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.2.1"
+      ],
+      "content_sha256": "90b8f1e4dd9edae117d1b75aae632d7b80bf38c569594ae1cada57b8d8962ae7",
+      "label": "1.1.2, 1.2.1",
+      "positive": true,
+      "scenario_key": "7cd1b08cc9928ad5",
+      "split": "train",
+      "trajectory_id": "trajectory_0303"
+    },
+    {
+      "codes": [],
+      "content_sha256": "0521a9de572f002c21b93898b18c8750c714ab9da3919ea9c1dd06c680338b77",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "f61669ed9a4a59b9",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0304"
+    },
+    {
+      "codes": [],
+      "content_sha256": "fd532321971ea3b327714d63cebdeb35728dd2d084f0d8daa3325ade45717fd9",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "6099cffeaa59dd71",
+      "split": "train",
+      "trajectory_id": "trajectory_0305"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "072020af0b07239f30bf5a51d0d608c2a29d85daf860ee81b46be2a614c840ac",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "42a2e4b0808e3653",
+      "split": "train",
+      "trajectory_id": "trajectory_0306"
+    },
+    {
+      "codes": [],
+      "content_sha256": "39be721a406d06861990623ee169aeddb130622f98a4eb4087b69080b0c7cf80",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "194bc8c35b903de3",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0307"
+    },
+    {
+      "codes": [
+        "1.4.2"
+      ],
+      "content_sha256": "f3d816cdf38448c72490e8701f5307fdf3124bf663d24e7271c55b541f6721f3",
+      "label": "1.4.2",
+      "positive": true,
+      "scenario_key": "ea8ee29f9ac70b4d",
+      "split": "train",
+      "trajectory_id": "trajectory_0308"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "e27bb4b8d5963f38c22e12d5427d257bb04f98b499b9dee4ecd262240525fd45",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "587a5a3a42837dfa",
+      "split": "train",
+      "trajectory_id": "trajectory_0309"
+    },
+    {
+      "codes": [],
+      "content_sha256": "59438459525c2411c3632b0562a10c188d3b619bf3e6afdecc7469b09941f579",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "060b57b1c55a7154",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0310"
+    },
+    {
+      "codes": [],
+      "content_sha256": "8c52044b54dd0fc7a5b6a00eb8e9cb1d9c1f5496faceabbf8f8561342a63a02f",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "917fb2df650564ea",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0311"
+    },
+    {
+      "codes": [],
+      "content_sha256": "1e218b58cfefe710cd37933aacd1076c6a60135843af92434aaf956456511afa",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "1b970d2d51cba542",
+      "split": "train",
+      "trajectory_id": "trajectory_0312"
+    },
+    {
+      "codes": [],
+      "content_sha256": "b7bc1a9ec5d9c5ed0dac19c913acbddc505d8d150927cd3da00eaf2143652dbc",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "038bd63c1c05d9f0",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0313"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "b8b23f4154592d2af667e664d3de621b830a8cb51c22feb3d22a30107641cf5c",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "20625d984c84c058",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0314"
+    },
+    {
+      "codes": [],
+      "content_sha256": "bba58e7dd90f4b580227227bf6a5ec9e0641958940e997f87e746c117be44f16",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "39208c9ab827f293",
+      "split": "train",
+      "trajectory_id": "trajectory_0315"
+    },
+    {
+      "codes": [],
+      "content_sha256": "4be8a324ce91aa7085f51025352dd95746f0399f85c10a226390bdb73e42d1e7",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "77a15de2fcad05bc",
+      "split": "train",
+      "trajectory_id": "trajectory_0316"
+    },
+    {
+      "codes": [],
+      "content_sha256": "d81defb432767a5f1389bc025852e2f361387fa1c92ef77b0ebb79e2320a2559",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "954e4f1f9962899e",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0317"
+    },
+    {
+      "codes": [
+        "1.1.3",
+        "1.4.2"
+      ],
+      "content_sha256": "7fac9c4fb7e4402bc2450e41d73981db73143ab653646ddf12d7e96f6b95e34e",
+      "label": "1.1.3, 1.4.2",
+      "positive": true,
+      "scenario_key": "c9a3a3cebdf1a57d",
+      "split": "train",
+      "trajectory_id": "trajectory_0318"
+    },
+    {
+      "codes": [
+        "1.2.1"
+      ],
+      "content_sha256": "c5bb9c2cc298a35e8e2d3d6eb4f44e19faaca39647a7ce6849195b7556957d27",
+      "label": "1.2.1",
+      "positive": true,
+      "scenario_key": "483115c5950da27e",
+      "split": "train",
+      "trajectory_id": "trajectory_0319"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.1.3"
+      ],
+      "content_sha256": "cebbe1a2f4e65915b23a55a9944621775872580c27b20822403a4983f488e90e",
+      "label": "1.1.2, 1.1.3",
+      "positive": true,
+      "scenario_key": "b333acd0c03627a4",
+      "split": "train",
+      "trajectory_id": "trajectory_0320"
+    },
+    {
+      "codes": [],
+      "content_sha256": "4a00ffd1ed1dc244a20b4c1b910789f2adac1eaf7151c85666d077a3c855cd7b",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "831b978b7d2c70e4",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0321"
+    },
+    {
+      "codes": [
+        "1.1.3",
+        "1.2.3"
+      ],
+      "content_sha256": "bd8ddbdde62d40f9eec4271c0f8dde621c00086614274f7669499aeed65d6be2",
+      "label": "1.1.3, 1.2.3",
+      "positive": true,
+      "scenario_key": "c6a22d86e9c3c7c0",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0322"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.2.1"
+      ],
+      "content_sha256": "40ea5f44d165ab68f72893995e4c1a16faf1802ea587738f8c9a9999bd25d052",
+      "label": "1.1.2, 1.2.1",
+      "positive": true,
+      "scenario_key": "471e09e904dd6015",
+      "split": "train",
+      "trajectory_id": "trajectory_0323"
+    },
+    {
+      "codes": [],
+      "content_sha256": "ca7e064098b5bc01e572cf20402a3d0b91f3286a27b6b28c7c77ed0817791b72",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "35dfd2746694435e",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0324"
+    },
+    {
+      "codes": [
+        "1.1.3",
+        "1.4.2"
+      ],
+      "content_sha256": "ac1a203dd8e3ee42a5ad5a0c1c1cddff241d921955a891fce0c4ce9aad754213",
+      "label": "1.1.3, 1.4.2",
+      "positive": true,
+      "scenario_key": "812c449607848d7f",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0325"
+    },
+    {
+      "codes": [],
+      "content_sha256": "863fc7b4b1506f92af8a905ae7b26fa11829aed85aa8350a9b680aec38403c4e",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "bec5d75bb29d00b9",
+      "split": "train",
+      "trajectory_id": "trajectory_0326"
+    },
+    {
+      "codes": [
+        "1.3.1"
+      ],
+      "content_sha256": "04c1a36a0fc3735a509905c132642160ca2afc18ab6b0ea97768143b5dbfc6a3",
+      "label": "1.3.1",
+      "positive": true,
+      "scenario_key": "c75a65071f9d6a6d",
+      "split": "train",
+      "trajectory_id": "trajectory_0327"
+    },
+    {
+      "codes": [],
+      "content_sha256": "801c57431d227d0e61a2cb145c7e208445006b5583467175f85a79de860fe947",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "a824e7bf02c544bf",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0328"
+    },
+    {
+      "codes": [],
+      "content_sha256": "9e3cc3c872007235fcb8b9675956b91388e59e8f0f866f25a574bd84708f5702",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "f6b41fc8e9683fab",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0329"
+    },
+    {
+      "codes": [
+        "1.1.1",
+        "1.4.2"
+      ],
+      "content_sha256": "58c84bef57f8f31656abea4f0509d6eef72b38be4535f6a4f1441a0bf159eeaa",
+      "label": "1.1.1, 1.4.2",
+      "positive": true,
+      "scenario_key": "c1fa425d544930c3",
+      "split": "train",
+      "trajectory_id": "trajectory_0330"
+    },
+    {
+      "codes": [],
+      "content_sha256": "880e58418f2c6f1e402d4b712c27f4d7ff67c38e1d6edd243c392cb605cb1e58",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "daba265820b278a3",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0331"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "b5bbb9cd1ca052b1b5b900b6b1ab8c755660f53eb0c3738888849460ca5c4bcf",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "14e313768afd740f",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0332"
+    },
+    {
+      "codes": [],
+      "content_sha256": "86456a4a2210da2189131604373e99eb9f12a4ef3c7bdfad564875bdf559b060",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "64863293637a28a9",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0333"
+    },
+    {
+      "codes": [
+        "1.1.1",
+        "1.1.2",
+        "1.1.3"
+      ],
+      "content_sha256": "8fcac76f13d83b6cf96efd95a96cdb0fc0331725a1db6dc1674996305344269a",
+      "label": "1.1.1, 1.1.2, 1.1.3",
+      "positive": true,
+      "scenario_key": "199b5abde8b02388",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0334"
+    },
+    {
+      "codes": [],
+      "content_sha256": "d235b56fa98e344de29d6fd46d252c2d60fd5a1f401c6ec58652c93757cab2d9",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "8371139b504d23fd",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0335"
+    },
+    {
+      "codes": [],
+      "content_sha256": "36e0ed9ef18710127c53bb7fdbe4afd68f1cd63e23797f20fe8255138e166d76",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "acb3325dea20e857",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0336"
+    },
+    {
+      "codes": [
+        "1.1.3",
+        "1.4.2"
+      ],
+      "content_sha256": "d2c5df9d4ca2c6bb6eb3ff546b37fd4055b533e2cc671d8d2ed6787ec54a35ea",
+      "label": "1.1.3, 1.4.2",
+      "positive": true,
+      "scenario_key": "1a4c774353f99532",
+      "split": "train",
+      "trajectory_id": "trajectory_0337"
+    },
+    {
+      "codes": [
+        "1.3.1"
+      ],
+      "content_sha256": "703cdf567046d398a4ca2c49ec5156ec447f437f10415bb965f6f449b7e2aaaa",
+      "label": "1.3.1",
+      "positive": true,
+      "scenario_key": "becc21ba4fcdb9c7",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0338"
+    },
+    {
+      "codes": [],
+      "content_sha256": "3eabce5ca105f5b0587fd2a7cd0b866250bbc63cf3bb6c90ccebbd76485cd176",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "1282fef397550804",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0339"
+    },
+    {
+      "codes": [],
+      "content_sha256": "5d7a8ab58fdbd0b363a9db00ca5d36adba15aff3e293c0c1047eafea9f439906",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "e043d545037db3bf",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0340"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "947dc3255f2b3f2838ec2bcc9ad5de6524d34fb5af50084f07b00f0d6339ef06",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "427cad03cb381c9d",
+      "split": "train",
+      "trajectory_id": "trajectory_0341"
+    },
+    {
+      "codes": [],
+      "content_sha256": "b1bce7bd3a6dd3ae42274549c8d42cec49d4647602318996cd616f6431556c35",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "14fce4b45c9556cc",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0342"
+    },
+    {
+      "codes": [],
+      "content_sha256": "99424fb96f2039f87ca621c1133abd795b0e1057fa56be0bc5c090b4f9926cfa",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "8f131b9bfda20b1c",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0343"
+    },
+    {
+      "codes": [
+        "1.1.1",
+        "1.1.2",
+        "1.1.3"
+      ],
+      "content_sha256": "da00fa2055e40314e51ed74f82ab3584d732450db836550a99537712ab1dc057",
+      "label": "1.1.1, 1.1.2, 1.1.3",
+      "positive": true,
+      "scenario_key": "3fae5d3e1f347606",
+      "split": "train",
+      "trajectory_id": "trajectory_0344"
+    },
+    {
+      "codes": [],
+      "content_sha256": "dc231a816cc5a20c91cfc6432e77a490aa6f3a1cabf318bdc2a53cc73e7b6c39",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "38004c3b634f0779",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0345"
+    },
+    {
+      "codes": [
+        "1.1.1",
+        "1.1.2",
+        "1.4.1"
+      ],
+      "content_sha256": "9a4f45d0956fc91c62352939ae0747e68d766f1a6a83dabc9b60ae3a2456ef77",
+      "label": "1.1.1, 1.1.2, 1.4.1",
+      "positive": true,
+      "scenario_key": "d07ae660dcc66bf6",
+      "split": "train",
+      "trajectory_id": "trajectory_0346"
+    },
+    {
+      "codes": [],
+      "content_sha256": "62c03865e4988795837e8c4d24667e0cd2d8937a6c81189213523ba3c577a9b4",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "d2db7a4b007f82b4",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0347"
+    },
+    {
+      "codes": [],
+      "content_sha256": "d317f6b087e10eea729b62baf394d5807ff755997208a877daabd0fc5a75a6ac",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "1233dd7bbf5a398d",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0348"
+    },
+    {
+      "codes": [],
+      "content_sha256": "4989448814bd32f6d7fbe371f9d7ad33662fa9eedfa36fc24800cd2ed3ceb01a",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "51014acec04bcc12",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0349"
+    },
+    {
+      "codes": [],
+      "content_sha256": "ad9966e87060728d9da86dc5707a5ffcf12fb9f7655f9240cc903a5fafce6d10",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "2159b1b8e97f67dc",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0350"
+    },
+    {
+      "codes": [],
+      "content_sha256": "b35eab3e2c7116ab65e0f643f5648d1aa19652ff664a95cbf3c73adb8cbd9569",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "2c3612114d57b98a",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0351"
+    },
+    {
+      "codes": [],
+      "content_sha256": "2d60b1ee0f1242c85ad37bd876678d6358f4da48586d6129c6449fa4d8f76a05",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "9870758f669008fc",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0352"
+    },
+    {
+      "codes": [
+        "1.1.1",
+        "1.4.2"
+      ],
+      "content_sha256": "41a56d87ee00919bbf73627ead643c34618e0be602388d3166025c18a5c454cc",
+      "label": "1.1.1, 1.4.2",
+      "positive": true,
+      "scenario_key": "0cd7979b339b40f3",
+      "split": "train",
+      "trajectory_id": "trajectory_0353"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "249a4762a2c4eae2eb9af4330d14534dfced65d7e52c10c1b63757b63962845b",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "8625c97a89fe93a6",
+      "split": "train",
+      "trajectory_id": "trajectory_0354"
+    },
+    {
+      "codes": [],
+      "content_sha256": "e0ce31c49f76d5609500de44359b79954f765c013978730b5e115437bd0d8f7d",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "86fbac176b9e3709",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0355"
+    },
+    {
+      "codes": [],
+      "content_sha256": "8730964d537346fe8c9e258e78074e72423e9f680ded455dbc1162cd28ef5828",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "30eb1fa3d9b1484d",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0356"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "6789c7021013c37b40af7abbfe40e5cdda0dc8a6dff374fdb18df78740bbac53",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "9df340d3430c7ea4",
+      "split": "train",
+      "trajectory_id": "trajectory_0357"
+    },
+    {
+      "codes": [
+        "1.1.3",
+        "1.2.1"
+      ],
+      "content_sha256": "ece84365e30f286392d687891b57f4532ee4fba2802739956f424b012b67a7ac",
+      "label": "1.1.3, 1.2.1",
+      "positive": true,
+      "scenario_key": "e0ccc10c3a49db4b",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0358"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "4b944d71d77b24265b3d9916307917fc1d5a92fcee691d36e3a2ebccf8a0f483",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "4f84061f330c6de2",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0359"
+    },
+    {
+      "codes": [
+        "1.1.1",
+        "1.1.2",
+        "1.3.2"
+      ],
+      "content_sha256": "e73a901d1a20df5bdb33046e77641b435bcfcdb7fe8e8f048025921bda8bf777",
+      "label": "1.1.1, 1.1.2, 1.3.2",
+      "positive": true,
+      "scenario_key": "96a5148e6c4288d0",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0360"
+    },
+    {
+      "codes": [
+        "1.2.2"
+      ],
+      "content_sha256": "2203cb87672d29766fa3c46ca122af360c05240eb19e0817e0caad32a6ccc9fc",
+      "label": "1.2.2",
+      "positive": true,
+      "scenario_key": "1fdc33fa7fb9f68a",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0361"
+    },
+    {
+      "codes": [
+        "1.1.1",
+        "1.1.3",
+        "1.2.1"
+      ],
+      "content_sha256": "40ac587374437da287979eb98aeec630aa5b354655562bcd3239b9bdd30d1827",
+      "label": "1.1.1, 1.1.3, 1.2.1",
+      "positive": true,
+      "scenario_key": "bb2cdf3e3dbf2b80",
+      "split": "train",
+      "trajectory_id": "trajectory_0362"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.3.2"
+      ],
+      "content_sha256": "1e674d648975c383a72a09d4896779914c1673b5d7037935797541cb451be58b",
+      "label": "1.1.2, 1.3.2",
+      "positive": true,
+      "scenario_key": "0919d0d3b52e23fe",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0363"
+    },
+    {
+      "codes": [],
+      "content_sha256": "ff7168bf4943541c3e7353b7521be6c9b651f6ed3b1ee96f01e9c375981bb542",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "74dddfa5bf58a662",
+      "split": "train",
+      "trajectory_id": "trajectory_0364"
+    },
+    {
+      "codes": [],
+      "content_sha256": "434710d8e5cbba24b2e5b040cd7899cbc85276f1961ca7a17b95b1a7bb9433e3",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "e1e3cee9de69af32",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0365"
+    },
+    {
+      "codes": [],
+      "content_sha256": "d560debf700ac0ff5a61f48a361c278c0e136994212e9ca0a5ece1b384be806e",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "8eb78c7cfeda2fe0",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0366"
+    },
+    {
+      "codes": [
+        "1.1.1",
+        "1.1.2"
+      ],
+      "content_sha256": "564dda31527556595e127ae9f3bf896ad5358a42db1e352938507f61b8d7eb3e",
+      "label": "1.1.1, 1.1.2",
+      "positive": true,
+      "scenario_key": "732ca46647109aea",
+      "split": "train",
+      "trajectory_id": "trajectory_0367"
+    },
+    {
+      "codes": [],
+      "content_sha256": "e51e8b6de749f06931652110dc31d49b1ba717f7f72e355caec88cdf89f5863a",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "de9f9aaf53c0b174",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0368"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "1b088fe025164baad70f298a388b07aae9776f85af2a4b77b9cd2ba539a05482",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "360bd30df657e4b9",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0369"
+    },
+    {
+      "codes": [],
+      "content_sha256": "c069d31c2fbec99acdea83875edf354cc1332c3ce7f84b44c28491f245ee68b8",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "8b8c69359826cd24",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0370"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "78783756b4a1226664fd94a8597399a7958b5d3de62f4a0fe8d4e1795a41f566",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "05152b36db3fa3b3",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0371"
+    },
+    {
+      "codes": [
+        "1.1.3",
+        "1.2.3"
+      ],
+      "content_sha256": "bfa077ea8b5590cbd97c6fcb36c2196cebdd505aaf26eee6fed33c221c4ea192",
+      "label": "1.1.3, 1.2.3",
+      "positive": true,
+      "scenario_key": "127100d73e66861f",
+      "split": "train",
+      "trajectory_id": "trajectory_0372"
+    },
+    {
+      "codes": [],
+      "content_sha256": "4467224befe4596f157168808a744ffcf46faeabfd7de7be8363496f79dae1c9",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "60f8211183739801",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0373"
+    },
+    {
+      "codes": [
+        "1.1.3",
+        "1.2.1"
+      ],
+      "content_sha256": "4ce1d58b2325813536ed6477879b0ccda17cc703580adafce55adfc5cffbfc91",
+      "label": "1.1.3, 1.2.1",
+      "positive": true,
+      "scenario_key": "afd3f8bca70faf38",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0374"
+    },
+    {
+      "codes": [
+        "1.2.1",
+        "1.2.2"
+      ],
+      "content_sha256": "227c4b6789b9880e23147ca5d52d8152884352226c4ba9aeff42676ca560d40f",
+      "label": "1.2.1, 1.2.2",
+      "positive": true,
+      "scenario_key": "9eed3f6440d9e22d",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0375"
+    },
+    {
+      "codes": [
+        "1.2.1"
+      ],
+      "content_sha256": "b3fc137bea5ad12a6755f900496dd43d68d82751eb38675405d88b1688c490d2",
+      "label": "1.2.1",
+      "positive": true,
+      "scenario_key": "04c0b91378607c5e",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0376"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.1.3"
+      ],
+      "content_sha256": "91baa224c5cb37c8d50bb518f172c01110af035de16efd3ba44d80726e6ab124",
+      "label": "1.1.2, 1.1.3",
+      "positive": true,
+      "scenario_key": "6bac7459070c6b9d",
+      "split": "train",
+      "trajectory_id": "trajectory_0377"
+    },
+    {
+      "codes": [
+        "1.1.3",
+        "1.4.2"
+      ],
+      "content_sha256": "cebfe2bf81c67992a184c59d82f8d9fdf44c9aa2db76ce016373d1900b02e51e",
+      "label": "1.1.3, 1.4.2",
+      "positive": true,
+      "scenario_key": "8b6727e4f3e2203d",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0378"
+    },
+    {
+      "codes": [],
+      "content_sha256": "676ff39b95ab63745f100600d4c2b6109cf5071b005039d19822300dc4afbf26",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "981e012832bfdd7b",
+      "split": "train",
+      "trajectory_id": "trajectory_0379"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.3.1"
+      ],
+      "content_sha256": "e0aff5e853b04adb2c029965d642f115089926f7fe53e9b616f78bad42b4029e",
+      "label": "1.1.2, 1.3.1",
+      "positive": true,
+      "scenario_key": "cd0856e6b3f31061",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0380"
+    },
+    {
+      "codes": [],
+      "content_sha256": "2bce786f2ebf7bcedbf3aff39c41a1a579921f457f102798bb421481deb479f9",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "d78e9d9070f3edbf",
+      "split": "train",
+      "trajectory_id": "trajectory_0381"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "e0f6c654e3cfa8f27d97794f96f55ab25f5fb424bb3332b7b15591101a66415c",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "63705597a5b56e12",
+      "split": "train",
+      "trajectory_id": "trajectory_0382"
+    },
+    {
+      "codes": [],
+      "content_sha256": "b1aa0929d77958c779c960739232d3b1232f98061c9e5d3d8186d114305048c8",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "284b19b540afbe43",
+      "split": "train",
+      "trajectory_id": "trajectory_0383"
+    },
+    {
+      "codes": [],
+      "content_sha256": "18367240c52672e03f1ec62746b2d589a0faf6666a07db4095dd83476288332a",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "b5a155149d41eb8d",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0384"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "9e9c02ea0c2d55f81f18f6b968f97f106a8c600b7b5e131714a24311972215d6",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "280373ca70f45ee0",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0385"
+    },
+    {
+      "codes": [],
+      "content_sha256": "b747dbdb2d5d6109c163a25b5a5beec68ff2510f3be5c5c5d4929708b2e8d306",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "5fb37692b8966a63",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0386"
+    },
+    {
+      "codes": [],
+      "content_sha256": "dbd804c659338e0eb6701454bf14327beff971c8bf8c720183d86c784a493ec0",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "c1b65cfc094935dc",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0387"
+    },
+    {
+      "codes": [
+        "1.2.1",
+        "1.3.2"
+      ],
+      "content_sha256": "84b768ed158b701ed6871d9598ddc20970717b9199044cd0bf4a126d37fc75e2",
+      "label": "1.2.1, 1.3.2",
+      "positive": true,
+      "scenario_key": "390ab4996a95cd0d",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0388"
+    },
+    {
+      "codes": [],
+      "content_sha256": "8b90562bbc6c4a2cfb19f01817a5462e721ea28abd871a0012ca13553b59144a",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "4618e5336d6ba9ad",
+      "split": "train",
+      "trajectory_id": "trajectory_0389"
+    },
+    {
+      "codes": [],
+      "content_sha256": "d1bffda87640a88a587c08505657cd1329334ae0a9ba97c1b03813ca6697e0bc",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "f6014ec4940234b0",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0390"
+    },
+    {
+      "codes": [
+        "1.4.2",
+        "1.4.1"
+      ],
+      "content_sha256": "0b0f8c4483d3c234994aca6b33808723e157b44c1ca4d87269f2498a163690f4",
+      "label": "1.4.2, 1.4.1",
+      "positive": true,
+      "scenario_key": "b429a46852c10692",
+      "split": "train",
+      "trajectory_id": "trajectory_0391"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "e9a55f329a384a340f32467c93bb0847b0b4f1c24ec21442fb56d8f0b137285a",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "55ba98a26ae718ee",
+      "split": "train",
+      "trajectory_id": "trajectory_0392"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "1b9c823c9aadeb00498a066a1ad8de67a63fc358d42648765b5474d79a8829d5",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "fcd6a25ebd037abe",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0393"
+    },
+    {
+      "codes": [],
+      "content_sha256": "479493b7e7f91fa0e01b3510e473eb4620c0334c7fda1e608c978200a5b26850",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "c7505b950d35eeeb",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0394"
+    },
+    {
+      "codes": [
+        "1.4.2"
+      ],
+      "content_sha256": "549ac170bdc928a9927dd8165f45a47051693d195cdfba59edf981614649d64f",
+      "label": "1.4.2",
+      "positive": true,
+      "scenario_key": "cbb71601aebea22c",
+      "split": "train",
+      "trajectory_id": "trajectory_0395"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "9b57bcb850d3b8bf638a615829d4c7504cef0838c616ce070c0eec381cebb977",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "7da4a5622254b526",
+      "split": "train",
+      "trajectory_id": "trajectory_0396"
+    },
+    {
+      "codes": [],
+      "content_sha256": "f68d708ebe11fee5aec4344953137b240779ef4cff2712eeb6360e352bc13796",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "3770bafec38de15c",
+      "split": "train",
+      "trajectory_id": "trajectory_0397"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "06d10b5b965bfbcc27b71b89abccde6a1217a884b0e8ecd70fed6c6c79225cd0",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "cffd87de61381925",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0398"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "19b6563d1e61e1e13d3685fec326eeeef44512ca08a5d4a0de1f1b45e20e1fe0",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "cb54daf0b63b08f7",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0399"
+    },
+    {
+      "codes": [],
+      "content_sha256": "d6fa848572e2f771f8f76933297fd57fd14668f5ea6cca72c30e4f8542a9db50",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "7df9d78d610fb69c",
+      "split": "train",
+      "trajectory_id": "trajectory_0400"
+    },
+    {
+      "codes": [],
+      "content_sha256": "0fab3c624af38277539b11163bd9fd5e340923fd349d0982f922cb29d61a5691",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "04a0bc4cea79b609",
+      "split": "train",
+      "trajectory_id": "trajectory_0401"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "5675a460abc0057817b93d257917e8656e64910285681347cefa2704b8995ca3",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "592a4ce2029b95e3",
+      "split": "train",
+      "trajectory_id": "trajectory_0402"
+    },
+    {
+      "codes": [
+        "1.1.3",
+        "1.2.1"
+      ],
+      "content_sha256": "639c63b9fc8f6ee4286fdec136ca6c0819749af0ae57fe6aa1a64e46b9fa8950",
+      "label": "1.1.3, 1.2.1",
+      "positive": true,
+      "scenario_key": "eac1cdb8590c48a7",
+      "split": "train",
+      "trajectory_id": "trajectory_0403"
+    },
+    {
+      "codes": [
+        "1.1.3",
+        "1.2.1"
+      ],
+      "content_sha256": "d1450ba735772bb0e8cbeb54ee50b11b4d705e3c51e3485f8f30a59f1b6c61fb",
+      "label": "1.1.3, 1.2.1",
+      "positive": true,
+      "scenario_key": "8e8b721994fd0f3a",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0404"
+    },
+    {
+      "codes": [
+        "1.1.1",
+        "1.1.3"
+      ],
+      "content_sha256": "a05815d3db9b222af26e76b4ed5351f16df71cefaf3dcc6471b81f17c827d243",
+      "label": "1.1.1, 1.1.3",
+      "positive": true,
+      "scenario_key": "bf84d08820a94b04",
+      "split": "train",
+      "trajectory_id": "trajectory_0405"
+    },
+    {
+      "codes": [],
+      "content_sha256": "944e372a9819c8dac11850b501cde55a254165fca85b24a58aa21a560fd23a31",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "4aa472dee4bfaebb",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0406"
+    },
+    {
+      "codes": [
+        "1.1.1",
+        "1.1.3",
+        "1.2.1",
+        "1.3.2"
+      ],
+      "content_sha256": "397853c4074977757a5d2d1b434226052af09330061a60281c6a8221f06e590e",
+      "label": "1.1.1, 1.1.3, 1.2.1, 1.3.2",
+      "positive": true,
+      "scenario_key": "9dcea8a17e9cc85a",
+      "split": "train",
+      "trajectory_id": "trajectory_0407"
+    },
+    {
+      "codes": [
+        "1.1.3",
+        "1.2.3",
+        "1.2.1"
+      ],
+      "content_sha256": "4048d34846cbecbe9baa48c5707ad0850751401edd063556edd7ef37ce108ce0",
+      "label": "1.1.3, 1.2.3, 1.2.1",
+      "positive": true,
+      "scenario_key": "f205b57dd78415cc",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0408"
+    },
+    {
+      "codes": [],
+      "content_sha256": "064e714e1d3bbf694ae082673966ee8a096c73cced27eb8a12998fb455096008",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "255d1aa3ed021f81",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0409"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "fa74c5a2ddca69f9acf17870fecab956644aa1663bbbafbf6edf11899b5e7d2e",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "619f5590439e7a5f",
+      "split": "train",
+      "trajectory_id": "trajectory_0410"
+    },
+    {
+      "codes": [],
+      "content_sha256": "09650ee6ea0ea67425cac34f9c025016466149ed3a83d89c304e6a7b10b1864a",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "c40fe0c67e2339c1",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0411"
+    },
+    {
+      "codes": [
+        "1.2.1",
+        "1.2.2",
+        "1.3.1",
+        "1.4.1"
+      ],
+      "content_sha256": "e1d355d64efef00512cd1b6aa11ecf707dccbce2751dd1c1e59ed93fcc180e8b",
+      "label": "1.2.1, 1.2.2, 1.3.1, 1.4.1",
+      "positive": true,
+      "scenario_key": "3016a2e5b36e3c73",
+      "split": "train",
+      "trajectory_id": "trajectory_0412"
+    },
+    {
+      "codes": [
+        "1.2.2",
+        "1.4.1",
+        "1.4.2"
+      ],
+      "content_sha256": "aec7cb28e47b8ad4b4c13cf0d871768ac478a8cc6623d71009aa8d13d1548ab4",
+      "label": "1.2.2, 1.4.1, 1.4.2",
+      "positive": true,
+      "scenario_key": "c92e674fecd20163",
+      "split": "train",
+      "trajectory_id": "trajectory_0413"
+    },
+    {
+      "codes": [],
+      "content_sha256": "ed0a6b0bea0f1ed90314e2b330202ead98f020837f10cf23e9ed8f5b802d334b",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "e06cc57ca17c802a",
+      "split": "train",
+      "trajectory_id": "trajectory_0414"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.1.3",
+        "1.2.2"
+      ],
+      "content_sha256": "bd46ca72a5b813bf02aa3210070c19eedb1ddbb6e0a2c46216192cb3c0d8c895",
+      "label": "1.1.2, 1.1.3, 1.2.2",
+      "positive": true,
+      "scenario_key": "3f59b64968248041",
+      "split": "train",
+      "trajectory_id": "trajectory_0415"
+    },
+    {
+      "codes": [],
+      "content_sha256": "dd711608fc23f0599da1f36492c469a946b0c7a3acc7a57cb6b11061c30df150",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "bf86c64b2fc01faa",
+      "split": "train",
+      "trajectory_id": "trajectory_0416"
+    },
+    {
+      "codes": [
+        "1.3.1",
+        "1.1.2",
+        "1.3.2",
+        "1.4.1"
+      ],
+      "content_sha256": "07eb071698be681a397f235c20c3ee7dee75fd77ba3e369037c6e7c00c24f57a",
+      "label": "1.3.1, 1.1.2, 1.3.2, 1.4.1",
+      "positive": true,
+      "scenario_key": "7487610a3a11c809",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0417"
+    },
+    {
+      "codes": [
+        "1.2.3",
+        "1.2.1",
+        "1.1.3"
+      ],
+      "content_sha256": "07c62849bf88021559f050b3b59e178f79f43aae024c218a98a18996c99834fb",
+      "label": "1.2.3, 1.2.1, 1.1.3",
+      "positive": true,
+      "scenario_key": "c43b923a39b77567",
+      "split": "train",
+      "trajectory_id": "trajectory_0418"
+    },
+    {
+      "codes": [],
+      "content_sha256": "5aea48f8399dc094758f7dac9354413633a33b54be648bd1999d224c3791a313",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "94608dc4f8b874dc",
+      "split": "train",
+      "trajectory_id": "trajectory_0419"
+    },
+    {
+      "codes": [],
+      "content_sha256": "0ba38459286d9c359b4e2546a695469834bac54c3f9c0903eb9419a0b22f6663",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "630ee982c641e09b",
+      "split": "train",
+      "trajectory_id": "trajectory_0420"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "82ab645af3b33a6235c7156e9a916de5e05479bd628ee1dc178d9654153c4af6",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "f034407b45880751",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0421"
+    },
+    {
+      "codes": [],
+      "content_sha256": "a66f852d76c6488fa5ebc210b284e9f2dc9f7a6ebddcc04afa59bd91abc351ce",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "9cf60a610f055bb6",
+      "split": "train",
+      "trajectory_id": "trajectory_0422"
+    },
+    {
+      "codes": [
+        "1.1.1",
+        "1.1.3"
+      ],
+      "content_sha256": "92527aeace6d4c637237c921cf585dde1af02b82de9b063e516960f1d54f730f",
+      "label": "1.1.1, 1.1.3",
+      "positive": true,
+      "scenario_key": "c08beb6b0420b5c5",
+      "split": "train",
+      "trajectory_id": "trajectory_0423"
+    },
+    {
+      "codes": [],
+      "content_sha256": "3ac431e8b5bc15f960e895d803cc4daaca9e9667ce05b12ac20ca630b0098768",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "8e7d4e9493388c8e",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0424"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "e69092f9e8adb4f03151eb181b9eccff657f9f148e79d1bae9b20f31555e43ba",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "dd8baed89186239a",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0425"
+    },
+    {
+      "codes": [
+        "1.1.1"
+      ],
+      "content_sha256": "fe381de2ff2b59a0d53585904366daffc6371dfc2a00f179e7fb3b91bcb13df3",
+      "label": "1.1.1",
+      "positive": true,
+      "scenario_key": "e1ddb3305191ddc1",
+      "split": "train",
+      "trajectory_id": "trajectory_0426"
+    },
+    {
+      "codes": [
+        "1.3.2"
+      ],
+      "content_sha256": "b827f4e24102501de24e051fea34460bdde07620ee826726708f705a40c8f975",
+      "label": "1.3.2",
+      "positive": true,
+      "scenario_key": "efd085cbde6df0eb",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0427"
+    },
+    {
+      "codes": [],
+      "content_sha256": "c44435f7bcbea533576f19b8ad762786b7848034f470d4058b1e9f1450f80f0b",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "f3670d6fdbe0810c",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0428"
+    },
+    {
+      "codes": [
+        "1.1.1",
+        "1.3.2"
+      ],
+      "content_sha256": "440b399726a6af4046fda60b655e4abab25eb38dae70bb50bb4c1374d89e5d61",
+      "label": "1.1.1, 1.3.2",
+      "positive": true,
+      "scenario_key": "6da6fe3a64beeddf",
+      "split": "train",
+      "trajectory_id": "trajectory_0429"
+    },
+    {
+      "codes": [],
+      "content_sha256": "a614bc880c003dc59346fba344dd1b93f298640d159657d84688f2dd4ebcf5a2",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "16d512b439ade0f7",
+      "split": "train",
+      "trajectory_id": "trajectory_0430"
+    },
+    {
+      "codes": [
+        "1.2.1",
+        "1.2.2",
+        "1.2.3"
+      ],
+      "content_sha256": "4c116ffbd195151424edafd68f49783bf6f6f80915d424fb32a17c6d37fb6a06",
+      "label": "1.2.1, 1.2.2, 1.2.3",
+      "positive": true,
+      "scenario_key": "6f8e46490735c5f5",
+      "split": "train",
+      "trajectory_id": "trajectory_0431"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.1.3",
+        "1.3.1"
+      ],
+      "content_sha256": "395c273371953fa098e66e23400fcbb44f93e6473b6401585d903a26a099eb9b",
+      "label": "1.1.2, 1.1.3, 1.3.1",
+      "positive": true,
+      "scenario_key": "7bad211fc64901ec",
+      "split": "train",
+      "trajectory_id": "trajectory_0432"
+    },
+    {
+      "codes": [],
+      "content_sha256": "e0c63f0905f3586ef99d4896a902122971f9861bf59d246e0a99e1afda6f63cd",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "0a28f38d86ffc0a0",
+      "split": "train",
+      "trajectory_id": "trajectory_0433"
+    },
+    {
+      "codes": [
+        "1.2.1",
+        "1.2.3"
+      ],
+      "content_sha256": "f0345155249b8fc9f9f23702fc4104a4e0f1dd6384776f36b0bafa4dd749e215",
+      "label": "1.2.1, 1.2.3",
+      "positive": true,
+      "scenario_key": "08f78b43148b2bb0",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0434"
+    },
+    {
+      "codes": [
+        "1.2.1",
+        "1.3.1",
+        "1.3.2"
+      ],
+      "content_sha256": "6b39ee4737ab994fd51c1289b19c10beb905dcc3ac202176087302dfc9c78eee",
+      "label": "1.2.1, 1.3.1, 1.3.2",
+      "positive": true,
+      "scenario_key": "775029edc7944fd2",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0435"
+    },
+    {
+      "codes": [
+        "1.1.1",
+        "1.1.3",
+        "1.2.1"
+      ],
+      "content_sha256": "9b4450378b0db20c5356d1ede566fd926983fdaf860763b4b1f051e31a2646c1",
+      "label": "1.1.1, 1.1.3, 1.2.1",
+      "positive": true,
+      "scenario_key": "592f6d33951e932b",
+      "split": "train",
+      "trajectory_id": "trajectory_0436"
+    },
+    {
+      "codes": [
+        "1.1.1",
+        "1.1.3",
+        "1.2.1"
+      ],
+      "content_sha256": "1328fa821a5486f01efd77dc4f72195639fb9b54fda37d4248934b8a0d287185",
+      "label": "1.1.1, 1.1.3, 1.2.1",
+      "positive": true,
+      "scenario_key": "d2f2e863a63cb448",
+      "split": "train",
+      "trajectory_id": "trajectory_0437"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.1.3",
+        "1.3.1"
+      ],
+      "content_sha256": "4866d3c06ccc96ee9593b64aa03c6b064603b9c56be39dbcbb58e447a8830dab",
+      "label": "1.1.2, 1.1.3, 1.3.1",
+      "positive": true,
+      "scenario_key": "507fcbc4d4b6513a",
+      "split": "train",
+      "trajectory_id": "trajectory_0438"
+    },
+    {
+      "codes": [],
+      "content_sha256": "21264697f51d780a0ab63d51d4d189126d0c8708c55e2e45da4b9d9227ee6544",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "643d148ad2c7231c",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0439"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.1.3"
+      ],
+      "content_sha256": "db1c4f0c03f907567923a181fcfca6362f99794eb35cac0c9f5cfe77b9ed4d37",
+      "label": "1.1.2, 1.1.3",
+      "positive": true,
+      "scenario_key": "3fa4c958012ba78e",
+      "split": "train",
+      "trajectory_id": "trajectory_0440"
+    },
+    {
+      "codes": [
+        "1.1.1",
+        "1.1.2"
+      ],
+      "content_sha256": "c1f8924e873616eaa55e3f88e8d61ac42bdc385dcd86e151c939bcabcff8d0ae",
+      "label": "1.1.1, 1.1.2",
+      "positive": true,
+      "scenario_key": "7ddfc1df2bc14d06",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0441"
+    },
+    {
+      "codes": [],
+      "content_sha256": "f73d9d22a12f4245ef6d914eef77d5b5798611d0bf083626ea5d23ac435dcdcd",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "8ff30efe359f61d0",
+      "split": "train",
+      "trajectory_id": "trajectory_0442"
+    },
+    {
+      "codes": [],
+      "content_sha256": "fe7a5670058fa67d81aa9013f9b98b568b68fde5020db2a513607f592e52c01a",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "7c20721abf9e9867",
+      "split": "train",
+      "trajectory_id": "trajectory_0443"
+    },
+    {
+      "codes": [],
+      "content_sha256": "a69bbdb983e76c63971c67fe65387f64f90fcdf2ea559e5674a81dfe3a822533",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "163a3a3266f1c5b4",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0444"
+    },
+    {
+      "codes": [],
+      "content_sha256": "632f370e29d0d03e1646452b6bde48e0af98c5f1252a465cbb432f66c0561230",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "38eca173a00b0d1c",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0445"
+    },
+    {
+      "codes": [],
+      "content_sha256": "eaceb28bb565d0d2ed548b918173389bdd0a2c0d777c31b399ca984419faadf6",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "2d264b2bf663d803",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0446"
+    },
+    {
+      "codes": [],
+      "content_sha256": "97ec558ca2ea43e383db39758fde76a835148025d39889463e22599089079056",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "075efdf46b7e5455",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0447"
+    },
+    {
+      "codes": [],
+      "content_sha256": "4e05e36bd780c665b626817b45839bf10fbdadbafb9667f4f8dd5a096b4c8d25",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "430b3951946ec3a7",
+      "split": "train",
+      "trajectory_id": "trajectory_0448"
+    },
+    {
+      "codes": [
+        "1.2.1",
+        "1.3.1"
+      ],
+      "content_sha256": "8c54711d05e633770cc7f2347e66574f1e09aa7b1524834d61fc42dbb9fe1f78",
+      "label": "1.2.1, 1.3.1",
+      "positive": true,
+      "scenario_key": "d8aa90a8d0e90022",
+      "split": "train",
+      "trajectory_id": "trajectory_0449"
+    },
+    {
+      "codes": [],
+      "content_sha256": "26c8d11411603b22c70265132c58ad7047faa3b4d1696d4c5411b5f565b16b5c",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "f056fb5d13b9305b",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0450"
+    },
+    {
+      "codes": [
+        "1.2.1"
+      ],
+      "content_sha256": "5510de71cf1a8e23d953a9bc77a42efd57cf265b81e31d6edf11d2917624fe4b",
+      "label": "1.2.1",
+      "positive": true,
+      "scenario_key": "059949bf810cd9ee",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0451"
+    },
+    {
+      "codes": [
+        "1.2.1",
+        "1.2.3"
+      ],
+      "content_sha256": "64ff7824ff557742a13efb144f911f4e14d076de3d6283306792f7e799bb4835",
+      "label": "1.2.1, 1.2.3",
+      "positive": true,
+      "scenario_key": "b33abd5a5a2a36de",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0452"
+    },
+    {
+      "codes": [
+        "1.2.1",
+        "1.2.3"
+      ],
+      "content_sha256": "9e68a4ba0976184449df2fafbad2a3063d22547cb3ca257aba234c7e7e3e27e2",
+      "label": "1.2.1, 1.2.3",
+      "positive": true,
+      "scenario_key": "4d4bdd8fadfb02af",
+      "split": "train",
+      "trajectory_id": "trajectory_0453"
+    },
+    {
+      "codes": [
+        "1.4.2"
+      ],
+      "content_sha256": "d52706bc2e99446d5d1ba570ffc59196847fe1627ce3aa80eb81a94e96f544da",
+      "label": "1.4.2",
+      "positive": true,
+      "scenario_key": "7d0e2f681287fdbd",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0454"
+    },
+    {
+      "codes": [],
+      "content_sha256": "cbeb565286b077831aad710415013b9792e07bfc5e90fac93b9f9ef9e8bcca41",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "7166bc59510d5adb",
+      "split": "train",
+      "trajectory_id": "trajectory_0455"
+    },
+    {
+      "codes": [],
+      "content_sha256": "afe5e0fe9c9136ba7886e597db0962153a031a827bb0e1add2d58485dbdd5bc5",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "4816f1ab2f690b5e",
+      "split": "train",
+      "trajectory_id": "trajectory_0456"
+    },
+    {
+      "codes": [],
+      "content_sha256": "3eb0041a179e0c81e4e99092804c8ca995b6bd16073c0eb6db0aa892213e2e0e",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "2b10465c8cc519be",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0457"
+    },
+    {
+      "codes": [
+        "1.1.2"
+      ],
+      "content_sha256": "181b76e2c7b7cce12e9d4548601a5a250fd027d2be05cdb429f9e800489f9910",
+      "label": "1.1.2",
+      "positive": true,
+      "scenario_key": "d84d70f6f284b7ef",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0458"
+    },
+    {
+      "codes": [],
+      "content_sha256": "0d84b08fc855e944aa5ea8e9d4f3c0d2bf309451014c234803d766b6c84b3e2f",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "d62695be9b27cec6",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0459"
+    },
+    {
+      "codes": [],
+      "content_sha256": "24112b38c929ecb2022d420618562d8be0b846dc8db2d974eb35ad70f42aa599",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "e14ea49fa33dc24a",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0460"
+    },
+    {
+      "codes": [],
+      "content_sha256": "48f6fb71b270dfc9e1858bc71f23cba16ae6ca0cb2b25e9c7aac452d6cec19d1",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "22a5cca90b6bd627",
+      "split": "train",
+      "trajectory_id": "trajectory_0461"
+    },
+    {
+      "codes": [],
+      "content_sha256": "d4231579fec18cf5d2091ff9d93d56e493b3504d171d4807eed9c158582147f0",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "edbcd64a170b8e33",
+      "split": "train",
+      "trajectory_id": "trajectory_0462"
+    },
+    {
+      "codes": [],
+      "content_sha256": "7ace475b0abef338f406d15cb50bdc4409b0557b6ce9e01ac3027ca0f3000779",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "4bf024933cd6e5e3",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0463"
+    },
+    {
+      "codes": [
+        "1.2.3"
+      ],
+      "content_sha256": "0330bdbc90f93c7ade7a7361ca4f9c9fbe3330b143abb3dc15b3c5ce6fa4df6c",
+      "label": "1.2.3",
+      "positive": true,
+      "scenario_key": "1b6c311683ee2671",
+      "split": "train",
+      "trajectory_id": "trajectory_0464"
+    },
+    {
+      "codes": [
+        "1.4.2"
+      ],
+      "content_sha256": "4f6bf42fa3f4c0e4a1517bcec5f583c39b791cd50c4e71a3330f79a47140489d",
+      "label": "1.4.2",
+      "positive": true,
+      "scenario_key": "2c70a2a6682b6663",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0465"
+    },
+    {
+      "codes": [
+        "1.1.1",
+        "1.1.3"
+      ],
+      "content_sha256": "b172013272a1bbbda3967c0e32385ccd88272f53fede765c6c3b4dace35867f4",
+      "label": "1.1.1, 1.1.3",
+      "positive": true,
+      "scenario_key": "b416d0d8a9fcb473",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0466"
+    },
+    {
+      "codes": [
+        "1.1.1",
+        "1.1.2"
+      ],
+      "content_sha256": "cf6876a61e23ca8fe5ab385a6f6e848e26e76aada9db7bffa9e2c4cfd90903b4",
+      "label": "1.1.1, 1.1.2",
+      "positive": true,
+      "scenario_key": "2ed647e4a7127fe0",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0467"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.3.1"
+      ],
+      "content_sha256": "e81d5f2a4497645261128b421bef8d2b4071fc10c7cd3a00d9c034310b81590b",
+      "label": "1.1.2, 1.3.1",
+      "positive": true,
+      "scenario_key": "3504c3b8305034a2",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0468"
+    },
+    {
+      "codes": [
+        "1.1.1",
+        "1.1.2"
+      ],
+      "content_sha256": "a15e8f86c06d37fd037a9096f5580edff59389dd1b5c8538210e1ad075360ca8",
+      "label": "1.1.1, 1.1.2",
+      "positive": true,
+      "scenario_key": "752b136bb8ece44a",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0469"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.2.1"
+      ],
+      "content_sha256": "c2fc0a3cff50c0aa4f7f69b4b61b20abbf0e86e41feefbf4aeae46e29bde3033",
+      "label": "1.1.2, 1.2.1",
+      "positive": true,
+      "scenario_key": "ddb594e1d238635d",
+      "split": "train",
+      "trajectory_id": "trajectory_0470"
+    },
+    {
+      "codes": [],
+      "content_sha256": "e3c7cb7f3f86b0d497826cfceb94aedc8cf9c509bef426f0aba9d99fd733ffec",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "3eb25ffbef170c8f",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0471"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "9cdd86d707a6ea9afce74e468e9c77cd7b240b0f2fe1a138afc0051b416fc0c4",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "bc41d5faab32568c",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0472"
+    },
+    {
+      "codes": [],
+      "content_sha256": "97d225801916e0cb98f4b1f6d6210bcf0e9f5807ca025d08c132507d453d1d5b",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "a9d2a5891e38504b",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0473"
+    },
+    {
+      "codes": [],
+      "content_sha256": "a65f95da8e20f601e6db20d6988b2259e26c3bc6fcfaa061166100540743b484",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "cde45e35feb9e59a",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0474"
+    },
+    {
+      "codes": [
+        "1.1.3"
+      ],
+      "content_sha256": "16ea82354db9c33caada097912fc6571601cf9184ff5cea21816451b218db97b",
+      "label": "1.1.3",
+      "positive": true,
+      "scenario_key": "59d06eee90a76994",
+      "split": "train",
+      "trajectory_id": "trajectory_0475"
+    },
+    {
+      "codes": [],
+      "content_sha256": "91edce50911da750625ec8e39d850840352cc16c51b87363b930ea8b216694ed",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "eb5a6e8c8aaf5029",
+      "split": "train",
+      "trajectory_id": "trajectory_0476"
+    },
+    {
+      "codes": [
+        "1.1.3",
+        "1.2.1",
+        "1.4.1"
+      ],
+      "content_sha256": "29138704d5f081c455ac8ccc118c250a1cba473db3d021502d73bcaeee7cc7a1",
+      "label": "1.1.3, 1.2.1, 1.4.1",
+      "positive": true,
+      "scenario_key": "4736bb99bb727c28",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0477"
+    },
+    {
+      "codes": [],
+      "content_sha256": "2bb7fca27c54f6893d574f08f7a975f367b463a4457715c0c0d4a08ed7409c51",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "f8a47ad94688f284",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0478"
+    },
+    {
+      "codes": [],
+      "content_sha256": "848b09915582ea5917a2a2c112d983c504b82d74244904f5c7210e9e08c24400",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "7b26430458057137",
+      "split": "train",
+      "trajectory_id": "trajectory_0479"
+    },
+    {
+      "codes": [
+        "1.1.2",
+        "1.2.1"
+      ],
+      "content_sha256": "b37b693d158eb522c73ebfaad90c8a6b9c51d4bc4a67ed9291330b100e3f4d95",
+      "label": "1.1.2, 1.2.1",
+      "positive": true,
+      "scenario_key": "997feb6dd676c6c9",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0480"
+    },
+    {
+      "codes": [],
+      "content_sha256": "48bccdbd9a23a4eabf943ee36b17d19f34aceac3a3e9372b40968ce7b2c80a0b",
+      "label": "0",
+      "positive": false,
+      "scenario_key": "6e6e1acf27d10e9f",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0481"
+    },
+    {
+      "codes": [
+        "1.2.2"
+      ],
+      "content_sha256": "d0ad06e6dcf29446417c1d2682478d0d5f8062f63b508cb6ba749c99e86623e6",
+      "label": "1.2.2",
+      "positive": true,
+      "scenario_key": "2b4d5dc7600feddd",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0482"
+    },
+    {
+      "codes": [
+        "1.2.2"
+      ],
+      "content_sha256": "f1e70adb897c913fd44a4b0c5dd9bb99e5a39176404f3b258a59d2b7818b5101",
+      "label": "1.2.2",
+      "positive": true,
+      "scenario_key": "bd34919d2460abcd",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0483"
+    },
+    {
+      "codes": [
+        "1.2.2"
+      ],
+      "content_sha256": "67a379fa4f06d33ae876211aef6e7e356b8d84eeda0cc21a5956207c64c004ed",
+      "label": "1.2.2",
+      "positive": true,
+      "scenario_key": "24408da41848e270",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0484"
+    },
+    {
+      "codes": [
+        "1.3.1"
+      ],
+      "content_sha256": "971d98e8862043e8af013678b95bec72ba9daa0fe93d84a72835b1c86cf2b2d2",
+      "label": "1.3.1",
+      "positive": true,
+      "scenario_key": "9b18a07d0055b137",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0485"
+    },
+    {
+      "codes": [
+        "1.3.1"
+      ],
+      "content_sha256": "ca52e9881f4ade51b76c2a6337ce59d331ef0a382c77e511cf790d6def998bf1",
+      "label": "1.3.1",
+      "positive": true,
+      "scenario_key": "26141b45185981d6",
+      "split": "train",
+      "trajectory_id": "trajectory_0486"
+    },
+    {
+      "codes": [
+        "1.3.1"
+      ],
+      "content_sha256": "13a99ee021e340814ccc80689709cf770f11dc2f1f5515ada40ec01c47e458f1",
+      "label": "1.3.1",
+      "positive": true,
+      "scenario_key": "338f28e95a055cd3",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0487"
+    },
+    {
+      "codes": [
+        "1.3.1"
+      ],
+      "content_sha256": "9e2470410eefc89345dafdc8406ba87cbbdf53b5476c0df46b4c623958f79ee7",
+      "label": "1.3.1",
+      "positive": true,
+      "scenario_key": "9b8e63259ff6148d",
+      "split": "train",
+      "trajectory_id": "trajectory_0488"
+    },
+    {
+      "codes": [
+        "1.3.1"
+      ],
+      "content_sha256": "e58fa8021404e7540ef8451a8c30581d526802b171b9ff964316e3b6aa27eefd",
+      "label": "1.3.1",
+      "positive": true,
+      "scenario_key": "050e405d419c161e",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0489"
+    },
+    {
+      "codes": [
+        "1.3.1"
+      ],
+      "content_sha256": "a1cce23c5fbd902a61bcebc3b798bbb3f6042aff637c9be8284d7ff545977839",
+      "label": "1.3.1",
+      "positive": true,
+      "scenario_key": "14eb8186691261f9",
+      "split": "train",
+      "trajectory_id": "trajectory_0490"
+    },
+    {
+      "codes": [
+        "1.3.1"
+      ],
+      "content_sha256": "51ecb4e5b89d938bb4f6ee5fe76f29aa13224a4b4255c3a424f8f92db27229d7",
+      "label": "1.3.1",
+      "positive": true,
+      "scenario_key": "8a080dcb3f6e4fff",
+      "split": "train",
+      "trajectory_id": "trajectory_0491"
+    },
+    {
+      "codes": [
+        "1.3.1"
+      ],
+      "content_sha256": "d00a4175a831f388893dc5c01fc525b4d50979167f03f3147584bf0e46b1dfb9",
+      "label": "1.3.1",
+      "positive": true,
+      "scenario_key": "d5ba0066e22cd010",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0492"
+    },
+    {
+      "codes": [
+        "1.3.1"
+      ],
+      "content_sha256": "15c53c40d850e86a7090290b1b2cd0559af67b9a7a53033a49a247a37de0a94e",
+      "label": "1.3.1",
+      "positive": true,
+      "scenario_key": "ecef77cc9cfd80b5",
+      "split": "train",
+      "trajectory_id": "trajectory_0493"
+    },
+    {
+      "codes": [
+        "1.3.1"
+      ],
+      "content_sha256": "dbf0a04c226e6fe86298d7ae59102555b7a1c486df677e4a1b65c1e9ce076aed",
+      "label": "1.3.1",
+      "positive": true,
+      "scenario_key": "ef3301f74c8f4e0c",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0494"
+    },
+    {
+      "codes": [
+        "1.3.1"
+      ],
+      "content_sha256": "3b3ee60eb9c2888a8d7aa6a782058f0e40e2f92ca045ae0c54dcb9f1edea2045",
+      "label": "1.3.1",
+      "positive": true,
+      "scenario_key": "d110f59021b319b6",
+      "split": "train",
+      "trajectory_id": "trajectory_0495"
+    },
+    {
+      "codes": [
+        "1.4.2"
+      ],
+      "content_sha256": "e0ebd3b81f0c94e33bd41d8573360a2c354202a0446427cfaf3493bf927d66e0",
+      "label": "1.4.2",
+      "positive": true,
+      "scenario_key": "96b2650d8dc3e162",
+      "split": "train",
+      "trajectory_id": "trajectory_0496"
+    },
+    {
+      "codes": [
+        "1.4.2"
+      ],
+      "content_sha256": "36f83542404fc732521237331d2d0e5329dbea5dac10639934076e6d66e7f84a",
+      "label": "1.4.2",
+      "positive": true,
+      "scenario_key": "1193cf99ea3ce7ab",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0497"
+    },
+    {
+      "codes": [
+        "1.4.2"
+      ],
+      "content_sha256": "078859503cc33306b474c700b428589b3b32eeb8d4170776fbd97a41dc101ed4",
+      "label": "1.4.2",
+      "positive": true,
+      "scenario_key": "a7008a8d40300ae9",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0498"
+    },
+    {
+      "codes": [
+        "1.4.2"
+      ],
+      "content_sha256": "a3963111b251ece7090bda8f81a8d941018e13b98445854f9a6fdde7da57e118",
+      "label": "1.4.2",
+      "positive": true,
+      "scenario_key": "e9bccd87bd340203",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0499"
+    },
+    {
+      "codes": [
+        "1.4.2"
+      ],
+      "content_sha256": "da0d103b73f15e1985c73b1e3b51ad37aa2e9f6834f982db51d209e436cfeda8",
+      "label": "1.4.2",
+      "positive": true,
+      "scenario_key": "a2f5862baeabc0d9",
+      "split": "train",
+      "trajectory_id": "trajectory_0500"
+    },
+    {
+      "codes": [
+        "1.4.2"
+      ],
+      "content_sha256": "66d5a9c53d2634e96fd227c870fcd5db8c77b852ba30dd3c0a12ef1bf93ef158",
+      "label": "1.4.2",
+      "positive": true,
+      "scenario_key": "00dd6641b71c5117",
+      "split": "train",
+      "trajectory_id": "trajectory_0501"
+    },
+    {
+      "codes": [
+        "1.4.2"
+      ],
+      "content_sha256": "5cf1d688501e503455b56787b9761ac2caa11ecd4b5173028b2c3bef02a86227",
+      "label": "1.4.2",
+      "positive": true,
+      "scenario_key": "c5f46bedcb801ac7",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0502"
+    },
+    {
+      "codes": [
+        "1.2.2"
+      ],
+      "content_sha256": "9ef4463990903fa27bf169d5281ee0471ce68c557fea009a8461e362f977b7d0",
+      "label": "1.2.2",
+      "positive": true,
+      "scenario_key": "d2e004214fe1f60d",
+      "split": "train",
+      "trajectory_id": "trajectory_0503"
+    },
+    {
+      "codes": [
+        "1.2.2"
+      ],
+      "content_sha256": "1a09cbe11e23733e1d4aed934b51f00a9ecc826dbdcfaa2f3f452e899fb63f80",
+      "label": "1.2.2",
+      "positive": true,
+      "scenario_key": "ae93c17cd1afa26c",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0504"
+    },
+    {
+      "codes": [
+        "1.2.2"
+      ],
+      "content_sha256": "a7aa5e0d9864ab75d3582694498f691eeeda47e6312d5c9a5424e0df0b703a63",
+      "label": "1.2.2",
+      "positive": true,
+      "scenario_key": "eaa906f1471b6e9a",
+      "split": "train",
+      "trajectory_id": "trajectory_0505"
+    },
+    {
+      "codes": [
+        "1.2.2"
+      ],
+      "content_sha256": "e1e1361278f9a9ee31e547cf599807e63dc54949771ba13ca8c870008638b8e7",
+      "label": "1.2.2",
+      "positive": true,
+      "scenario_key": "fc860217f8aedb07",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0506"
+    },
+    {
+      "codes": [
+        "1.2.2"
+      ],
+      "content_sha256": "f9dee78089dca469b66b1580fff7c80d604039ddef0c8a56e067c56839690407",
+      "label": "1.2.2",
+      "positive": true,
+      "scenario_key": "3975e25d65cebfa9",
+      "split": "train",
+      "trajectory_id": "trajectory_0507"
+    },
+    {
+      "codes": [
+        "1.3.2"
+      ],
+      "content_sha256": "9247ff9fcce33efbc7af1c9a78730021471b5b9a28acfe08c89b221e4b1bb046",
+      "label": "1.3.2",
+      "positive": true,
+      "scenario_key": "0ae83931fe42391b",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0508"
+    },
+    {
+      "codes": [
+        "1.3.2"
+      ],
+      "content_sha256": "68474b02248bb769b64dc2e1b93d418ec85f0099c189c2602ab623a9e0c3e43c",
+      "label": "1.3.2",
+      "positive": true,
+      "scenario_key": "01d80ce4c3f22aa5",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0509"
+    },
+    {
+      "codes": [
+        "1.3.2"
+      ],
+      "content_sha256": "ff26fd79e8595bb90c6ff49c90b798b41409ad9485ac75b45c9ea23a46c2cd43",
+      "label": "1.3.2",
+      "positive": true,
+      "scenario_key": "630b96982199807c",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0510"
+    },
+    {
+      "codes": [
+        "1.3.2"
+      ],
+      "content_sha256": "26afed5ad9e35c69061e0dfdb2e114d41227876ae3d7e6cdd2ae66e0ed704032",
+      "label": "1.3.2",
+      "positive": true,
+      "scenario_key": "220a1b3be3c6edd4",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0511"
+    },
+    {
+      "codes": [
+        "1.3.2"
+      ],
+      "content_sha256": "1c8ce5b2c036c454bcba5189dde2f01c5517075bf012e41e8ffec55a4294c471",
+      "label": "1.3.2",
+      "positive": true,
+      "scenario_key": "3ac5fc9195017648",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0512"
+    },
+    {
+      "codes": [
+        "1.3.2"
+      ],
+      "content_sha256": "16038be446b0c6248c32ae6cb7265ac5465de7aad32e708be5cc53a2d112a129",
+      "label": "1.3.2",
+      "positive": true,
+      "scenario_key": "23bca652f2746b02",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0513"
+    },
+    {
+      "codes": [
+        "1.3.2"
+      ],
+      "content_sha256": "0943088609baed9804d89b788908930c643be114c556db7a74e27708cccc9318",
+      "label": "1.3.2",
+      "positive": true,
+      "scenario_key": "4e292064e57b300a",
+      "split": "tuning",
+      "trajectory_id": "trajectory_0514"
+    },
+    {
+      "codes": [
+        "1.3.2"
+      ],
+      "content_sha256": "a031a52dff543131d8f4ba3380f7968fe552182c82ee77beda5e35f8849b07a4",
+      "label": "1.3.2",
+      "positive": true,
+      "scenario_key": "c4d5f7b50baaacb0",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0515"
+    },
+    {
+      "codes": [
+        "1.3.2"
+      ],
+      "content_sha256": "4cadc5f826ec94f5f868cae2550fe4eab5301ea47c83c23c293023f85ca39cde",
+      "label": "1.3.2",
+      "positive": true,
+      "scenario_key": "6a06fc1b52f6e5b0",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0516"
+    },
+    {
+      "codes": [
+        "1.3.2"
+      ],
+      "content_sha256": "452afb922a0474934fed9bc1d5461c8def40d175e1d9596d4c2d844d615eb9ab",
+      "label": "1.3.2",
+      "positive": true,
+      "scenario_key": "6a06fc1b52f6e5b0",
+      "split": "holdout",
+      "trajectory_id": "trajectory_0517"
+    }
+  ],
+  "split_version": "1",
+  "split_weights": {
+    "holdout": 0.4,
+    "train": 0.4,
+    "tuning": 0.2
+  }
+}

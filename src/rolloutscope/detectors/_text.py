@@ -9,6 +9,7 @@ helpers produce.
 
 from __future__ import annotations
 
+import json
 import re
 from collections.abc import Iterator, Sequence
 
@@ -134,6 +135,8 @@ def stable_rollout_id(rollout: Rollout) -> str:
     schema's content-derived id over (example_id, prompt, completion, reward),
     so the same row always maps to the same id.
     """
+    if rollout.occurrence_id:
+        return rollout.occurrence_id
     if rollout.rollout_id:
         return rollout.rollout_id
     dumped = rollout.model_dump(mode="json", include={"prompt", "completion"})
@@ -143,8 +146,11 @@ def stable_rollout_id(rollout: Rollout) -> str:
 
 
 def stable_group_id(rollout: Rollout) -> str:
-    """Return the rollout's group id, falling back to the example_id grouping key."""
-    return rollout.group_id or derive_group_id(rollout.example_id)
+    """Return a group key scoped to the run, falling back to example_id within it."""
+    group_id = rollout.group_id or derive_group_id(rollout.example_id)
+    if rollout.run_id is None:
+        return group_id
+    return json.dumps([rollout.run_id, group_id], separators=(",", ":"))
 
 
 def word_tokens(text: str) -> list[str]:

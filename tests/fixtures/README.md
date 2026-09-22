@@ -2,7 +2,7 @@
 
 Everything in this tree is SYNTHETIC and hand-written, deterministically, for
 tests. No row came from a real model or a real evaluation run. Shapes follow the
-verifiers-ground-truth skill's `references/on-disk-format.md` (verifiers @
+pinned verifiers on-disk format (verifiers @
 `5885ab9c`, prime-rl @ `df2acf48`).
 
 Contents:

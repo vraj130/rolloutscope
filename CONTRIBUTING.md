@@ -21,10 +21,24 @@ uv run pytest -m integration  # optional network tests (skip gracefully offline)
 uv run ruff check .           # lint
 uv run ruff format .          # format
 uv run mypy src/              # types (strict)
+uv run python scripts/check_packaging.py   # wheel install outside the checkout
 ```
+
+CI also runs `uv lock --check`, executes tests with `--frozen` against the committed
+lockfile, and fails the job when coverage drops below 85 percent.
 
 A change is ready when `uv run pytest -q`, `uv run ruff check .`,
 `uv run ruff format --check .`, and `uv run mypy src/` are all green.
+
+To record a performance baseline (not a pass/fail budget):
+
+```bash
+uv run python scripts/perf/generate.py --size small --out /tmp/rs-small
+uv run python scripts/perf/measure.py --input /tmp/rs-small --out /tmp/rs-small-out
+```
+
+Named sizes are `small` (160 rows), `medium` (5_000), and `large` (50_000). Results
+follow `scripts/perf/result_schema.json`.
 
 ## Project conventions
 

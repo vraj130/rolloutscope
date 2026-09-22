@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "rolloutscope-perf-result.schema.json",
+  "title": "RolloutScope performance measurement result",
+  "description": "Versioned record of one analyze() run over a generated dataset. This is a baseline measurement, not a pass/fail budget.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "tool_version",
+    "python_version",
+    "platform",
+    "generator",
+    "input",
+    "run"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "description": "Result format version. Additive changes stay on 1.x."
+    },
+    "tool_version": {
+      "type": "string",
+      "description": "rolloutscope package version that produced the analysis."
+    },
+    "python_version": {
+      "type": "string"
+    },
+    "platform": {
+      "type": "string",
+      "description": "sys.platform of the measurement process (linux, darwin)."
+    },
+    "generator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["size", "seed"],
+      "properties": {
+        "size": {
+          "type": "string",
+          "description": "Named generator size (small, medium, large) or a test alias."
+        },
+        "seed": {
+          "type": "integer"
+        }
+      }
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bytes",
+        "record_count",
+        "mean_trajectory_turns",
+        "group_cardinality",
+        "step_count",
+        "kind_mix"
+      ],
+      "properties": {
+        "bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Sum of JSONL file sizes in the generated run."
+        },
+        "record_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "mean_trajectory_turns": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Mean trajectory length; single-turn rows count as zero turns."
+        },
+        "group_cardinality": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Distinct example_id values."
+        },
+        "step_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "kind_mix": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["single_turn", "multi_turn"],
+          "properties": {
+            "single_turn": { "type": "integer", "minimum": 0 },
+            "multi_turn": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "elapsed_seconds",
+        "peak_rss_bytes",
+        "html_bytes",
+        "json_bytes",
+        "detector_mix",
+        "exit_code"
+      ],
+      "properties": {
+        "elapsed_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "peak_rss_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Peak RSS of the analyze child, normalized to bytes."
+        },
+        "html_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "json_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "detector_mix": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Detector ids that ran, from the report detector_results list."
+        },
+        "exit_code": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

@@ -45,7 +45,7 @@ def test_single_turn_rows_roundtrip(eval_run_dir: Path) -> None:
         rollout = validate_rollout(row)
         assert isinstance(rollout, SingleTurnRollout)
         assert rollout.kind == "single_turn"
-        assert rollout.schema_version == "1.0"
+        assert rollout.schema_version == "2.0"
         assert_subset(row, rollout.model_dump(mode="json"))
 
 
@@ -83,8 +83,9 @@ def test_write_read_roundtrip_is_stable(
 ) -> None:
     from rolloutscope.schema import read_rollouts
 
-    rows = load_rows(eval_run_dir / "results.jsonl") + load_rows(multi_turn_path)
-    rollouts = [validate_rollout(row) for row in rows]
+    rollouts = list(read_rollouts(eval_run_dir / "results.jsonl")) + list(
+        read_rollouts(multi_turn_path)
+    )
     out = tmp_path / "normalized.jsonl"
     assert write_rollouts(out, rollouts) == 6
     reread = list(read_rollouts(out))

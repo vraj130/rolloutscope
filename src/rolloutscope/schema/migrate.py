@@ -1,6 +1,6 @@
 """Schema version migration chain.
 
-Policy (rollout-schema-design skill, versioning-and-streaming.md): within a major
+Policy: within a major
 version changes are additive only; a breaking change bumps the major and ships a
 migration function keyed by the major it leaves. Readers upgrade rows on load;
 writers only ever write the current version.
@@ -13,12 +13,13 @@ upgrading or not. The 0.x entry is a worked example proving the chain; no real
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable
 from typing import Any
 
 from rolloutscope.schema.models import SCHEMA_VERSION
 
-CURRENT_MAJOR = 1
+CURRENT_MAJOR = 2
 
 Migration = Callable[[dict[str, Any]], dict[str, Any]]
 
@@ -45,10 +46,9 @@ def register_migration(from_major: int) -> Callable[[Migration], Migration]:
 
 
 def _major_of(version: str) -> int:
-    try:
-        return int(str(version).split(".")[0])
-    except ValueError as exc:
-        raise UnsupportedSchemaVersionError(f"unparseable schema_version {version!r}") from exc
+    if not isinstance(version, str) or not re.fullmatch(r"\d+\.\d+(?:\.\d+)?", version):
+        raise UnsupportedSchemaVersionError(f"unparseable schema_version {version!r}")
+    return int(version.split(".")[0])
 
 
 @register_migration(0)
@@ -64,13 +64,31 @@ def migrate_v0_to_v1(row: dict[str, Any]) -> dict[str, Any]:
         migrated["example_id"] = migrated.pop("episode_id")
     if "reward" not in migrated and "score" in migrated:
         migrated["reward"] = migrated.pop("score")
+    migrated["schema_version"] = "1.0"
+    return migrated
+
+
+@register_migration(1)
+def migrate_v1_to_v2(row: dict[str, Any]) -> dict[str, Any]:
+    """Preserve v1 identity aliases while upgrading to the finite-number v2 contract.
+
+    Occurrence identity needs source position and is filled by the reader, never
+    guessed from a content hash here. Existing IDs and unknown fields survive.
+    """
+    migrated = dict(row)
+    aliases = dict(row.get("identity_aliases") or {})
+    for key in ("rollout_id", "group_id", "run_id"):
+        if isinstance(row.get(key), str):
+            aliases.setdefault(f"v1.{key}", row[key])
+    if aliases:
+        migrated["identity_aliases"] = aliases
     migrated["schema_version"] = SCHEMA_VERSION
     return migrated
 
 
 @register_migration(CURRENT_MAJOR)
 def migrate_identity(row: dict[str, Any]) -> dict[str, Any]:
-    """Identity entry for the current major: rows already at 1.x pass unchanged."""
+    """Identity entry for the current major: rows already at 2.x pass unchanged."""
     return row
 
 
@@ -84,7 +102,7 @@ def migrate_row(row: dict[str, Any]) -> dict[str, Any]:
     UnsupportedSchemaVersionError for majors newer than this reader or with no
     registered migration path.
     """
-    major = _major_of(str(row.get("schema_version", SCHEMA_VERSION)))
+    major = _major_of(row.get("schema_version", SCHEMA_VERSION))
     if major > CURRENT_MAJOR:
         raise UnsupportedSchemaVersionError(
             f"row schema major {major} is newer than supported major {CURRENT_MAJOR}"

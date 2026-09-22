@@ -59,7 +59,18 @@ class AnswerLeakageEchoDetector:
     """Per-rollout detector for answer echoes and verbatim criterion copies."""
 
     name: ClassVar[str] = "answer_leakage_echo"
+    version: ClassVar[str] = "1"
     category: ClassVar[str] = "context_exploitation"
+
+    def _ineligible_reason(self, rollout: Rollout, cfg: AnswerLeakageEchoConfig) -> str | None:
+        """Shared gate for available output and an answer or criterion to inspect."""
+        if not primary_completion(rollout)[1]:
+            return "missing_completion"
+        if len(normalize_text(rollout.answer or "")) >= cfg.min_answer_chars:
+            return None
+        if self._criteria(rollout, cfg.compiled_criteria_line, cfg):
+            return None
+        return "missing_answer_or_criterion"
 
     def detect(self, rollouts: Sequence[Rollout], config: DetectorConfig) -> list[Verdict]:
         """Return one fired verdict per rollout that echoes answer or criteria.
@@ -70,11 +81,11 @@ class AnswerLeakageEchoDetector:
         the max of the configured per-signal scores.
         """
         cfg = config.answer_leakage_echo
-        criteria_line = re.compile(cfg.criteria_line_regex)
+        criteria_line = cfg.compiled_criteria_line
         verdicts: list[Verdict] = []
         for rollout in rollouts:
             field, text = primary_completion(rollout)
-            if not text:
+            if self._ineligible_reason(rollout, cfg) is not None:
                 continue
             normalized = normalize_text(text)
             spans: list[EvidenceSpan] = []
@@ -104,6 +115,14 @@ class AnswerLeakageEchoDetector:
                         category=self.category,
                         evidence=spans,
                         rollout_ids=[stable_rollout_id(rollout)],
+                        run_id=rollout.run_id,
+                        measurements={
+                            "reward": rollout.reward,
+                            "normalized_completion_chars": len(normalized),
+                            "normalized_answer_chars": len(normalize_text(rollout.answer or "")),
+                            "answer_echo": answer_span is not None,
+                            "criterion_echo_count": len(spans) - int(answer_span is not None),
+                        },
                     )
                 )
         return verdicts

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from importlib.metadata import EntryPoint, entry_points
+from types import SimpleNamespace
 
 import rolloutscope.detectors.base as base
 from rolloutscope.detectors import (
@@ -72,3 +73,18 @@ def test_discover_falls_back_when_no_entry_points(monkeypatch, caplog):
         detectors = base.discover_detectors()
     assert set(detectors) == set(EXPECTED)
     assert any("falling back to built-ins" in record.message for record in caplog.records)
+
+
+def test_registered_metadata_error_is_visible_and_does_not_trigger_fallback(monkeypatch):
+    class BrokenMetadata:
+        @property
+        def name(self):
+            raise RuntimeError("broken name")
+
+    registered = SimpleNamespace(name="broken_metadata", load=lambda: BrokenMetadata())
+    monkeypatch.setattr(base, "entry_points", lambda group: [registered])
+    diagnostics: dict[str, str] = {}
+    assert base.discover_detectors(diagnostics=diagnostics) == {}
+    assert diagnostics == {
+        "broken_metadata": "failed to inspect detector metadata: RuntimeError: broken name"
+    }

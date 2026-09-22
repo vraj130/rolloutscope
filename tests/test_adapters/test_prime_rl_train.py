@@ -9,17 +9,26 @@ import pytest
 
 from rolloutscope.adapters import PRIME_RL_TRAIN, step_index_from_name
 from rolloutscope.schema import (
+    SCHEMA_VERSION,
     MultiTurnRollout,
     SingleTurnRollout,
     group_id,
     rollout_id,
-    run_id_from_name,
     validate_rollout,
 )
+from rolloutscope.schema.ids import run_id_from_path
 
 # Literal ids computed once from the frozen prime_rl_run fixture.
-PRIME_RUN_ID = "run-68a05070af44"
+PRIME_RUN_ID = run_id_from_path(Path(__file__).parent.parent / "fixtures" / "prime_rl_run")
 STEP0_ROW0_ROLLOUT_ID = "r6735e9b32256ae3d"
+IDENTITY_FIELDS = {
+    "occurrence_id",
+    "content_fingerprint",
+    "scoring_revision",
+    "provenance",
+    "environment_namespace",
+    "task_namespace",
+}
 
 GOOD_ROW = (
     '{"example_id": 0, "prompt": [{"role": "user", "content": "hi"}], '
@@ -30,7 +39,7 @@ GOOD_ROW = (
 # Full golden dump of the first step_0 row: raw fixture bytes plus adapter
 # identity fields plus schema defaults, written out by hand.
 STEP0_ROW0_EXPECTED_DUMP = {
-    "schema_version": "1.0",
+    "schema_version": SCHEMA_VERSION,
     "kind": "single_turn",
     "example_id": 0,
     "prompt": [{"role": "user", "content": "Compute 6 * 7.", "tool_calls": None}],
@@ -61,6 +70,7 @@ STEP0_ROW0_EXPECTED_DUMP = {
     "group_id": "grp-0",
     "run_id": PRIME_RUN_ID,
     "step_index": 0,
+    "identity_aliases": {},
     "env_seed": 7,
 }
 
@@ -98,7 +108,9 @@ def test_golden_two_step_run(prime_rl_run_dir: Path) -> None:
     assert len(rollouts) == 5
     assert [r.step_index for r in rollouts] == [0, 0, 0, 1, 1]
     assert all(r.run_id == PRIME_RUN_ID for r in rollouts)
-    assert run_id_from_name("prime_rl_run") == PRIME_RUN_ID
+    assert all(r.environment_namespace == PRIME_RUN_ID for r in rollouts)
+    assert all(r.task_namespace == PRIME_RUN_ID for r in rollouts)
+    assert run_id_from_path(prime_rl_run_dir) == PRIME_RUN_ID
 
     raw_by_step = [
         (0, read_raw(prime_rl_run_dir / "step_0" / "train_rollouts.jsonl")),
@@ -107,7 +119,9 @@ def test_golden_two_step_run(prime_rl_run_dir: Path) -> None:
     expected = [
         expected_rollout(raw, PRIME_RUN_ID, step) for step, rows in raw_by_step for raw in rows
     ]
-    assert rollouts == expected
+    assert [r.model_dump(exclude=IDENTITY_FIELDS) for r in rollouts] == [
+        r.model_dump(exclude=IDENTITY_FIELDS) for r in expected
+    ]
 
     assert rollouts[0].rollout_id == STEP0_ROW0_ROLLOUT_ID
     assert [r.group_id for r in rollouts] == ["grp-0", "grp-0", "grp-1", "grp-0", "grp-1"]
@@ -118,7 +132,7 @@ def test_golden_two_step_run(prime_rl_run_dir: Path) -> None:
 
 def test_golden_full_dump_of_first_row(prime_rl_run_dir: Path) -> None:
     first = next(iter(PRIME_RL_TRAIN.load(prime_rl_run_dir)))
-    assert first.model_dump(mode="json") == STEP0_ROW0_EXPECTED_DUMP
+    assert first.model_dump(mode="json", exclude=IDENTITY_FIELDS) == STEP0_ROW0_EXPECTED_DUMP
 
 
 def test_load_run_manifest_orders_steps(prime_rl_run_dir: Path) -> None:
@@ -128,6 +142,25 @@ def test_load_run_manifest_orders_steps(prime_rl_run_dir: Path) -> None:
     assert [f.path.parent.name for f in manifest.files] == ["step_0", "step_1"]
     assert all(f.path.name == "train_rollouts.jsonl" for f in manifest.files)
     assert manifest.metadata == {}
+    assert manifest.environment_namespace is None
+    assert manifest.task_namespace is None
+
+
+def test_optional_training_metadata_namespaces_apply_to_every_step(tmp_path: Path) -> None:
+    run = tmp_path / "train"
+    run.mkdir()
+    write_step(run, "step_0", [GOOD_ROW])
+    write_step(run, "step_1", [GOOD_ROW])
+    (run / "metadata.json").write_text(
+        '{"env_id":"trainer-env","task_namespace":"trainer-task","cost":100}'
+    )
+    manifest = PRIME_RL_TRAIN.load_run(run)
+    assert manifest.environment_namespace == "trainer-env"
+    assert manifest.task_namespace == "trainer-task"
+    rows = list(PRIME_RL_TRAIN.load_manifest(manifest))
+    assert [row.environment_namespace for row in rows] == ["trainer-env", "trainer-env"]
+    assert [row.task_namespace for row in rows] == ["trainer-task", "trainer-task"]
+    assert all(row.provenance.namespace == manifest.run_id for row in rows)
 
 
 def test_single_step_dir_entry_shares_run_id(prime_rl_run_dir: Path) -> None:
@@ -187,7 +220,7 @@ def test_unrecognized_dir_name_means_snapshot_mode(tmp_path: Path) -> None:
     # a non-step dir given directly is its own run root
     direct = PRIME_RL_TRAIN.load_run(run_dir / "final")
     assert direct.files[0].step_index is None
-    assert direct.run_id == run_id_from_name("final")
+    assert direct.run_id == run_id_from_path(run_dir / "final")
 
 
 def test_mixed_step_and_plain_dirs_order(tmp_path: Path) -> None:

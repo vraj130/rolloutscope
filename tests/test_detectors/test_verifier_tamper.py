@@ -28,7 +28,7 @@ def test_evidence_points_at_offending_span(load_labeled):
     rollouts = load_labeled("verifier_tamper_hacked")
     verdicts = DETECTOR.detect(rollouts, DEFAULT)
     for verdict in verdicts:
-        rollout = next(r for r in rollouts if r.rollout_id and r.rollout_id in verdict.rollout_ids)
+        rollout = next(r for r in rollouts if r.occurrence_id in verdict.rollout_ids)
         sources = dict(completion_sources(rollout, include_tool_calls=True))
         for span in verdict.evidence:
             assert span.field in sources

@@ -15,11 +15,12 @@ never asked for.
 from __future__ import annotations
 
 import heapq
+import json
 import math
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from rolloutscope.schema import Message, Rollout
 from rolloutscope.schema.ids import group_id as derive_group_id
@@ -35,6 +36,8 @@ class AggregateConfig(BaseModel):
     at each reward extreme; ``snippet_length`` caps prompt and completion
     snippet characters.
     """
+
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False, validate_default=True)
 
     histogram_bins: int = Field(default=10, ge=1)
     histogram_min: float = 0.0
@@ -92,6 +95,8 @@ class GroupStats(BaseModel):
     (dead group) signal used by saturation detectors.
     """
 
+    run_id: str | None = None
+    group_id: str | None = None
     count: int
     reward_mean: float
     reward_variance: float
@@ -110,6 +115,7 @@ class StepStats(BaseModel):
     characters.
     """
 
+    run_id: str | None = None
     step_index: int
     count: int
     reward_mean: float
@@ -123,6 +129,7 @@ class RolloutSnippet(BaseModel):
     kept for the top-k / bottom-k report sections."""
 
     rollout_id: str | None = None
+    run_id: str | None = None
     example_id: int
     group_key: str
     reward: float
@@ -250,12 +257,14 @@ def aggregate_rollouts(
     overall = _Welford()
     truncated = 0
     completed = 0
-    groups: dict[str, _Welford] = {}
-    steps: dict[int, _StepAccumulator] = {}
+    groups: dict[tuple[str | None, str], _Welford] = {}
+    steps: dict[tuple[str | None, int], _StepAccumulator] = {}
+    run_ids: set[str | None] = set()
     top_heap: list[_HeapEntry] = []
     bottom_heap: list[_HeapEntry] = []
 
     for sequence, rollout in enumerate(rollouts):
+        run_ids.add(rollout.run_id)
         reward = float(rollout.reward)
         overall.add(reward)
         if rollout.is_truncated:
@@ -276,18 +285,19 @@ def aggregate_rollouts(
             if rollout.group_id is not None
             else derive_group_id(rollout.example_id)
         )
-        groups.setdefault(group_key, _Welford()).add(reward)
+        groups.setdefault((rollout.run_id, group_key), _Welford()).add(reward)
 
         completion = content_text(rollout.completion)
         if rollout.step_index is not None:
-            accumulator = steps.setdefault(rollout.step_index, _StepAccumulator())
+            accumulator = steps.setdefault((rollout.run_id, rollout.step_index), _StepAccumulator())
             accumulator.reward.add(reward)
             accumulator.completion_chars += len(completion)
             accumulator.groups.setdefault(group_key, _Welford()).add(reward)
 
         if cfg.top_k > 0:
             snippet = RolloutSnippet(
-                rollout_id=rollout.rollout_id,
+                rollout_id=rollout.occurrence_id or rollout.rollout_id,
+                run_id=rollout.run_id,
                 example_id=rollout.example_id,
                 group_key=group_key,
                 reward=reward,
@@ -310,22 +320,34 @@ def aggregate_rollouts(
     else:
         run_summary = RunSummary(row_count=0)
 
+    def _display_group(run_id: str | None, group_id: str) -> str:
+        if len(run_ids) <= 1:
+            return group_id
+        return json.dumps([run_id, group_id], separators=(",", ":"))
+
     group_stats = {
-        key: GroupStats(
+        _display_group(run_id, group_id): GroupStats(
+            run_id=run_id,
+            group_id=group_id,
             count=welford.count,
             reward_mean=welford.mean,
             reward_variance=welford.variance,
             all_identical=welford.minimum == welford.maximum,
         )
-        for key, welford in sorted(groups.items())
+        for (run_id, group_id), welford in sorted(
+            groups.items(), key=lambda pair: (pair[0][0] or "", pair[0][1])
+        )
     }
 
     step_series: list[StepStats] = []
-    for step_index, accumulator in sorted(steps.items()):
+    for (run_id, step_index), accumulator in sorted(
+        steps.items(), key=lambda pair: (pair[0][0] or "", pair[0][1])
+    ):
         eligible = [w for w in accumulator.groups.values() if w.count >= 2]
         dead = sum(1 for w in eligible if w.minimum == w.maximum)
         step_series.append(
             StepStats(
+                run_id=run_id,
                 step_index=step_index,
                 count=accumulator.reward.count,
                 reward_mean=accumulator.reward.mean,
@@ -337,7 +359,12 @@ def aggregate_rollouts(
 
     def _extract(heap: list[_HeapEntry]) -> list[RolloutSnippet]:
         ordered = sorted(heap, key=lambda entry: (-entry[0], -entry[1]))
-        return [entry[2] for entry in ordered]
+        return [
+            entry[2].model_copy(
+                update={"group_key": _display_group(entry[2].run_id, entry[2].group_key)}
+            )
+            for entry in ordered
+        ]
 
     return Aggregates(
         run_summary=run_summary,

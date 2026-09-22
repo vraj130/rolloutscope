@@ -2,10 +2,11 @@
 
 import json
 from collections.abc import Callable
+from pathlib import Path
 
 from rolloutscope.analysis import aggregate_rollouts
-from rolloutscope.report import InputFile, ReportData, render_json_bytes
-from rolloutscope.schema import Finding, SingleTurnRollout
+from rolloutscope.report import InputFile, ReportData, render_json_bytes, write_verdicts
+from rolloutscope.schema import EvidenceSpan, Finding, SingleTurnRollout, Verdict
 
 RolloutFactory = Callable[..., SingleTurnRollout]
 
@@ -66,3 +67,27 @@ def test_every_object_has_sorted_keys(make_rollout: RolloutFactory) -> None:
     assert key_lists, "expected at least one JSON object"
     for keys in key_lists:
         assert keys == sorted(keys)
+
+
+def test_write_verdicts_keeps_complete_deterministic_jsonl(
+    make_rollout: RolloutFactory, tmp_path: Path
+) -> None:
+    report = _build_report(make_rollout, {}, {}).model_copy(
+        update={
+            "verdicts": [
+                Verdict(
+                    detector="detector",
+                    fired=True,
+                    score=0.8,
+                    category="test",
+                    rollout_ids=["r1"],
+                    evidence=[EvidenceSpan(rollout_id="r1", field="completion", text="proof")],
+                )
+            ]
+        }
+    )
+    path = tmp_path / "verdicts.jsonl"
+    assert write_verdicts(report, path) == path
+    lines = path.read_bytes().splitlines()
+    assert len(lines) == 1
+    assert json.loads(lines[0])["evidence"][0]["text"] == "proof"

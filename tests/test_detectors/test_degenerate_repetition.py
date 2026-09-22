@@ -26,7 +26,7 @@ def test_evidence_span_is_repeated_ngram_in_completion(load_labeled):
     rollouts = load_labeled("degenerate_repetition_hacked")
     verdicts = DETECTOR.detect(rollouts, DEFAULT)
     for verdict in verdicts:
-        rollout = next(r for r in rollouts if r.rollout_id in verdict.rollout_ids)
+        rollout = next(r for r in rollouts if r.occurrence_id in verdict.rollout_ids)
         field, text = primary_completion(rollout)
         span = verdict.evidence[0]
         assert span.field == field

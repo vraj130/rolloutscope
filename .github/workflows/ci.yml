@@ -14,9 +14,10 @@ jobs:
       - uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
-      - run: uv run --extra dev ruff check .
-      - run: uv run --extra dev ruff format --check .
-      - run: uv run --extra dev mypy src/
+      - run: uv lock --check
+      - run: uv run --frozen --extra dev ruff check .
+      - run: uv run --frozen --extra dev ruff format --check .
+      - run: uv run --frozen --extra dev mypy src/
 
   test:
     runs-on: ubuntu-latest
@@ -32,5 +33,22 @@ jobs:
       # One command so the interpreter and the dev extra always match: a bare
       # `uv run` after a separate `uv sync --extra dev --python X` would re-sync
       # to the default environment (no dev extra, default interpreter) and drop
-      # pytest.
-      - run: uv run --extra dev --python ${{ matrix.python-version }} pytest --cov --cov-report=term-missing
+      # pytest. --frozen keeps CI on the committed lockfile.
+      - run: uv run --frozen --extra dev --python ${{ matrix.python-version }} pytest --cov --cov-report=term-missing
+
+  packaging:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - run: uv python install ${{ matrix.python-version }}
+      - run: uv build --wheel
+      # Isolated venv install: the script creates a throwaway environment, so
+      # this job does not use the project extra. --frozen still pins uv run.
+      - run: uv run --frozen python scripts/check_packaging.py --dist dist --python ${{ matrix.python-version }}

@@ -5,12 +5,24 @@ names re-exported here. After the Phase 2 freeze, changes require the
 orchestrator, a version bump, and a migration entry.
 """
 
-from rolloutscope.schema.findings import EvidenceSpan, Finding, Severity, Verdict
+from rolloutscope.schema.findings import (
+    AnalysisUnit,
+    EvidenceSpan,
+    Finding,
+    Severity,
+    SourceOccurrence,
+    Verdict,
+)
 from rolloutscope.schema.ids import (
+    attach_identity,
+    content_fingerprint,
     group_id,
+    occurrence_id,
     rollout_id,
     run_id_from_manifest,
     run_id_from_name,
+    run_id_from_path,
+    scoring_revision,
 )
 from rolloutscope.schema.io import iter_jsonl, read_rollouts, write_rollouts
 from rolloutscope.schema.migrate import (
@@ -21,11 +33,14 @@ from rolloutscope.schema.migrate import (
 from rolloutscope.schema.models import (
     ROLLOUT_ADAPTER,
     SCHEMA_VERSION,
+    JsonSafeModel,
+    JsonValue,
     Message,
     MultiTurnRollout,
     Rollout,
     RolloutBase,
     SingleTurnRollout,
+    SourceProvenance,
     StepTokens,
     TimeSpan,
     Timing,
@@ -41,14 +56,19 @@ __all__ = [
     "CURRENT_MAJOR",
     "ROLLOUT_ADAPTER",
     "SCHEMA_VERSION",
+    "AnalysisUnit",
     "EvidenceSpan",
     "Finding",
+    "JsonSafeModel",
+    "JsonValue",
     "Message",
     "MultiTurnRollout",
     "Rollout",
     "RolloutBase",
     "Severity",
     "SingleTurnRollout",
+    "SourceOccurrence",
+    "SourceProvenance",
     "StepTokens",
     "TimeSpan",
     "Timing",
@@ -57,15 +77,20 @@ __all__ = [
     "TrajectoryStep",
     "UnsupportedSchemaVersionError",
     "Verdict",
+    "attach_identity",
+    "content_fingerprint",
     "group_id",
     "infer_kind",
     "iter_jsonl",
     "migrate_row",
+    "occurrence_id",
     "read_rollouts",
     "rollout_id",
     "rollout_json_schema",
     "run_id_from_manifest",
     "run_id_from_name",
+    "run_id_from_path",
+    "scoring_revision",
     "validate_rollout",
     "write_rollouts",
 ]

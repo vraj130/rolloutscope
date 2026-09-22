@@ -46,7 +46,8 @@ def test_group_evidence_renders_group_rewards(load_labeled):
 
 def test_stable_id_fallback_used_when_rollout_id_missing(load_labeled):
     rollouts = load_labeled("reward_saturation_group_collapse_hacked")
-    assert all(r.rollout_id is None for r in rollouts), "fixture exercises the fallback"
+    # The normalized reader now fills identities. Clear both to exercise hand-built inputs.
+    rollouts = [r.model_copy(update={"rollout_id": None, "occurrence_id": None}) for r in rollouts]
     verdicts = DETECTOR.detect(rollouts, DEFAULT)
     ids = {rid for v in verdicts for rid in v.rollout_ids}
     assert ids and all(rid.startswith("r") for rid in ids)
@@ -64,7 +65,8 @@ def test_tightened_threshold_silences_hacked(load_labeled):
     rollouts = load_labeled("reward_saturation_group_collapse_hacked")
     tightened = DetectorConfig(
         reward_saturation_group_collapse=RewardSaturationGroupCollapseConfig(
-            dead_fraction_threshold=1.5
+            dead_fraction_threshold=1.0,
+            min_dead_fraction_rise=1.0,
         )
     )
     assert [v for v in DETECTOR.detect(rollouts, tightened) if v.fired] == []

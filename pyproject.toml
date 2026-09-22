@@ -28,6 +28,12 @@ dev = [
     "mypy>=1.11",
     "python-dotenv>=1.2.2",
 ]
+# Optional: the revision-pinned benchmark path. pyarrow reads the TRACE parquet at
+# an exact dataset commit, which the public rows API cannot do. Kept out of dev so
+# the default offline suite stays small; nothing in the analysis path imports it.
+benchmark = [
+    "pyarrow>=17",
+]
 
 [project.scripts]
 # CLI is a thin wrapper over the library (library-first design).
@@ -80,8 +86,17 @@ markers = [
 source = ["src/rolloutscope"]
 branch = true
 
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+
 # --- mypy ---
 [tool.mypy]
 python_version = "3.11"
 strict = true
 files = ["src/rolloutscope"]
+
+[[tool.mypy.overrides]]
+# pyarrow ships no stubs and is an optional benchmark-only import.
+module = ["pyarrow.*"]
+ignore_missing_imports = true

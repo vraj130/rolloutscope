@@ -1,10 +1,11 @@
 # local instruction files (user's choice, see PLAN.md D-010)
-CLAUDE.md
+#CLAUDE.md
 .claude/
+.codex/
 
 # local build and planning docs (kept locally, not published)
-PLAN.md
-PROGRESS.md
+#PLAN.md
+#PROGRESS.md
 
 
 # python
@@ -25,6 +26,9 @@ htmlcov/
 
 # environments (uv-managed; uv.lock IS committed)
 .venv/
+
+# secrets (never commit)
+.env
 
 # macOS
 .DS_Store

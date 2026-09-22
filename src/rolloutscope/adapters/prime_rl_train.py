@@ -24,10 +24,11 @@ from rolloutscope.adapters.base import (
     BaseAdapter,
     RunManifest,
     SourceFile,
+    metadata_namespaces,
     read_run_metadata,
     step_index_from_name,
 )
-from rolloutscope.schema import run_id_from_name
+from rolloutscope.schema.ids import run_id_from_path
 
 
 class PrimeRlTrainAdapter(BaseAdapter):
@@ -116,20 +117,28 @@ class PrimeRlTrainAdapter(BaseAdapter):
         """Build the manifest for a discovered training run.
 
         Inputs: the run root directory and the ordered source files. run_id is
-        derived from the run root directory name; any metadata.json found at
+        derived from the resolved run root path; any metadata.json found at
         the root is passed through as run-level fields only.
         """
         # TODO(open question for the orchestrator): prime-rl @ df2acf48 pins no
         # run-level manifest for training runs in the on-disk-format reference.
         # Exact question: does the orchestrator write a run-level metadata or
         # config file next to the step directories, and what is it named? Until
-        # that is pinned, run_id comes from the run root directory name, and a
+        # that is pinned, run_id comes from the resolved run root path, and a
         # metadata.json found there is passthrough only (never the run_id
         # source, to keep train run_ids stable however the manifest question
         # resolves).
         metadata = read_run_metadata(root)
+        environment_namespace, task_namespace = metadata_namespaces(metadata)
         return RunManifest(
-            run_id=run_id_from_name(root.name),
+            run_id=run_id_from_path(root),
             files=files,
             metadata=metadata or {},
+            root=root,
+            format=self.name,
+            metadata_sources=(root / "metadata.json",)
+            if (root / "metadata.json").is_file()
+            else (),
+            environment_namespace=environment_namespace,
+            task_namespace=task_namespace,
         )

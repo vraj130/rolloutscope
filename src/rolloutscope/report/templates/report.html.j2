@@ -85,6 +85,48 @@
     </div>
   </section>
 
+  <section id="execution">
+    <h2>Analysis status</h2>
+    {% if report.execution %}
+    <p>Analysis status: <strong>{{ report.execution.status }}</strong>. Input format {{ report.execution.input_format }}, adapter version {{ report.execution.adapter_version }}.</p>
+    {% if environment_namespaces %}<p>Environment namespace(s): {% for namespace in environment_namespaces %}<code>{{ namespace }}</code>{% if not loop.last %}, {% endif %}{% endfor %}{% if environment_namespace_total > environment_namespaces | length %} ({{ environment_namespaces | length }} of {{ environment_namespace_total }} shown){% endif %}.</p>{% endif %}
+    {% if task_namespaces %}<p>Task namespace(s): {% for namespace in task_namespaces %}<code>{{ namespace }}</code>{% if not loop.last %}, {% endif %}{% endfor %}{% if task_namespace_total > task_namespaces | length %} ({{ task_namespaces | length }} of {{ task_namespace_total }} shown){% endif %}.</p>{% endif %}
+    {% if report.execution.errors %}
+    <details><summary>Analysis errors: {{ report.execution.errors | length }} recorded</summary>
+      {% for error in report.execution.errors[:5] %}<pre class="snippet">{{ error }}</pre>{% endfor %}
+    </details>
+    {% endif %}
+    {% else %}
+    <p>Analysis status was not recorded by this report version.</p>
+    {% endif %}
+    {% if input_rows %}
+    <table>
+      <thead><tr><th>input</th><th>format</th><th>status</th><th class="num">accepted</th><th class="num">rejected</th><th class="num">blank</th><th class="num">duplicates</th></tr></thead>
+      <tbody>{% for input in input_rows %}
+        <tr><td><code>{{ input.name }}</code></td><td>{{ input.format }}</td><td>{{ input.status }}</td><td class="num">{{ input.accepted }}</td><td class="num">{{ input.rejected }}</td><td class="num">{{ input.blank }}</td><td class="num">{{ input.duplicates }}</td></tr>
+        {% if input.examples %}<tr><td colspan="7"><details><summary>Rejected-record examples: {{ input.examples | length }} shown</summary>{% for example in input.examples %}<pre class="snippet">line {{ example.line if example.line is not none else "unknown" }}, {{ example.reason }}: {{ example.message }}</pre>{% endfor %}</details></td></tr>{% endif %}
+      {% endfor %}</tbody>
+    </table>
+    {% if input_total > input_rows | length %}<p>Showing {{ input_rows | length }} of {{ input_total }} input files.</p>{% endif %}
+    {% endif %}
+  </section>
+
+  <section id="detectors">
+    <h2>Detector coverage</h2>
+    {% if detector_rows %}
+    <table>
+      <thead><tr><th>detector</th><th>unit</th><th>mode</th><th>run</th><th>status</th><th class="num">candidates</th><th class="num">eligible</th><th class="num">fired</th><th class="num">clean</th><th class="num">insufficient</th><th class="num">skipped</th><th class="num">errors</th></tr></thead>
+      <tbody>{% for detector in detector_rows %}
+        <tr><td><code>{{ detector.detector }}</code></td><td>{{ detector.unit }}</td><td>{{ detector.mode }}</td><td><code>{{ detector.run }}</code></td><td>{{ detector.status }}</td><td class="num">{{ detector.candidate }}</td><td class="num">{{ detector.eligible }}</td><td class="num">{{ detector.fired }}</td><td class="num">{{ detector.clean }}</td><td class="num">{{ detector.insufficient }}</td><td class="num">{{ detector.skipped }}</td><td class="num">{{ detector.errors }}</td></tr>
+        {% if detector.detail %}<tr><td colspan="12"><pre class="snippet">{{ detector.detail }}</pre></td></tr>{% endif %}
+      {% endfor %}</tbody>
+    </table>
+    {% if detector_total > detector_rows | length %}<p>Showing {{ detector_rows | length }} of {{ detector_total }} detector coverage rows.</p>{% endif %}
+    {% else %}
+    <p>Detector coverage was not recorded by this report version.</p>
+    {% endif %}
+  </section>
+
   {% if histogram_svg or step_svg %}
   <section id="charts">
     <h2>Charts</h2>
@@ -94,10 +136,12 @@
     </div>
   </section>
   {% endif %}
+  {% if step_chart_omitted %}<p>Per-step chart omitted because it would combine separate run series. The bounded tables below retain each series.</p>{% endif %}
 
   <section id="findings">
     <h2>Findings</h2>
     {% if findings %}
+    <p>Showing {{ findings | length }} of {{ finding_total }} aggregated finding(s). Complete verdicts are retained in the verdict artifact when listed below.</p>
     {% for finding in findings %}
     <article class="finding {{ finding.severity }}">
       <p class="finding-title">
@@ -118,7 +162,7 @@
       {% if finding.exemplars %}
       <details>
         <summary>Evidence: {{ finding.exemplars | length }} exemplar span(s)</summary>
-        {% for span in finding.exemplars %}
+        {% for span in finding.exemplars[:5] %}
         <div class="exemplar">
           <p class="exemplar-meta">
             rollout <code>{{ span.rollout_id }}</code>, field <code>{{ span.field }}</code>
@@ -132,7 +176,13 @@
     </article>
     {% endfor %}
     {% else %}
+    {% if report.execution and report.execution.status != "complete" %}
+    <p>No finding summary is shown because analysis status is {{ report.execution.status }}. Review the ingestion and detector coverage above.</p>
+    {% elif detector_rows and detector_rows | selectattr("eligible") | list | length == 0 %}
+    <p>No eligible detector units were evaluated. This is insufficient data, not a clean result.</p>
+    {% else %}
     <p>No findings.</p>
+    {% endif %}
     {% endif %}
   </section>
 
@@ -147,7 +197,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for key, group in report.aggregates.group_stats.items() %}
+        {% for key, group in group_rows %}
         <tr>
           <td><code>{{ key }}</code></td>
           <td class="num">{{ group.count }}</td>
@@ -158,6 +208,7 @@
         {% endfor %}
       </tbody>
     </table>
+    {% if group_total > group_rows | length %}<p>Showing {{ group_rows | length }} of {{ group_total }} groups.</p>{% endif %}
   </section>
   {% endif %}
 
@@ -167,14 +218,15 @@
     <table>
       <thead>
         <tr>
-          <th class="num">step</th><th class="num">rollouts</th><th class="num">reward mean</th>
+          <th>run</th><th class="num">step</th><th class="num">rollouts</th><th class="num">reward mean</th>
           <th class="num">reward variance</th><th class="num">dead group fraction</th>
           <th class="num">mean completion chars</th>
         </tr>
       </thead>
       <tbody>
-        {% for step in report.aggregates.step_series %}
+        {% for step in step_rows %}
         <tr>
+          <td><code>{{ step.run_id or "not recorded" }}</code></td>
           <td class="num">{{ step.step_index }}</td>
           <td class="num">{{ step.count }}</td>
           <td class="num">{{ "%.4g" | format(step.reward_mean) }}</td>
@@ -185,6 +237,7 @@
         {% endfor %}
       </tbody>
     </table>
+    {% if step_total > step_rows | length %}<p>Showing {{ step_rows | length }} of {{ step_total }} steps.</p>{% endif %}
   </section>
   {% endif %}
 
@@ -192,8 +245,8 @@
   <section id="rollouts">
     <h2>Reward extremes</h2>
     {% for heading, snippets in (
-        ("Highest reward", report.aggregates.top_rollouts),
-        ("Lowest reward", report.aggregates.bottom_rollouts),
+        ("Highest reward", top_rollouts),
+        ("Lowest reward", bottom_rollouts),
     ) %}
     {% if snippets %}
     <h3>{{ heading }}</h3>
@@ -226,21 +279,37 @@
         {% endfor %}
       </tbody>
     </table>
+    {% if config_total > config_rows | length %}<p>Showing {{ config_rows | length }} of {{ config_total }} configuration rows. Complete effective configuration is retained in JSON.</p>{% endif %}
     {% else %}
     <p>No configuration recorded.</p>
     {% endif %}
   </section>
+
+  {% if artifact_rows or report.execution %}
+  <section id="artifacts">
+    <h2>Execution artifacts</h2>
+    {% if report.execution %}
+    <p>Manifest version {{ report.execution.manifest_version }}, source revision {{ report.execution.source_revision or "not recorded" }}{% if report.execution.artifact_manifest %}, ledger {{ report.execution.artifact_manifest }}{% endif %}.</p>
+    {% endif %}
+    {% if artifact_rows %}
+    <table><thead><tr><th>file</th><th>role</th><th>sha256</th></tr></thead><tbody>{% for name, role, sha256 in artifact_rows %}<tr><td><code>{{ name }}</code></td><td>{{ role }}</td><td><code>{{ sha256 }}</code></td></tr>{% endfor %}</tbody></table>
+    {% if artifact_total > artifact_rows | length %}<p>Showing {{ artifact_rows | length }} of {{ artifact_total }} output artifacts.</p>{% endif %}
+    {% else %}<p>No output artifacts recorded.</p>{% endif %}
+  </section>
+  {% endif %}
 </main>
 <footer class="repro">
   <strong>Reproducibility</strong>
   <div>rolloutscope {{ report.tool_version }}, schema version {{ report.schema_version }}</div>
-  {% if report.input_files %}
+  {% if footer_inputs %}
   <ul>
-    {% for item in report.input_files %}
-    <li><code>{{ item.name }}</code> sha256 <code>{{ item.sha256 }}</code>
-      {%- if item.size_bytes is not none %} ({{ item.size_bytes }} bytes){% endif %}</li>
+    {% for item in footer_inputs %}
+    <li><code>{{ item.relative_path or item.name }}</code> sha256 <code>{{ item.sha256 }}</code>
+      {%- if item.size_bytes is not none %} ({{ item.size_bytes }} bytes){% endif %}
+      {%- if item.role %}, {{ item.role }}{% endif %}</li>
     {% endfor %}
   </ul>
+  {% if footer_input_total > footer_inputs | length %}<div>showing {{ footer_inputs | length }} of {{ footer_input_total }} input files</div>{% endif %}
   {% else %}
   <div>no input files recorded</div>
   {% endif %}

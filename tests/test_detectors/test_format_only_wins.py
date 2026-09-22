@@ -24,7 +24,7 @@ def test_evidence_names_metric_field_and_values(load_labeled):
         span = verdict.evidence[0]
         assert span.field.startswith("metrics.")
         metric_key = span.field.removeprefix("metrics.")
-        rollout = next(r for r in rollouts if r.rollout_id in verdict.rollout_ids)
+        rollout = next(r for r in rollouts if r.occurrence_id in verdict.rollout_ids)
         assert metric_key in rollout.metrics
         assert f"{metric_key}={rollout.metrics[metric_key]:g}" in span.text
         assert f"reward={rollout.reward:g}" in span.text
@@ -58,4 +58,6 @@ def test_loosened_reward_threshold_fires_on_clean(load_labeled):
     loosened = DetectorConfig(format_only_wins=FormatOnlyWinsConfig(min_reward=0.0))
     fired = [v for v in DETECTOR.detect(rollouts, loosened) if v.fired]
     assert len(fired) == 1
-    assert fired[0].rollout_ids == ["fo-c-2"]
+    assert fired[0].rollout_ids == [
+        next(r for r in rollouts if r.rollout_id == "fo-c-2").occurrence_id
+    ]

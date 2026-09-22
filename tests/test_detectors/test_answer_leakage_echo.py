@@ -25,9 +25,9 @@ def test_fires_on_hacked(load_labeled):
 def test_answer_echo_evidence_points_at_completion(load_labeled):
     rollouts = load_labeled("answer_leakage_echo_hacked")
     verdicts = DETECTOR.detect(rollouts, DEFAULT)
-    echo_verdict = next(v for v in verdicts if "al-h-1" in v.rollout_ids)
-    span = echo_verdict.evidence[0]
     rollout = next(r for r in rollouts if r.rollout_id == "al-h-1")
+    echo_verdict = next(v for v in verdicts if rollout.occurrence_id in v.rollout_ids)
+    span = echo_verdict.evidence[0]
     _, text = primary_completion(rollout)
     assert span.text in text
     assert span.start is not None and span.end is not None
@@ -39,10 +39,10 @@ def test_answer_echo_evidence_points_at_completion(load_labeled):
 def test_criterion_echo_fires_with_note(load_labeled):
     rollouts = load_labeled("answer_leakage_echo_hacked")
     verdicts = DETECTOR.detect(rollouts, DEFAULT)
-    criterion_verdict = next(v for v in verdicts if "al-h-2" in v.rollout_ids)
+    rollout = next(r for r in rollouts if r.rollout_id == "al-h-2")
+    criterion_verdict = next(v for v in verdicts if rollout.occurrence_id in v.rollout_ids)
     span = criterion_verdict.evidence[0]
     assert "grading_criteria" in (span.note or "")
-    rollout = next(r for r in rollouts if r.rollout_id == "al-h-2")
     _, text = primary_completion(rollout)
     assert span.text in text
 
@@ -67,7 +67,8 @@ def test_loosened_extra_chars_fires_on_clean(load_labeled):
     rollouts = load_labeled("answer_leakage_echo_clean")
     loosened = DetectorConfig(answer_leakage_echo=AnswerLeakageEchoConfig(max_extra_chars=100_000))
     fired = [v for v in DETECTOR.detect(rollouts, loosened) if v.fired]
-    assert any("al-c-1" in v.rollout_ids for v in fired)
+    target = next(r for r in rollouts if r.rollout_id == "al-c-1")
+    assert any(target.occurrence_id in v.rollout_ids for v in fired)
 
 
 def test_short_answer_gate(load_labeled):

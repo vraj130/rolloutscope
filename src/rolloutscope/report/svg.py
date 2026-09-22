@@ -3,7 +3,7 @@
 Exactly two chart forms, both returned as plain SVG strings with no external
 references, no scripts, and no fonts beyond the system stack: ``histogram``
 for bar magnitudes and ``line_chart`` for per-step series. Colors come from
-the validated light-mode reference palette (dataviz skill): categorical slots
+the validated light-mode reference palette: categorical slots
 blue and aqua first, recessive gray chrome for grid and axes. Every chart
 carries an accessible root ``<title>`` plus per-mark ``<title>`` elements,
 which double as native browser tooltips without JavaScript. All caller text
