@@ -1,0 +1,24 @@
+[project]
+name = "rolloutscope-experiments"
+version = "0.0.0"
+description = "M1 experiments for rolloutscope: GRPO against a rubric proxy judge, gold grading"
+requires-python = ">=3.12,<3.13"
+# Model and GPU dependencies live here only, never in the rolloutscope package.
+# Versions are pinned to what installed on fourier (2x RTX 3090, driver 595.84).
+dependencies = [
+    "rolloutscope",
+    "torch==2.13.0",
+    "vllm==0.30.0",
+    "trl[vllm]==1.14.0",
+    "peft==0.21.0",
+    "datasets==5.0.1",
+    "openai==3.19.2",
+    "pyyaml>=6",
+    "python-dotenv>=1.2",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+rolloutscope = { path = "..", editable = true }

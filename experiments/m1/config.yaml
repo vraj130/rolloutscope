@@ -1,0 +1,27 @@
+# M1 dry run (PROGRESS.md R-008). Copy and edit for real runs; pass with --config.
+run_name: dryrun-qwen1.5b-s0
+model: Qwen/Qwen2.5-1.5B-Instruct
+lora: false            # true adds a LoRA adapter (r=16, alpha=32, all linear layers)
+seed: 0
+
+# data (data.py): seeded split of RubricHub medical by prompt
+n_train: 500
+n_eval: 100
+
+# GRPO (TRL GRPOTrainer, vLLM colocated on GPU 0)
+max_steps: 300
+lr: 1.0e-6
+prompts_per_step: 8          # x num_generations = completions per optimizer step
+num_generations: 8
+micro_batch_size: 2          # sequences per forward pass; 8 ran out of memory (full logits)
+max_completion_length: 768
+temperature: 1.0
+beta: 0.0                    # TRL 1.14 default: no KL term
+loss_type: dapo              # TRL 1.14 default
+vllm_gpu_memory_utilization: 0.30
+vllm_max_model_length: 2048
+gradient_checkpointing: true
+save_every: 25               # checkpoint (weights only) every N steps; 0 for none
+
+# evaluation: every eval_every (K) steps, and once before training
+eval_every: 25               # one sample per eval prompt, same sampling as training
