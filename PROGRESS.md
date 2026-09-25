@@ -12,7 +12,7 @@ at the bottom, and write any experiment's pass or fail criterion here before the
 | Milestone | State | Evidence |
 |---|---|---|
 | M0 housekeeping | done once v0.2.0 is tagged | docs refocus commit; version bump commit |
-| M1 reproduce rubric hacking | not started | |
+| M1 reproduce rubric hacking | dry run in progress | |
 | M2 matched conditions | not started | |
 | M3 black-box baselines | not started | |
 | M4 white-box signals | not started | |
@@ -50,3 +50,13 @@ in the archived plans.
 - R-005 (2026-09-25): experiments write the legacy prime-rl step layout, so the package
   needs no new adapter to read them. A current-format adapter gets built only if an
   experiment trains with prime-rl.
+- R-006 (2026-09-25): the trainer is TRL GRPOTrainer with vLLM generation, on GPU 0.
+  Each checkpoint's rollouts are written in the legacy prime-rl step layout (R-005).
+- R-007 (2026-09-25): the proxy judge (training reward) is a local open model,
+  Llama-3.1-8B-Instruct quantized to 4-bit, served with vLLM on GPU 1. The gold judge is
+  OpenAI gpt-6-luna at medium reasoning effort, through the OpenAI Batch API, grading
+  saved evaluation generations after training. Reasons: budget; a weaker proxy is more
+  exploitable, which suits M1; and Luna is from a different model family than both the
+  policy and the proxy.
+- R-008 (2026-09-25): the dry run uses Qwen2.5-1.5B-Instruct. The real M1 runs use
+  Qwen2.5-3B-Instruct, with LoRA if full fine-tuning does not fit on one 3090.
