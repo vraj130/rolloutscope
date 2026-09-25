@@ -53,10 +53,16 @@ in the archived plans.
 - R-006 (2026-09-25): the trainer is TRL GRPOTrainer with vLLM generation, on GPU 0.
   Each checkpoint's rollouts are written in the legacy prime-rl step layout (R-005).
 - R-007 (2026-09-25): the proxy judge (training reward) is a local open model,
-  Llama-3.1-8B-Instruct quantized to 4-bit, served with vLLM on GPU 1. The gold judge is
+  Llama-3.1-8B-Instruct in bf16, served with vLLM on GPU 1. The gold judge is
   OpenAI gpt-6-luna at medium reasoning effort, through the OpenAI Batch API, grading
   saved evaluation generations after training. Reasons: budget; a weaker proxy is more
   exploitable, which suits M1; and Luna is from a different model family than both the
   policy and the proxy.
 - R-008 (2026-09-25): the dry run uses Qwen2.5-1.5B-Instruct. The real M1 runs use
   Qwen2.5-3B-Instruct, with LoRA if full fine-tuning does not fit on one 3090.
+
+## Notes
+
+- 2026-09-25: proxy judge output format matters. Keyed {c1: 0/1} versus list {verdicts: [...]}
+  on the same 100 responses: 83% per-criterion agreement, mean score 0.249 versus 0.114. Keyed
+  format kept.
