@@ -122,6 +122,7 @@ chain.
 
 1. [x] Freeze the schema (commit 5f87593)
 2. [x] Enforce the boundary: core packages import only `rolloutscope.schema`.
-3. [ ] Re-verify the pinned upstream references before the first post-0.1.0 release
-       and refresh the truth pins if stale.
+3. [x] Re-verify the pinned upstream references before the first post-0.1.0 release
+       and refresh the truth pins if stale. Done 2026-09-08, see
+       docs/compatibility-matrix.md.
 4. [ ] Write ADR-0002 when the v1 activation sidecar join is implemented.

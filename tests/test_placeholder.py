@@ -4,4 +4,4 @@ import rolloutscope
 
 
 def test_package_imports() -> None:
-    assert rolloutscope.__version__ == "0.1.0"
+    assert rolloutscope.__version__ == "0.2.0"

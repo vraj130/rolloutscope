@@ -58,7 +58,7 @@ this file is revised to say why not.
 ### M0. Housekeeping
 
 Archive stale plans, rewrite CLAUDE.md, record the v1 post-mortem, and cut release
-0.2.0 (the package version still reads 0.1.0 while the schema is 2.0).
+0.2.0 so the tool version stops claiming 0.1.0 for schema 2.0 output.
 
 Gate: the docs agree with the code, and the offline suite, ruff, and mypy are green.
 

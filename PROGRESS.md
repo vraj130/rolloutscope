@@ -11,7 +11,7 @@ at the bottom, and write any experiment's pass or fail criterion here before the
 
 | Milestone | State | Evidence |
 |---|---|---|
-| M0 housekeeping | in progress | this change; release 0.2.0 not yet cut |
+| M0 housekeeping | done once v0.2.0 is tagged | docs refocus commit; version bump commit |
 | M1 reproduce rubric hacking | not started | |
 | M2 matched conditions | not started | |
 | M3 black-box baselines | not started | |
