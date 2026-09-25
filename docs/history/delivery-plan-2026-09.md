@@ -1,3 +1,10 @@
+> **Superseded on 2026-09-25, not binding.** Phase 1 of this plan was delivered (see
+> [phase1-implementation.md](../phase1-implementation.md)). Phases 3 and 4
+> (investigation queue, indexed store, adjudication, external pilot program, release
+> program) are dropped: they build a product, and rolloutscope is a research
+> instrument. Two Phase 2 items survive in [PLAN.md](../../PLAN.md): ingesting current
+> upstream formats when an experiment needs them, and honest coverage reporting.
+
 # RolloutScope delivery plan
 
 This plan turns the repository review into four sequential delivery phases. Each phase produces a usable release slice, has explicit dependencies, and ends with evidence that can be reviewed before the next phase begins.

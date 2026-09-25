@@ -57,16 +57,33 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   definitions, split rationale, and reporting format).
 - Optional `benchmark` extra (pyarrow) for the revision-pinned parquet fetch path, which
   the public rows API cannot provide. Nothing in the analysis path imports it.
-
-- Opt-in reproducible validation script (scripts/trace_validation.py) that maps
-  Patronus TRACE rows into the schema and reports verifier_tamper and
-  answer_leakage_echo fire rates on hacked versus clean coding trajectories.
+- Opt-in validation script (`scripts/trace_validation.py`) that reports per-detector
+  coverage, precision, recall, and false-positive rate on a chosen TRACE split, through
+  the shared benchmark library.
 - HF_TOKEN authentication for the TRACE integration test, loaded from a gitignored
   .env through python-dotenv, so the optional network validation can reach the gated
   dataset.
 
 ### Changed
 
+- **Breaking: normalized schema 2.0.** Identity is split into three fields:
+  - `occurrence_id`: run, relative source path, and line;
+  - `content_fingerprint`: trajectory content, excluding scores;
+  - `scoring_revision`: scores only, so rescoring does not create a new occurrence.
+
+  Raw legacy runs now get a `run_id` hashed from the resolved run location instead of
+  from `metadata.json` content, and `--run-id` overrides it. Non-finite numbers are
+  rejected. Schema 1.x rows migrate on read and keep their old IDs under
+  `identity_aliases`. See `docs/phase1-data-contract.md`.
+- Configuration files are validated strictly: unknown sections and keys, such as a
+  misspelled `criticall_at`, fail before any input is read.
+- Planning documents reorganized:
+  - `PLAN.md` is now the research plan, and `PROGRESS.md` is a short status and
+    decision log.
+  - The v0 build plan and log, the September delivery plan, and the 2026-09-08
+    repository review moved to `docs/history/`, alongside a v1 post-mortem.
+  - `CLAUDE.md` was rewritten, and the README states the project status and the input
+    formats it cannot read.
 - `analyze` and `convert` now discover their input manifest once, reject rollout or
   metadata source collisions before writing, expose an explicit partial-ingestion policy,
   and accept a stable `--run-id` override for legacy raw input.
@@ -87,11 +104,15 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   mapped path, and no longer presents a detector's silence for lack of data as a measured
   clean rate.
 
+### Removed
+
+- A generated `report.html` and an unused `rolloutscope_logo_concept_a.svg` from the
+  repository root. Quickstart outputs at the root are now gitignored.
+
 ### Fixed
 
 - Reports no longer present empty, unsupported, failed, or insufficient analysis as a
   clean "No findings" result.
-
 - degenerate_repetition no longer fires on concatenated multi-turn transcripts (a
   multi_turn rollout, or a completion holding more than one message); repetition is
   measured within a single completion only.

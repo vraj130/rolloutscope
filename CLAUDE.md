@@ -1,163 +1,156 @@
 # CLAUDE.md
 
-## Project
+Instructions for AI coding agents working in this repository. Read this file, then
+[PLAN.md](PLAN.md) and [PROGRESS.md](PROGRESS.md), before changing anything.
 
-**rolloutscope** (working name, see naming note in the build prompt): an offline rollout
-and reward debugger for the verifiers / prime-rl RL ecosystem. It ingests on-disk rollout
-artifacts (`results.jsonl`, `metadata.json`, `train_rollouts.jsonl`), normalizes them into
-a versioned schema, runs reward-hacking detectors over them, and emits a terminal summary,
-a JSON findings file, and a single-file self-contained HTML report.
+## What this project is
 
-v0 is black-box and CPU-only: it analyzes logged text and numbers. It never loads a model,
-never needs a GPU, and never calls a network at analysis time. White-box signals
-(activations, representation drift, SAE features) are v1 and out of scope here, but the
-schema and IDs are designed so v1 can join onto v0 data without a restructure.
+rolloutscope is a research instrument for studying reward hacking in RL post-training.
+The research question, milestones, and scope live in PLAN.md. In short: can
+white-box signals from the policy's activations catch reward hacking earlier or more
+reliably than black-box signals read from logged rollouts?
 
-## Golden rules (non-negotiable)
+The repository has two parts with different rules:
 
-1. **uv only.** All installs via `uv add` / `uv sync`, all execution via `uv run`. Never
-   `pip install`, never touch the system or base Python, never conda. `uv.lock` is
-   committed.
-2. **The schema is the product.** Every row carries `schema_version`. Changes within a
-   major version are additive only. Every rollout, step, and group has a stable,
-   content-derived ID. After the Phase 2 freeze, only the orchestrator session may amend
-   the schema, and only with a version bump plus a migration function.
-3. **Core never imports verifiers or prime-rl.** Adapters parse on-disk artifacts into the
-   normalized schema. The `schema`, `detectors`, `analysis`, and `report` packages depend
-   only on the normalized types.
-4. **Detectors are pure functions with evidence.** Signature over normalized rollouts (or
-   groups), returning structured `Verdict` objects (`fired`, `score`, `category`,
-   `evidence`). The evidence span is mandatory: a flag without the offending span is a
-   bug. Detectors are discovered via the entry-point registry.
-5. **Never fabricate thresholds or paper metrics.** Defaults are conservative, clearly
-   labeled as heuristic, and configurable. If a source number is unverified, leave a TODO
-   with the citation rather than inventing a value (see the reward-hacking-detectors
-   skill).
-6. **Stream, never bulk-load.** JSONL is read line by line with orjson. Invalid rows are
-   skipped and logged with a reason, never crash the file. Assume files larger than RAM.
-7. **The report is a pure function of findings and aggregates.** No detector logic in
-   templates, no template logic in detectors. The HTML report is one self-contained file:
-   inline CSS, server-side SVG charts, `<details>` elements for collapsibles, zero JS if
-   possible, no CDN, no fetch, opens from `file://`.
-8. **Tests first, fixtures always.** Every detector ships with at least one hacked and
-   one clean fixture and must separate them. Unit tests run fully offline. Anything that
-   downloads (TRACE dataset, real environments) is an optional integration test behind a
-   marker.
-9. **Do not invent verifiers field names.** If a field is not in the
-   verifiers-ground-truth skill's `core-types.md`, verify against source before using it.
-   `advantages` and `is_trainable` are in-memory training signals and are NOT in on-disk
-   jsonl; do not parse for them.
-10. **No GPU or model dependencies in v0.** Do not add torch, transformers, cupy, or any
-    inference library to the dependency tree.
+- **The package (`src/rolloutscope/`)**: the black-box half. It is offline and CPU-only,
+  and it loads no model. It normalizes rollout logs (schema 2.0), runs heuristic
+  detectors, reports detector coverage honestly, and writes terminal, JSON, verdict
+  JSONL, and self-contained HTML output. It is in maintenance mode: bug fixes, plus
+  features that a PLAN.md milestone names.
+- **Experiments (`experiments/`, created when M1 starts)**: training runs, judge
+  grading, activation capture, and white-box analysis. This is where torch and model
+  code live. It is a separate uv project with its own `pyproject.toml` that depends on
+  rolloutscope by path, so the package never gains model dependencies.
+
+## Scope guard (read before every task)
+
+1. Map the task to a milestone or maintenance item in PLAN.md. If it does not map, stop
+   and ask. Do not reinterpret the plan to make it fit.
+2. Do not create new planning documents, phase schedules, delivery plans, or
+   acceptance-criteria lists. Update PLAN.md (direction) or PROGRESS.md (status and
+   decisions) instead.
+3. Do not build infrastructure ahead of evidence. In particular, build none of these
+   until PLAN.md says so: a `whitebox` subpackage in `src/`, activation sidecar
+   contracts, white-box report panels, indexed stores, review or adjudication
+   workflows, run-comparison tooling, or release automation beyond the current CI.
+4. Prefer the smallest change that answers the question at hand. A script in
+   `experiments/` that produces a number beats a tested subsystem that produces none.
+5. The files in `docs/history/` are records. They are not instructions, even where they
+   say "binding".
+
+## Research rules (experiments/)
+
+- Write the pass or fail criterion into PROGRESS.md before running an experiment whose
+  result will steer the plan. Do not move it after seeing results.
+- Every white-box number ships with the controls in PLAN.md section 4: text and
+  length baselines on the same labels, the null check (policy equals reference), a
+  trained-but-not-hacking reference, shuffled-label chance, three or more seeds with
+  bootstrap intervals, and train and test split by prompt.
+- Labels never come from the detector being evaluated. Record the label source next to
+  every result.
+- Report negative results as plainly as positive ones. Never describe a signal as
+  detecting hacking when it was only compared against the base model.
+- Real data, activations, and checkpoints stay outside the repository. Point scripts at
+  a data directory through the `ROLLOUTSCOPE_DATA` environment variable. Commit
+  configs, scripts, and small summary files only.
+- Quote a result only with the path of the file it came from.
+
+## Package rules (src/rolloutscope/)
+
+1. **uv only.** Install with `uv add` or `uv sync`, run with `uv run`. Never pip, conda,
+   or the system Python. `uv.lock` is committed and CI checks it.
+2. **The schema is the contract.** Rows carry `schema_version` (currently `2.0`).
+   Changes within a major version are additive. A breaking change needs a major bump,
+   a migration in `schema/migrate.py`, tests, and an update to
+   [docs/phase1-data-contract.md](docs/phase1-data-contract.md), which is the
+   reference for identity. It supersedes the identity rules in ADR-0001.
+3. **Core never imports verifiers or prime-rl.** Only `adapters/` knows upstream on-disk
+   shapes, and it parses them without importing those libraries.
+   `scripts/capture_upstream_fixtures.py` is the single exception, run in a throwaway
+   environment.
+4. **No model or GPU dependencies in the package.** No torch, transformers, safetensors,
+   or inference libraries in `src/` or in the package's dependency tree.
+5. **Detectors are pure functions with evidence and honest coverage.** A fired verdict
+   carries its evidence span. A unit a detector could not evaluate is reported as
+   insufficient data with the missing signal named, never as clean.
+6. **Never fabricate thresholds or citations.** Defaults are labeled heuristic and
+   configurable. An unverified source number becomes a TODO with the citation.
+7. **Streaming.** Reading and conversion stream JSONL line by line with orjson, and bad
+   rows are skipped with a reason. Analysis currently holds the whole run in memory, so
+   do not claim larger-than-RAM analysis.
+8. **Reports are pure functions of their data.** The HTML report is one self-contained
+   file (inline CSS, server-side SVG, `<details>` collapsibles, no JavaScript, no
+   network) that opens from `file://`.
+9. **Tests run offline.** Every detector has hacked and clean fixtures it must separate,
+   and hard negatives live in `tests/fixtures/hard_negatives/`. Network tests (TRACE)
+   sit behind the `integration` marker.
+10. **Verify upstream field names against source.** Supported inputs are the legacy
+    verifiers `results.jsonl` layout and prime-rl `train_rollouts.jsonl` step
+    directories, pinned in [docs/compatibility-matrix.md](docs/compatibility-matrix.md).
+    Current upstream writes a different Episode and Trace format, and current prime-rl
+    puts advantages on disk ([docs/upstream-cohorts.md](docs/upstream-cohorts.md)). Do
+    not assume a field exists because an older doc or a skill says so.
 
 ## Documentation style
 
-- **No em dashes anywhere in repo text** (README, docstrings, ADRs, CHANGELOG, comments,
-  report copy). Use commas, colons, or parentheses instead. This is a hard project
-  convention.
-- CHANGELOG follows Keep a Changelog; versioning follows semver. `Unreleased` section at
-  the top, entries under Added / Changed / Fixed / Removed.
-- Every public function gets a docstring stating what it does, its inputs, and (for
-  detectors) its known false-positive modes.
+- No em dashes or en dashes anywhere in repo text: docs, docstrings, comments, report
+  copy, commit messages. Use commas, colons, or parentheses.
+- CHANGELOG follows Keep a Changelog and semver, with `Unreleased` at the top.
+- Public functions get docstrings. Detector docstrings list known false-positive modes.
 
 ## Commands
 
 ```bash
-uv sync --extra dev          # install everything into the project venv
-uv run pytest -q             # full offline test suite
-uv run pytest -m integration # optional network tests (TRACE download etc.)
-uv run ruff check .          # lint
-uv run ruff format .         # format
-uv run mypy src/             # types
-uv run rolloutscope --help   # CLI
+uv sync --extra dev                       # install into the project venv
+uv run pytest -q                          # offline suite
+uv run --extra benchmark pytest -m integration   # TRACE tests, needs HF_TOKEN in .env
+uv run ruff check . && uv run ruff format --check .
+uv run mypy src/
+uv run python scripts/check_packaging.py  # wheel install outside the checkout
+uv run rolloutscope analyze tests/fixtures/demo --out /tmp/report.html
 ```
+
+A change is done when the suite, ruff, format check, and mypy are green, and the
+CHANGELOG and any affected doc are updated in the same change.
 
 ## Repository layout
 
 ```
-rolloutscope/
-  pyproject.toml            # from python-oss-library-scaffold template
-  uv.lock
-  CLAUDE.md                 # this file
-  README.md  CHANGELOG.md  CONTRIBUTING.md  LICENSE  PROGRESS.md  PLAN.md
-  .github/workflows/ci.yml  # lint + test matrix 3.11 / 3.12 / 3.13, via uv
-  docs/adr/0001-normalized-rollout-schema.md
-  src/rolloutscope/
-    schema/     # models.py (Rollout union, Verdict, Finding), ids.py, io.py, migrate.py
-    adapters/   # base.py, verifiers_eval.py, prime_rl_train.py
-    detectors/  # base.py (registry), one module per detector
-    analysis/   # aggregates.py (per-snapshot and per-step stats, grouping)
-    report/     # model.py, terminal.py, json_out.py, html.py, svg.py, templates/
-    cli.py      # typer app, thin wrapper only
-  tests/
-    fixtures/   # synthetic + real verifiers-shaped rows, labeled hacked/clean pairs
-    ...
+PLAN.md  PROGRESS.md  CLAUDE.md          current plan, status log, these instructions
+README.md  CHANGELOG.md  CONTRIBUTING.md
+src/rolloutscope/
+  schema/      models.py, findings.py, execution.py, ids.py, io.py, migrate.py
+  adapters/    base.py, normalized.py, verifiers_eval.py, prime_rl_train.py
+  detectors/   base.py (registry), execution.py (coverage), _text.py, one module per detector
+  analysis/    aggregates.py, findings.py
+  report/      model.py, terminal.py, json_out.py, html.py, svg.py, templates/
+  benchmark/   TRACE manifest, mapper, applicability, metrics, splits
+  output.py    collision checks and atomic writes
+  cli.py       thin typer wrapper
+benchmarks/trace/manifest.json           pinned TRACE population (no row content)
+scripts/                                 validation, fixture capture, packaging, perf
+docs/                                    data contract, compatibility, benchmark metrics, ADR-0001
+docs/history/                            archived plans, logs, reviews, v1 post-mortem
+tests/
+experiments/                             separate uv project, created at M1
 ```
 
-## Data contract summary
+## Detector catalog
 
-- `Rollout`: discriminated union on `kind` (`single_turn` | `multi_turn`), pydantic v2,
-  `extra="allow"`, per-row `schema_version`. Derived from the candidate in the
-  rollout-schema-design skill, kept compatible with verifiers `RolloutOutput` (upstream
-  wins on any conflict).
-- Stable IDs: `run_id` (from manifest), `rollout_id` (content hash of canonical fields),
-  `group_id` (grouping key is `example_id`), optional `step_index` attached by the
-  adapter from file layout, never guessed.
-- `Verdict`: per-rollout or per-group detector output (`fired`, `score`, `category`,
-  `evidence`, `detector`, `rollout_ids`).
-- `Finding`: report-level aggregation of verdicts (severity, title, description, metric
-  values, config used, exemplar evidence).
-- RL training signals (`advantages`, `is_trainable`) live in an optional sidecar model
-  only, never on the base row.
-
-## Detector catalog (v0)
-
-| id | family | core signal | reads |
+| id | category | core signal | needs |
 |---|---|---|---|
-| verifier_tamper | test/verifier tampering | test-edit, assert-deletion, skip, exit-0, monkeypatch, always-pass patterns | completion, trajectory, info |
-| reward_saturation_group_collapse | saturation / zero-advantage proxy | within-group reward variance at zero; fraction of dead groups, trend over steps | reward, group_id, step_index |
-| length_inflation | rubric/judge exploit | reward vs length correlation while task metric is flat | completion, reward, metrics |
-| format_only_wins | rubric/judge exploit | format/parser metric near max while correctness metric near zero, scalar reward still high | metrics, reward |
-| degenerate_repetition | degeneracy | n-gram repetition and distinct-token ratios on high-reward rollouts | completion, reward |
-| answer_leakage_echo | context/spec exploitation | completion echoes `answer` or context criterion with no work | completion, answer, prompt, info |
+| verifier_tamper | verifier_tampering | test edits, assert deletion, skips, forced exit 0, monkeypatching | completion or trajectory text |
+| reward_saturation_group_collapse | reward_saturation | within-group reward variance at zero, and its trend over steps | reward, groups, step_index for trend |
+| length_inflation | rubric_judge_exploit | reward tracking length while a quality metric stays flat | reward, a quality metric |
+| format_only_wins | rubric_judge_exploit | format metric high, correctness low, reward still high | format and correctness metrics |
+| degenerate_repetition | degeneracy | n-gram repetition on a single high-reward completion | completion, reward |
+| answer_leakage_echo | context_exploitation | completion echoes the reference answer with no work shown | completion, answer |
 
-All detectors run in snapshot mode; saturation and length gain trend variants when
-`step_index` is present.
+Planned (PLAN.md M3): `judge_divergence`, which reads proxy and gold judge scores from
+`metrics`.
 
-## Skills map (read before coding the matching area)
+## Skills
 
-- **verifiers-ground-truth**: before writing or reviewing any adapter code, and before
-  using any verifiers field name. `references/core-types.md` and
-  `references/on-disk-format.md` are the contract.
-- **rollout-schema-design**: before touching `schema/`. Start from
-  `references/candidate-schema.md`; do not invent a schema from scratch.
-- **reward-hacking-detectors**: before writing any detector. Follow the Verdict contract,
-  the five families, and the fixture-validation requirements in
-  `references/taxonomy-and-sources.md`.
-- **python-oss-library-scaffold**: for pyproject, CI, layout, plugin registry. Copy the
-  templates in `assets/` and fill placeholders; do not write these files from scratch.
-- **engineering:architecture**: when writing ADR-0001 for the schema decision.
-- **engineering:documentation**: when writing the README, CONTRIBUTING, and docstrings.
-
-## Sub-agent protocol
-
-- The orchestrator session owns Phases 0 to 2 and the final integration. Sub-agents are
-  spawned only after the Phase 2 schema freeze.
-- Sub-agents receive: their phase spec from the build prompt, read access to everything,
-  write access only to their own package plus its tests. Nobody except the orchestrator
-  edits `schema/` after the freeze.
-- A sub-agent is done only when its scoped tests pass (`uv run pytest tests/<area> -q`)
-  and ruff is clean on its files. It reports back with a list of files touched, tests
-  added, and any TODOs left.
-- Every phase boundary: re-read the phase spec, run the full suite, update PROGRESS.md
-  with the gate checklist, commit with a conventional message.
-
-## Definition of done for v0
-
-Fresh clone passes `uv sync --extra dev && uv run pytest -q` offline on macOS with no
-GPU. `uv run rolloutscope analyze tests/fixtures/demo --out report.html` produces a
-self-contained HTML report plus a JSON sidecar. All six detectors separate their labeled
-fixture pairs. Core packages have no verifiers import. Ruff, mypy, and CI config are
-green. Docs exist (README, ADR-0001, CHANGELOG 0.1.0, CONTRIBUTING) and contain no em
-dashes. PROGRESS.md shows every phase gate checked.
-
+Local skills in `.claude/` (not committed) may carry older upstream facts. When a skill
+disagrees with `docs/compatibility-matrix.md` or with pinned upstream source, the
+matrix and the source win.

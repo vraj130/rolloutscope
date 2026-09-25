@@ -1,6 +1,8 @@
 # ADR-0001: Normalized rollout schema as the stable contract
 
-**Status:** Accepted
+**Status:** Accepted. Superseded in part: the identity rules (`rollout_id`, `run_id`) and
+the version policy are replaced by schema 2.0, documented in
+[docs/phase1-data-contract.md](../phase1-data-contract.md).
 **Date:** 2026-07-05
 **Deciders:** vijayraj gohil
 

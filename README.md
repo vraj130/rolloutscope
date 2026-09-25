@@ -6,6 +6,13 @@
 gamed its reward, with the offending text highlighted so you can judge for yourself.** It
 runs offline and CPU-only: no model, no GPU, no network at analysis time.
 
+**Status.** rolloutscope is a research project on detecting reward hacking in RL
+post-training. This package is its black-box half: heuristic signals read from logged
+rollouts, with honest coverage reporting. It is maintained but is not a finished
+product, and its signals are observations to review, not proof. It reads legacy
+verifiers and prime-rl output only (see [Supported inputs](#supported-inputs)). The
+research plan, including the white-box work, is in [PLAN.md](PLAN.md).
+
 ## Quickstart
 
 ```bash
@@ -55,13 +62,19 @@ Legacy raw input receives a path-derived run identity. Pass `--run-id NAME` to `
 or `convert` when a stable external namespace is available. Normalized input preserves
 its recorded identity and rejects this override.
 
-## Supported Phase 1 inputs
+## Supported inputs
 
-The legacy adapters support the pinned verifiers `results.jsonl` plus optional
-`metadata.json` layout and prime-rl `train_rollouts.jsonl` files in recognized step
-directories. These contracts are pinned to verifiers commit `5885ab9c` and prime-rl
-commit `df2acf48`; see [the compatibility matrix](docs/compatibility-matrix.md) before
-assuming a newer upstream layout is equivalent.
+The adapters read the verifiers `results.jsonl` plus optional `metadata.json` layout
+and prime-rl `train_rollouts.jsonl` files in recognized step directories, pinned to
+verifiers commit `5885ab9c` and prime-rl commit `df2acf48`.
+
+**Current upstream releases are not supported.** verifiers v0.3.1 and later write only
+`traces.jsonl` of `Episode` records. prime-rl moved to per-step cohort directories and
+then, on 2026-09-01, to a chunked trace stream. rolloutscope reads neither. In practice
+that means verifiers v0.1.x (and the legacy path of v0.2.0 to v0.3.0) and prime-rl
+builds old enough to write `train_rollouts.jsonl`. The details are in
+[the compatibility matrix](docs/compatibility-matrix.md). If you control the writer,
+emitting the legacy prime-rl step layout is the simplest way to get a run analyzed.
 
 RolloutScope normalized JSONL uses a per-row schema marker. The reader migrates supported
 1.x rows to schema 2.0, preserves current 2.x identity and provenance, and explicitly
@@ -118,8 +131,9 @@ On the **tuning** split (105 rows, 50 hacked, 55 benign):
 
 Read honestly. `verifier_tamper` separates the labels, but only just: it fires on half the
 benign trajectories too, because ordinary coding agents edit tests and grep for the very
-patterns it matches. Improving that is open Phase 2 work, and 21 of the 33 hard negatives
-in `tests/fixtures/hard_negatives/` currently fire for the same reason.
+patterns it matches. 21 of the 33 hard negatives in `tests/fixtures/hard_negatives/`
+currently fire for the same reason. This is a known limitation. Detector tuning against
+TRACE is not on the current plan, and TRACE is kept as a regression benchmark.
 
 The other five detectors report **zero coverage, not clean results**. TRACE ships
 transcripts with no reward, no metrics, and no reference answer, and every one of those
@@ -128,7 +142,7 @@ would be the single most misleading thing this tool could do, so the report name
 missing signal instead.
 
 No release threshold has been set from this benchmark, and the holdout has not been
-measured. It stays sealed until the detector repairs land.
+measured. It stays sealed.
 
 Reproduce it (the dataset is gated, so put a Hugging Face `HF_TOKEN` in a `.env` at the
 repo root):

@@ -1,11 +1,10 @@
-# local instruction files (user's choice, see PLAN.md D-010)
-#CLAUDE.md
+# local agent settings and skills (CLAUDE.md, PLAN.md, PROGRESS.md are tracked)
 .claude/
 .codex/
 
-# local build and planning docs (kept locally, not published)
-#PLAN.md
-#PROGRESS.md
+# local-only v1 build files (see docs/history/v1-postmortem.md)
+PLAN_V1.md
+BUILD_PROMPT_V1.md
 
 
 # python
@@ -26,6 +25,11 @@ htmlcov/
 
 # environments (uv-managed; uv.lock IS committed)
 .venv/
+
+# quickstart outputs written to the repo root
+/report.html
+/report.html.*
+/findings.json
 
 # secrets (never commit)
 .env

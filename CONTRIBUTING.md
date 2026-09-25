@@ -46,10 +46,12 @@ follow `scripts/perf/result_schema.json`.
   `uv run`. `uv.lock` is committed.
 - **No em dashes in any repo text.** README, docstrings, comments, ADRs, the CHANGELOG,
   and report copy use commas, colons, or parentheses instead. This is a hard convention.
-- **The schema is frozen.** The models in `src/rolloutscope/schema/` are the product's
-  contract. Changes there require a version bump and a migration entry, not an ad hoc
-  edit; open an issue first. Everything else (adapters, detectors, analysis, report,
-  CLI) is built against those types.
+- **The schema is a versioned contract.** The models in `src/rolloutscope/schema/`
+  (currently schema 2.0) are what everything else builds against. Additive changes stay
+  within the major version. A breaking change needs a major bump, a migration entry,
+  and an update to `docs/phase1-data-contract.md`. Open an issue first.
+- **Scope follows PLAN.md.** New features need a milestone in `PLAN.md`. Research code
+  that loads models belongs in `experiments/`, never in the package.
 - **Core never imports verifiers or prime-rl.** Only the `adapters` package knows the
   upstream on-disk shapes, and it parses them from the pinned reference docs rather than
   importing those libraries. Do not add torch, transformers, or any inference dependency:
