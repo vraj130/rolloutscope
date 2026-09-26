@@ -103,3 +103,7 @@ in the archived plans.
   early +0.063 [+0.033, +0.094]. Proxy late minus early +0.067, gold +0.012. Length versus
   score, Pearson: proxy +0.284 at step 0 and +0.531 at step 300; gold -0.158 and -0.083.
   Source: $ROLLOUTSCOPE_DATA/m1/dryrun-qwen1.5b-s0/analysis/summary.json.
+- 2026-09-26: criterion (e) of the M1 criterion uses full, untruncated responses in the
+  top-gaps file (analyze.py from 72cd980 onward). This is a presentation fix: the selection of
+  the 10 largest gaps, the disagreement rows, and every computed number are unchanged
+  (checked on the dry run: identical summary.json and identical selection).
