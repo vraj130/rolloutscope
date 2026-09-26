@@ -7,7 +7,8 @@ grading prompt (judge.py).
 
 Bootstrap: B resamples of the eval prompts with a fixed seed. The same resampled prompt set
 is used at every step, so step-to-step comparisons are paired by prompt. Intervals are 95%
-percentile intervals.
+percentile intervals. "Early" is the first N_WINDOW eval steps of the run and "late" the last
+N_WINDOW; late minus early is the mean over late steps minus the mean over early steps.
 
 Writes <run>/analysis/summary.json, summary.md, and top_gaps_step<last>.md.
 
@@ -26,8 +27,7 @@ import numpy as np
 
 B = 10_000
 SEED = 0
-EARLY = (0, 25, 50)
-LATE = (250, 275, 300)
+N_WINDOW = 3  # eval steps in the early and late windows
 TOP_N = 10
 RESPONSE_CHARS = 800
 
@@ -129,8 +129,13 @@ def main() -> None:
 
     # 2. slopes per 100 steps, and late minus early
     x = steps.astype(float)
-    early = np.isin(steps, EARLY)
-    late = np.isin(steps, LATE)
+    if len(steps) < 2 * N_WINDOW:
+        raise SystemExit(f"need at least {2 * N_WINDOW} eval steps, found {len(steps)}")
+    early = np.zeros(len(steps), dtype=bool)
+    late = np.zeros(len(steps), dtype=bool)
+    early[:N_WINDOW] = True
+    late[-N_WINDOW:] = True
+    early_steps, late_steps = steps[early].tolist(), steps[late].tolist()
     res["trend"] = {}
     for name, point, boot in (
         ("proxy", P.mean(axis=1), Pb),
@@ -142,13 +147,15 @@ def main() -> None:
             "slope_ci": ci(slope(x, boot) * 100),
             "late_minus_early": float(point[late].mean() - point[early].mean()),
             "late_minus_early_ci": ci(boot[:, late].mean(axis=1) - boot[:, early].mean(axis=1)),
-            "early_steps": list(EARLY),
-            "late_steps": list(LATE),
+            "early_steps": early_steps,
+            "late_steps": late_steps,
         }
 
     # 3. per-criterion overclaim (proxy 1, gold 0) and underclaim (proxy 0, gold 1)
     res["per_criterion"] = []
-    for s in steps:
+    over_b = np.empty((B, len(steps)))  # bootstrap overclaim rate per step
+    over_pt = np.empty(len(steps))
+    for i, s in enumerate(steps):
         pv = [np.array(r["proxy"]["verdicts"]) for r in data[int(s)]]
         gv = [np.array(r["gold"]["verdicts"]) for r in data[int(s)]]
         over = np.array([((p == 1) & (g == 0)).sum() for p, g in zip(pv, gv, strict=True)])
@@ -156,6 +163,8 @@ def main() -> None:
         tot = np.array([len(p) for p in pv])
         ob = over[idx].sum(axis=1) / tot[idx].sum(axis=1)
         ub = under[idx].sum(axis=1) / tot[idx].sum(axis=1)
+        over_b[:, i] = ob
+        over_pt[i] = over.sum() / tot.sum()
         res["per_criterion"].append(
             {
                 "step": int(s),
@@ -168,6 +177,13 @@ def main() -> None:
                 "gold_yes": float(sum(g.sum() for g in gv) / tot.sum()),
             }
         )
+
+    res["overclaim_trend"] = {
+        "late_minus_early": float(over_pt[late].mean() - over_pt[early].mean()),
+        "late_minus_early_ci": ci(over_b[:, late].mean(axis=1) - over_b[:, early].mean(axis=1)),
+        "early_steps": early_steps,
+        "late_steps": late_steps,
+    }
 
     # 4. length versus score, first and last step
     res["length_correlation"] = []
@@ -252,7 +268,7 @@ def main() -> None:
         )
     lines += [
         "",
-        f"Early = steps {list(EARLY)}, late = steps {list(LATE)}.",
+        f"Early = steps {early_steps}, late = steps {late_steps}.",
         "",
         "| step | criteria | overclaim [95% CI] | underclaim [95% CI] | proxy yes | gold yes |",
         "|---|---|---|---|---|---|",
@@ -264,6 +280,12 @@ def main() -> None:
             f"[{e['underclaim_ci'][0]:.3f}, {e['underclaim_ci'][1]:.3f}] | "
             f"{e['proxy_yes']:.3f} | {e['gold_yes']:.3f} |"
         )
+    ot = res["overclaim_trend"]
+    lines += [
+        "",
+        f"Overclaim, late minus early: {ot['late_minus_early']:+.4f} "
+        f"[{ot['late_minus_early_ci'][0]:+.4f}, {ot['late_minus_early_ci'][1]:+.4f}]",
+    ]
     lines += ["", "| step | judge | Pearson [95% CI] | Spearman |", "|---|---|---|---|"]
     for e in res["length_correlation"]:
         for name in ("proxy", "gold"):
