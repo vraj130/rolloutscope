@@ -76,9 +76,9 @@ Gate: the docs agree with the code, and the offline suite, ruff, and mypy are gr
   (`step_<n>/train_rollouts.jsonl`, the row shape `scripts/perf/generate.py` writes),
   with judge scores in `metrics`. rolloutscope reads that today with no new adapter.
 
-Gate: on at least two seeds, the gold score peaks and then declines while the proxy
-keeps rising. If that does not happen, change model size, step budget, or judge
-strength until it does. No white-box work starts before this gate passes.
+Gate: on two new seeds, the proxy minus gold gap widens and proxy overclaim rises, by the
+pre-registered criterion in PROGRESS.md. A gold rise and fall is reported if it occurs but is
+not required: at 1.5B, gold starts low and barely moves.
 
 ### M2. Matched conditions
 

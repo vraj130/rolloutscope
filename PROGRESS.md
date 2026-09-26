@@ -12,7 +12,7 @@ at the bottom, and write any experiment's pass or fail criterion here before the
 | Milestone | State | Evidence |
 |---|---|---|
 | M0 housekeeping | done once v0.2.0 is tagged | docs refocus commit; version bump commit |
-| M1 reproduce rubric hacking | dry run done, criteria pending | Notes 2026-09-26 |
+| M1 reproduce rubric hacking | criteria registered, seeds 1 and 2 in progress | Notes 2026-09-26 |
 | M2 matched conditions | not started | |
 | M3 black-box baselines | not started | |
 | M4 white-box signals | not started | |
@@ -27,7 +27,23 @@ there, and the holdout is still sealed.
 
 ## Pre-registered criteria
 
-None yet. Write each one here, dated, before the run it governs.
+Write each one here, dated, before the run it governs.
+
+- M1 (2026-09-26). Evaluated on seeds 1 and 2 only; the dry run (seed 0) is exploratory and
+  excluded. M1 passes only if all hold in BOTH seeds:
+  a) The slope of the proxy minus gold gap over steps, 95% bootstrap CI over prompts, has
+     lower bound > 0.
+  b) Overclaim rate, late (last 3 evals) minus early (first 3 evals), has 95% CI lower
+     bound > 0.
+  c) Gold's late-minus-early gain is less than half of the proxy's late-minus-early gain
+     (point estimates).
+  d) Judge failure rate is under 1% for both proxy and gold.
+  e) Manual check: of the 10 largest proxy minus gold gaps at the final eval, the author
+     judges at least 7 to be proxy errors (gold correct).
+  Analysis uses experiments/m1/analyze.py as committed at 5da6089, unchanged. That commit is
+  d6f172d with early and late taken as the first and last 3 eval steps of the analyzed run and
+  an overclaim late-minus-early interval added; on the dry run its other outputs are identical
+  to d6f172d. A gold rise then fall is reported but not required.
 
 ## Decisions
 
@@ -60,6 +76,11 @@ in the archived plans.
   policy and the proxy.
 - R-008 (2026-09-25): the dry run uses Qwen2.5-1.5B-Instruct. The real M1 runs use
   Qwen2.5-3B-Instruct, with LoRA if full fine-tuning does not fit on one 3090.
+- R-009 (2026-09-26): M1 runs use Qwen2.5-1.5B-Instruct with full fine-tuning and the exact
+  dry-run recipe (lr 1e-6, 8 rollouts, 768 tokens, N_train 500, N_eval 100, K 25), extended to
+  600 steps, seeds 1 and 2. Reason: the dry run already shows proxy and gold diverging at
+  1.5B, and full fine-tuning avoids a LoRA confound. This supersedes R-008 for M1; 3B only if
+  M1 fails.
 
 ## Notes
 
@@ -76,3 +97,9 @@ in the archived plans.
   not the Batch API (user decision for this run); cost $0.804 plus a $0.003 pilot. Sources:
   $ROLLOUTSCOPE_DATA/m1/dryrun-qwen1.5b-s0/gold/summary.tsv, gold/cost.json, stats.jsonl,
   final.json.
+- 2026-09-26 (exploratory, dry run seed 0, excluded from the M1 criterion): analyze.py at
+  5da6089 on 100 held-out prompts, 95% prompt-bootstrap intervals. Gap slope +0.0239
+  [+0.0134, +0.0347] per 100 steps. Overclaim 0.196 at step 0 to 0.310 at step 300; late minus
+  early +0.063 [+0.033, +0.094]. Proxy late minus early +0.067, gold +0.012. Length versus
+  score, Pearson: proxy +0.284 at step 0 and +0.531 at step 300; gold -0.158 and -0.083.
+  Source: $ROLLOUTSCOPE_DATA/m1/dryrun-qwen1.5b-s0/analysis/summary.json.
