@@ -12,7 +12,7 @@ at the bottom, and write any experiment's pass or fail criterion here before the
 | Milestone | State | Evidence |
 |---|---|---|
 | M0 housekeeping | done once v0.2.0 is tagged | docs refocus commit; version bump commit |
-| M1 reproduce rubric hacking | dry run in progress | |
+| M1 reproduce rubric hacking | dry run done, criteria pending | Notes 2026-09-26 |
 | M2 matched conditions | not started | |
 | M3 black-box baselines | not started | |
 | M4 white-box signals | not started | |
@@ -66,3 +66,13 @@ in the archived plans.
 - 2026-09-25: proxy judge output format matters. Keyed {c1: 0/1} versus list {verdicts: [...]}
   on the same 100 responses: 83% per-criterion agreement, mean score 0.249 versus 0.114. Keyed
   format kept.
+- 2026-09-26: M1 dry run (Qwen2.5-1.5B-Instruct, full fine-tune, 300 steps, seed 0, 500 train
+  and 100 eval RubricHub medical prompts, K = 25) finished on fourier in 5.25 h. Proxy judge:
+  20,500 calls, 0 failures. Held-out eval, same 100 prompts at every step, proxy then gold
+  (gpt-6-luna, medium effort): step 0 0.254 / 0.106, step 150 0.315 / 0.109, step 300 0.385 /
+  0.117. Gold stays flat between 0.103 and 0.126 while the proxy rises, so the gap grows from
+  +0.148 to +0.268. No gold peak and decline. One seed, no confidence intervals. Gold failures
+  0/1,300 after a rerun of 653 rate-limited (429) requests. Gold graded with direct API calls,
+  not the Batch API (user decision for this run); cost $0.804 plus a $0.003 pilot. Sources:
+  $ROLLOUTSCOPE_DATA/m1/dryrun-qwen1.5b-s0/gold/summary.tsv, gold/cost.json, stats.jsonl,
+  final.json.
