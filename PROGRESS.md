@@ -107,3 +107,8 @@ in the archived plans.
   top-gaps file (analyze.py from 72cd980 onward). This is a presentation fix: the selection of
   the 10 largest gaps, the disagreement rows, and every computed number are unchanged
   (checked on the dry run: identical summary.json and identical selection).
+- 2026-09-26: Gold calibration: gpt-6-luna reference answers on 20 eval prompts score gold
+  0.349 (median 0.303, range 0.144 to 0.664); dry-run policy on the same prompts 0.075 (step 0)
+  and 0.089 (step 300). Gold separates quality but is strict: practical ceiling about 0.35 on
+  these rubrics. Caveat: the gold judge graded its own model's answers, so self-preference may
+  inflate the reference score. Source: $ROLLOUTSCOPE_DATA/m1/gold_calibration/result_gold.json.
