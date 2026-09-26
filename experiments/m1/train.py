@@ -269,6 +269,12 @@ def main() -> None:
     out = run_dir(cfg)
     if out.exists() and any(p.name != "proxy.log" for p in out.iterdir()):
         raise SystemExit(f"{out} is not empty; pick another run_name")
+    # checkpoints go to <checkpoint_dir>/<run_name> (local disk) when set, else <run>/trainer
+    ckpt = out / "trainer"
+    if cfg.get("checkpoint_dir"):
+        ckpt = Path(os.path.expandvars(cfg["checkpoint_dir"])).expanduser() / cfg["run_name"]
+        if ckpt.exists() and any(ckpt.iterdir()):
+            raise SystemExit(f"{ckpt} is not empty; pick another run_name")
     out.mkdir(parents=True, exist_ok=True)
     (out / "config.yaml").write_text(yaml.safe_dump(cfg, sort_keys=False))
 
@@ -276,7 +282,8 @@ def main() -> None:
     from transformers import AutoTokenizer
     from trl import GRPOConfig, GRPOTrainer
 
-    train_set, eval_set = split(cfg["n_train"], cfg["n_eval"], cfg["seed"])
+    # split_seed fixes the prompt split independently of the training seed (R-009 runs use 0)
+    train_set, eval_set = split(cfg["n_train"], cfg["n_eval"], cfg.get("split_seed", cfg["seed"]))
     (out / "split.json").write_text(
         json.dumps(
             {
@@ -300,7 +307,7 @@ def main() -> None:
     if per_step % cfg["micro_batch_size"]:
         raise SystemExit("prompts_per_step * num_generations must divide by micro_batch_size")
     grpo_args = GRPOConfig(
-        output_dir=str(out / "trainer"),
+        output_dir=str(ckpt),
         seed=cfg["seed"],
         max_steps=cfg["max_steps"],
         learning_rate=cfg["lr"],
@@ -325,6 +332,7 @@ def main() -> None:
         save_strategy="steps" if cfg.get("save_every") else "no",
         save_steps=cfg.get("save_every") or 500,
         save_only_model=True,
+        save_total_limit=cfg.get("save_total_limit"),  # None keeps every checkpoint
         report_to="none",
     )
     peft_config = None

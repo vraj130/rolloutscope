@@ -1,0 +1,35 @@
+# M1 run, seed 1 (PROGRESS.md R-009): the dry-run recipe extended to 600 steps.
+# Pre-registered criterion: PROGRESS.md, M1 (2026-09-26).
+run_name: m1-qwen1.5b-s1
+model: Qwen/Qwen2.5-1.5B-Instruct
+lora: false
+seed: 1
+split_seed: 0                # same 500 train / 100 eval prompts as the dry run
+
+# data (data.py): seeded split of RubricHub medical by prompt
+n_train: 500
+n_eval: 100
+
+# GRPO (TRL GRPOTrainer, vLLM colocated on GPU 0)
+max_steps: 600
+lr: 1.0e-6
+prompts_per_step: 8
+num_generations: 8
+micro_batch_size: 2
+max_completion_length: 768
+temperature: 1.0
+beta: 0.0
+loss_type: dapo
+vllm_gpu_memory_utilization: 0.30
+vllm_max_model_length: 2048
+gradient_checkpointing: true
+save_every: 25               # weights only
+checkpoint_dir: ~/rolloutscope-ckpt   # local disk; copied to the run directory afterwards
+save_total_limit: 3          # ends with the last two checkpoints plus the final one
+
+# evaluation: every eval_every (K) steps, and once before training
+eval_every: 25
+
+# stop rule for proxy judge failures (train.py exits with code 3)
+judge_max_failure_rate: 0.10
+judge_failure_patience: 3
