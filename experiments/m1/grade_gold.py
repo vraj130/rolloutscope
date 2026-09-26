@@ -1,4 +1,7 @@
-"""Gold-grade saved M1 evaluation generations with OpenAI gpt-6-luna through the Batch API.
+"""Gold-grade saved M1 evaluation generations with OpenAI gpt-6-luna.
+
+Two routes: the Batch API (default, batch prices) or --direct concurrent Chat Completions
+calls (standard prices, finishes in minutes). Both write the same output-line format.
 
 Reads every eval/step_<n>.jsonl of a run, grades each response with the same grading prompt
 as the proxy judge (judge.build_messages), and writes:
@@ -6,23 +9,29 @@ as the proxy judge (judge.build_messages), and writes:
 - eval/step_<n>.gold.jsonl  gold verdicts per row, keyed by source_index
 - gold/summary.tsv          step, mean proxy, mean gold, gap, mean length
 - gold/batch_*.json, gold/*.jsonl  batch ids, inputs, raw outputs (for resume and audit)
+- gold/direct_<tag>_output.jsonl    raw --direct outputs, appended as calls finish; a rerun
+                                    reuses them instead of paying again
 - $ROLLOUTSCOPE_DATA/m1/gold_spend.jsonl  actual cost of every job, for the project budget
 
 Before any paid call it prints the request count and an estimated cost, and asks for
 confirmation. The reasoning-token part of the estimate comes from --pilot N synchronous
-requests (also confirmed first) or from --reasoning-tokens.
+requests (also confirmed first) or from --reasoning-tokens. --max-usd refuses to submit when
+the estimate is above it.
 
-A request that fails in the batch is resubmitted once (--retry-rounds). A request that still
-fails is counted, logged with its error, and left ungraded. It never gets a score.
+A --direct call is tried 3 times. A request that fails is resubmitted once (--retry-rounds).
+A request that still fails is counted, logged with its error, and left ungraded. It never
+gets a score.
 
 Usage, from experiments/ (OPENAI_API_KEY in the environment or the repo .env):
 
     uv run python m1/grade_gold.py --run dryrun-qwen1.5b-s0 --pilot 5
+    uv run python m1/grade_gold.py --run dryrun-qwen1.5b-s0 --direct --reasoning-tokens 634
 """
 
 from __future__ import annotations
 
 import argparse
+import asyncio
 import json
 import os
 import sys
@@ -196,6 +205,59 @@ def submit_and_wait(client, rows: list[dict[str, Any]], gold: Path, tag: str, po
     return results
 
 
+def run_direct(rows: list[dict[str, Any]], gold: Path, tag: str, concurrency: int) -> dict:
+    """Send rows as concurrent Chat Completions calls; return {custom_id: output line}.
+
+    Output lines use the Batch API shape so ``interpret`` handles both routes. Lines are
+    appended to gold/direct_<tag>_output.jsonl as they finish; rows already there are reused.
+    """
+    from openai import AsyncOpenAI
+
+    out_path = gold / f"direct_{tag}_output.jsonl"
+    results: dict[str, dict] = {}
+    if out_path.exists():
+        for line in out_path.read_text().splitlines():
+            obj = json.loads(line)
+            results[obj["custom_id"]] = obj
+    todo = [r for r in rows if r["custom_id"] not in results]
+    print(f"direct {tag}: {len(todo)} calls ({len(rows) - len(todo)} reused from {out_path.name})")
+
+    async def go() -> None:
+        client = AsyncOpenAI(max_retries=0, timeout=600)
+        sem = asyncio.Semaphore(concurrency)
+        done = 0
+        with out_path.open("a") as f:
+
+            async def one(r: dict[str, Any]) -> None:
+                nonlocal done
+                async with sem:
+                    obj: dict[str, Any] = {"custom_id": r["custom_id"], "error": None}
+                    for attempt in range(3):
+                        try:
+                            resp = await client.chat.completions.create(**request_body(r))
+                            obj["response"] = {"status_code": 200, "body": resp.model_dump()}
+                            obj["error"] = None
+                            break
+                        except Exception as e:
+                            status = getattr(e, "status_code", None)
+                            obj["response"] = {"status_code": status, "body": {}}
+                            obj["error"] = f"{type(e).__name__}: {str(e)[:300]}"
+                            await asyncio.sleep(2**attempt)
+                    results[r["custom_id"]] = obj
+                    f.write(json.dumps(obj) + "\n")
+                    f.flush()
+                    done += 1
+                    if done % 100 == 0:
+                        print(f"  {done}/{len(todo)} done", flush=True)
+
+            await asyncio.gather(*(one(r) for r in todo))
+        await client.close()
+
+    if todo:
+        asyncio.run(go())
+    return results
+
+
 def interpret(obj: dict | None, row: dict[str, Any]) -> dict[str, Any]:
     """Turn one batch output line into a gold result; failures carry the error, no score."""
     if obj is None:
@@ -246,6 +308,9 @@ def main() -> None:
     parser.add_argument("--reasoning-tokens", type=float, default=None, help="per request")
     parser.add_argument("--retry-rounds", type=int, default=1)
     parser.add_argument("--poll", type=int, default=60, help="seconds between status checks")
+    parser.add_argument("--direct", action="store_true", help="direct calls, not the Batch API")
+    parser.add_argument("--concurrency", type=int, default=32, help="--direct calls in flight")
+    parser.add_argument("--max-usd", type=float, default=None, help="refuse above this estimate")
     args = parser.parse_args()
 
     from dotenv import load_dotenv
@@ -261,7 +326,8 @@ def main() -> None:
         raise SystemExit(f"no eval/step_*.jsonl under {run}")
     client = OpenAI()
 
-    resuming = (gold / "batch_r0.json").exists()
+    tier = "standard" if args.direct else "batch"
+    resuming = not args.direct and (gold / "batch_r0.json").exists()
     if not resuming:
         if args.pilot:
             reasoning = run_pilot(client, rows, args.pilot, data_root, run)
@@ -278,29 +344,37 @@ def main() -> None:
                 "output": est_out,
                 "reasoning": int(reasoning * len(rows)),
             },
-            "batch",
+            tier,
         )
         spent = spent_so_far(data_root)
         print(f"requests: {len(rows)} from {len({r['step'] for r in rows})} eval steps")
         print(
-            f"estimate (batch prices, input at ~{CHARS_PER_TOKEN:.0f} chars/token, no caching): "
+            f"estimate ({tier} prices, input at ~{CHARS_PER_TOKEN:.0f} chars/token, no caching): "
             f"input ${est['input']:.3f}, output ${est['output']:.3f}, "
             f"reasoning ${est['reasoning']:.3f} ({reasoning:.0f} tok/request), "
             f"total ${est['total']:.3f}"
         )
         print(f"project gold spend so far ${spent:.3f} of ${BUDGET_USD:.0f}")
-        if not confirm("Submit the batch?"):
+        if args.max_usd is not None and est["total"] > args.max_usd:
+            raise SystemExit(f"estimate ${est['total']:.3f} is above --max-usd {args.max_usd}")
+        if not confirm("Submit the batch?" if not args.direct else "Send the direct calls?"):
             raise SystemExit("declined; nothing submitted")
 
     by_id = {r["custom_id"]: r for r in rows}
-    raw = submit_and_wait(client, rows, gold, "r0", args.poll)
+
+    def submit(rs: list[dict[str, Any]], tag: str) -> dict:
+        if args.direct:
+            return run_direct(rs, gold, tag, args.concurrency)
+        return submit_and_wait(client, rs, gold, tag, args.poll)
+
+    raw = submit(rows, "r0")
     gold_res = {cid: interpret(raw.get(cid), by_id[cid]) for cid in by_id}
     for k in range(1, args.retry_rounds + 1):
         failed = [by_id[c] for c, g in gold_res.items() if not g["ok"]]
         if not failed:
             break
         print(f"retry round {k}: {len(failed)} failed requests")
-        raw_k = submit_and_wait(client, failed, gold, f"r{k}", args.poll)
+        raw_k = submit(failed, f"r{k}")
         for r in failed:
             prev_usage = gold_res[r["custom_id"]]["usage"]
             res = interpret(raw_k.get(r["custom_id"]), r)
@@ -334,11 +408,11 @@ def main() -> None:
             if u:
                 for k, v in usage_parts(u).items():
                     totals[k] += v
-    c = cost(totals, "batch")
+    c = cost(totals, tier)
     n_fail = sum(not g["ok"] for g in gold_res.values())
     print(f"gold failures: {n_fail}/{len(gold_res)} ({n_fail / len(gold_res):.2%})")
     print(
-        "actual cost (batch prices): "
+        f"actual cost ({tier} prices): "
         + ", ".join(f"{k} {totals[k]} tok ${c[k]:.4f}" for k in totals)
         + f"; total ${c['total']:.4f}"
     )
@@ -346,14 +420,14 @@ def main() -> None:
         data_root,
         {
             "run": run.name,
-            "kind": "batch",
+            "kind": "direct" if args.direct else "batch",
             "tokens": totals,
             "usd_total": c["total"],
             "time": time.time(),
         },
     )
     (gold / "cost.json").write_text(
-        json.dumps({"tokens": totals, "usd": c, "failures": n_fail}, indent=2)
+        json.dumps({"tier": tier, "tokens": totals, "usd": c, "failures": n_fail}, indent=2)
     )
 
 
