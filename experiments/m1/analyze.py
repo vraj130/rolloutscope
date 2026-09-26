@@ -29,7 +29,6 @@ B = 10_000
 SEED = 0
 N_WINDOW = 3  # eval steps in the early and late windows
 TOP_N = 10
-RESPONSE_CHARS = 800
 
 
 def load(run: Path) -> dict[int, list[dict[str, Any]]]:
@@ -206,7 +205,7 @@ def main() -> None:
     md = [
         f"# Step {last}: {TOP_N} largest proxy minus gold gaps",
         "",
-        f"Run `{args.run}`. Responses truncated to {RESPONSE_CHARS} characters. "
+        f"Run `{args.run}`. Full responses, untruncated. "
         "Verdicts: P = proxy (Llama-3.1-8B bf16), G = gold (gpt-6-luna). Only criteria where "
         "they disagree are listed.",
         "",
@@ -215,9 +214,7 @@ def main() -> None:
         crit = r["criteria"]
         pv, gv = r["proxy"]["verdicts"], r["gold"]["verdicts"]
         q = "\n".join(m["content"] for m in r["prompt"])
-        resp = r["response"][:RESPONSE_CHARS] + (
-            "..." if len(r["response"]) > RESPONSE_CHARS else ""
-        )
+        resp = r["response"]
         md += [
             f"## {rank_}. source_index {r['source_index']}: proxy {r['proxy']['score']:.3f}, "
             f"gold {r['gold']['score']:.3f}, gap {r['proxy']['score'] - r['gold']['score']:+.3f}, "
