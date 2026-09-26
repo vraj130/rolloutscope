@@ -14,6 +14,11 @@ Outputs under $ROLLOUTSCOPE_DATA/m1/<run_name>/:
 - stats.jsonl                    per-step timing and proxy judge counters.
 - train_log.jsonl                the trainer's own log lines.
 - config.yaml, split.json        what was run.
+- final.json                     totals, and the stop reason if the judge guard tripped.
+
+The run refuses to start if the proxy's /health check fails, and stops with exit code 3 if
+every proxy call in a step fails or the step failure rate stays above
+judge_max_failure_rate for judge_failure_patience consecutive steps (config.yaml).
 
 Usage, from experiments/ with the proxy server up:
 
@@ -39,7 +44,14 @@ sys.path.insert(0, str(Path(__file__).parent))
 os.environ.setdefault("VLLM_USE_FLASHINFER_SAMPLER", "0")
 
 from data import Example, criteria_from_json, criteria_to_json, split
-from judge import GradeResult, ProxyJudge, proxy_from_env
+from judge import (
+    FailureGuard,
+    GradeResult,
+    JudgeFailure,
+    ProxyJudge,
+    check_health,
+    proxy_from_env,
+)
 
 
 def run_dir(cfg: dict[str, Any]) -> Path:
@@ -142,8 +154,10 @@ def make_reward_fn(judge: ProxyJudge, log: RolloutLog):
 
 
 def build_callbacks(cfg, out: Path, log: RolloutLog, judge: ProxyJudge, eval_set: list[Example]):
-    """Return (rollout writer + stats, evaluator, trainer log) callbacks."""
+    """Return (rollout writer + stats + judge guard, evaluator, trainer log) callbacks."""
     from transformers import TrainerCallback
+
+    guard = FailureGuard(cfg["judge_max_failure_rate"], cfg["judge_failure_patience"])
 
     class StepWriter(TrainerCallback):
         def on_step_begin(self, args, state, control, **kw):
@@ -168,6 +182,7 @@ def build_callbacks(cfg, out: Path, log: RolloutLog, judge: ProxyJudge, eval_set
                 f"fail={summary['proxy_failures']}/{summary['proxy_calls']}",
                 flush=True,
             )
+            guard.check(state.global_step, summary["proxy_calls"], summary["proxy_failures"])
 
     class Evaluator(TrainerCallback):
         trainer = None  # set after the trainer exists
@@ -245,8 +260,14 @@ def main() -> None:
     if args.run_name is not None:
         cfg["run_name"] = args.run_name
 
+    judge = proxy_from_env()
+    try:
+        check_health(str(judge.client.base_url))
+    except JudgeFailure as e:
+        raise SystemExit(f"not starting: {e}") from e
+
     out = run_dir(cfg)
-    if out.exists() and any(out.iterdir()):
+    if out.exists() and any(p.name != "proxy.log" for p in out.iterdir()):
         raise SystemExit(f"{out} is not empty; pick another run_name")
     out.mkdir(parents=True, exist_ok=True)
     (out / "config.yaml").write_text(yaml.safe_dump(cfg, sort_keys=False))
@@ -273,7 +294,6 @@ def main() -> None:
 
     tok = AutoTokenizer.from_pretrained(cfg["model"])
     eos_ids = {i for i in (tok.eos_token_id, tok.pad_token_id) if i is not None}
-    judge = proxy_from_env()
     log = RolloutLog(out, eos_ids)
 
     per_step = cfg["prompts_per_step"] * cfg["num_generations"]
@@ -327,9 +347,15 @@ def main() -> None:
     )
     evaluator.trainer = trainer
     t0 = time.monotonic()
-    trainer.train()
+    stop_reason = None
+    try:
+        trainer.train()
+    except JudgeFailure as e:
+        stop_reason = str(e)
     s = judge.stats
     final = {
+        "status": "stopped" if stop_reason else "completed",
+        "stop_reason": stop_reason,
         "wall_seconds": round(time.monotonic() - t0, 1),
         "proxy_calls": s.calls,
         "proxy_failures": s.failures,
@@ -339,6 +365,9 @@ def main() -> None:
     }
     (out / "final.json").write_text(json.dumps(final, indent=2))
     print(json.dumps(final, indent=2))
+    if stop_reason:
+        print(f"STOPPED: {stop_reason}", file=sys.stderr)
+        sys.exit(3)
 
 
 if __name__ == "__main__":

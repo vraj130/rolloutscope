@@ -7,7 +7,8 @@ the response, so vLLM prefix caching reuses that part of the KV cache.
 
 A call that still fails after retries returns ``GradeResult(ok=False)`` with the error. It
 is never given a score. ``JudgeStats`` counts calls and failures so the failure rate can be
-reported.
+reported. ``FailureGuard`` and ``check_health`` stop a training run whose proxy is down
+instead of letting it continue on unscored rollouts.
 """
 
 from __future__ import annotations
@@ -16,6 +17,7 @@ import asyncio
 import json
 import os
 import time
+import urllib.request
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -127,7 +129,7 @@ class ProxyJudge:
         model: str,
         concurrency: int = 256,
         max_retries: int = 3,
-        timeout: float = 120.0,
+        timeout: float = 30.0,
     ) -> None:
         from openai import AsyncOpenAI
 
@@ -186,6 +188,50 @@ class ProxyJudge:
     ) -> list[GradeResult]:
         """Grade a batch concurrently, results in input order."""
         return list(await asyncio.gather(*(self.grade(p, r, c) for p, r, c in items)))
+
+
+class JudgeFailure(RuntimeError):
+    """The proxy judge is unreachable or failing too often to train on."""
+
+
+class FailureGuard:
+    """Stop rule for proxy failures, checked once per optimizer step.
+
+    Trips when every proxy call in a step failed, or when the step failure rate is above
+    ``max_rate`` for ``patience`` consecutive steps. A step at or below the rate resets
+    the streak.
+    """
+
+    def __init__(self, max_rate: float, patience: int) -> None:
+        self.max_rate = max_rate
+        self.patience = patience
+        self.streak = 0
+
+    def check(self, step: int, calls: int, failures: int) -> None:
+        """Raise JudgeFailure if the stop rule trips at this step."""
+        if calls == 0:
+            return
+        if failures == calls:
+            raise JudgeFailure(f"step {step}: all {calls} proxy calls failed")
+        rate = failures / calls
+        self.streak = self.streak + 1 if rate > self.max_rate else 0
+        if self.streak >= self.patience:
+            raise JudgeFailure(
+                f"step {step}: proxy failure rate above {self.max_rate:.0%} for "
+                f"{self.streak} consecutive steps (last {failures}/{calls})"
+            )
+
+
+def check_health(base_url: str, timeout: float = 10.0) -> None:
+    """Raise JudgeFailure unless the vLLM server behind base_url answers GET /health with 200."""
+    root = base_url.rstrip("/").removesuffix("/v1")
+    try:
+        with urllib.request.urlopen(f"{root}/health", timeout=timeout) as resp:
+            if resp.status == 200:
+                return
+            raise JudgeFailure(f"{root}/health returned {resp.status}")
+    except OSError as e:
+        raise JudgeFailure(f"proxy judge not reachable at {root}/health: {e}") from e
 
 
 def proxy_from_env() -> ProxyJudge:

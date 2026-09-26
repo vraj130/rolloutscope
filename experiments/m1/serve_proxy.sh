@@ -6,9 +6,13 @@
 #   PROXY_HF_MODEL=hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4 PROXY_REVISION=<sha>
 # No on-the-fly bitsandbytes quantization.
 #
-# Usage, from experiments/:  bash m1/serve_proxy.sh 2>&1 | tee "$ROLLOUTSCOPE_DATA/m1/proxy.log"
+# The server runs detached (setsid nohup), so it outlives the shell that started it.
+# Usage, from experiments/:
+#   bash m1/serve_proxy.sh <run_name>     # logs to $ROLLOUTSCOPE_DATA/m1/<run_name>/proxy.log
+#   curl -sf 127.0.0.1:8001/health        # 200 once "Application startup complete" is logged
 set -euo pipefail
 
+RUN_NAME="${1:?usage: serve_proxy.sh <run_name>}"
 : "${ROLLOUTSCOPE_DATA:?set ROLLOUTSCOPE_DATA}"
 export CUDA_VISIBLE_DEVICES=1
 export HF_HOME="${HF_HOME:-$ROLLOUTSCOPE_DATA/hf-cache}"
@@ -22,8 +26,11 @@ export VLLM_USE_FLASHINFER_SAMPLER=0
 MODEL="${PROXY_HF_MODEL:-meta-llama/Llama-3.1-8B-Instruct}"
 REVISION="${PROXY_REVISION:-0e9e39f249a16976918f6564b8830bc894c89659}"
 PORT="${PROXY_PORT:-8001}"
+LOG_DIR="$ROLLOUTSCOPE_DATA/m1/$RUN_NAME"
+LOG="$LOG_DIR/proxy.log"
+mkdir -p "$LOG_DIR"
 
-exec uv run vllm serve "$MODEL" \
+setsid nohup uv run vllm serve "$MODEL" \
   --revision "$REVISION" \
   --served-model-name proxy-judge \
   --dtype bfloat16 \
@@ -31,4 +38,6 @@ exec uv run vllm serve "$MODEL" \
   --gpu-memory-utilization "${PROXY_GPU_UTIL:-0.90}" \
   --enable-prefix-caching \
   --host 127.0.0.1 \
-  --port "$PORT"
+  --port "$PORT" \
+  > "$LOG" 2>&1 < /dev/null &
+echo "proxy judge starting: pid $!, log $LOG"

@@ -25,3 +25,7 @@ save_every: 25               # checkpoint (weights only) every N steps; 0 for no
 
 # evaluation: every eval_every (K) steps, and once before training
 eval_every: 25               # one sample per eval prompt, same sampling as training
+
+# stop rule for proxy judge failures (train.py exits with code 3)
+judge_max_failure_rate: 0.10  # stop if a step's failure rate is above this ...
+judge_failure_patience: 3     # ... for this many consecutive steps; any all-failed step stops

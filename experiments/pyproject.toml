@@ -22,3 +22,8 @@ package = false
 
 [tool.uv.sources]
 rolloutscope = { path = "..", editable = true }
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+]
