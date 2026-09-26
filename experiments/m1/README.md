@@ -10,6 +10,7 @@ Scripts for PLAN.md milestone M1. Decisions R-006 to R-008 in PROGRESS.md fix th
 | `serve_proxy.sh` | vLLM server for the proxy judge on GPU 1, detached |
 | `train.py` | TRL GRPOTrainer on GPU 0, rollout and eval callbacks |
 | `grade_gold.py` | gpt-6-luna gold grading of saved eval generations, direct or Batch API |
+| `regrade_eval_proxy.py` | regrade eval rows whose proxy call timed out during training, same judge |
 | `test_judge_guard.py` | a dead proxy stops training (`uv run pytest m1 -q`, no GPU) |
 
 ## Setup
