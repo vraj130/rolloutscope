@@ -34,6 +34,7 @@ import argparse
 import asyncio
 import json
 import os
+import random
 import sys
 import time
 from pathlib import Path
@@ -62,10 +63,8 @@ CHARS_PER_TOKEN = 4.0  # heuristic for the pre-submit estimate only
 def load_rows(run: Path) -> list[dict[str, Any]]:
     """All eval rows of a run, with a stable custom_id per row."""
     rows = []
-    files = sorted((run / "eval").glob("step_*.jsonl"), key=lambda p: int(p.stem.split("_")[1]))
-    for path in files:
-        if path.name.endswith(".gold.jsonl"):
-            continue
+    files = [p for p in (run / "eval").glob("step_*.jsonl") if not p.name.endswith(".gold.jsonl")]
+    for path in sorted(files, key=lambda p: int(p.stem.split("_")[1])):
         for line in path.read_text().splitlines():
             r = json.loads(line)
             r["custom_id"] = f"s{r['step']}-i{r['source_index']}"
@@ -209,18 +208,22 @@ def run_direct(rows: list[dict[str, Any]], gold: Path, tag: str, concurrency: in
     """Send rows as concurrent Chat Completions calls; return {custom_id: output line}.
 
     Output lines use the Batch API shape so ``interpret`` handles both routes. Lines are
-    appended to gold/direct_<tag>_output.jsonl as they finish; rows already there are reused.
+    appended to gold/direct_<tag>_output.jsonl as they finish. Successful lines from any
+    earlier direct_*_output.jsonl are reused, so a rerun only pays for requests that failed.
+    Rate limits (429) are retried up to 8 times with backoff up to 60 s; other errors 3 times.
     """
-    from openai import AsyncOpenAI
+    from openai import AsyncOpenAI, RateLimitError
 
     out_path = gold / f"direct_{tag}_output.jsonl"
     results: dict[str, dict] = {}
-    if out_path.exists():
-        for line in out_path.read_text().splitlines():
+    for path in sorted(gold.glob("direct_*_output.jsonl")):
+        for line in path.read_text().splitlines():
             obj = json.loads(line)
-            results[obj["custom_id"]] = obj
+            if obj.get("error") is None:
+                results[obj["custom_id"]] = obj
+    wanted = {r["custom_id"] for r in rows}
     todo = [r for r in rows if r["custom_id"] not in results]
-    print(f"direct {tag}: {len(todo)} calls ({len(rows) - len(todo)} reused from {out_path.name})")
+    print(f"direct {tag}: {len(todo)} calls ({len(wanted) - len(todo)} reused successes)")
 
     async def go() -> None:
         client = AsyncOpenAI(max_retries=0, timeout=600)
@@ -232,7 +235,8 @@ def run_direct(rows: list[dict[str, Any]], gold: Path, tag: str, concurrency: in
                 nonlocal done
                 async with sem:
                     obj: dict[str, Any] = {"custom_id": r["custom_id"], "error": None}
-                    for attempt in range(3):
+                    attempt = 0
+                    while True:
                         try:
                             resp = await client.chat.completions.create(**request_body(r))
                             obj["response"] = {"status_code": 200, "body": resp.model_dump()}
@@ -242,7 +246,11 @@ def run_direct(rows: list[dict[str, Any]], gold: Path, tag: str, concurrency: in
                             status = getattr(e, "status_code", None)
                             obj["response"] = {"status_code": status, "body": {}}
                             obj["error"] = f"{type(e).__name__}: {str(e)[:300]}"
-                            await asyncio.sleep(2**attempt)
+                            attempt += 1
+                            limit = 8 if isinstance(e, RateLimitError) else 3
+                            if attempt >= limit:
+                                break
+                            await asyncio.sleep(min(60.0, 2.0**attempt) + random.random())
                     results[r["custom_id"]] = obj
                     f.write(json.dumps(obj) + "\n")
                     f.flush()
@@ -255,7 +263,7 @@ def run_direct(rows: list[dict[str, Any]], gold: Path, tag: str, concurrency: in
 
     if todo:
         asyncio.run(go())
-    return results
+    return {cid: obj for cid, obj in results.items() if cid in wanted}
 
 
 def interpret(obj: dict | None, row: dict[str, Any]) -> dict[str, Any]:
@@ -309,7 +317,7 @@ def main() -> None:
     parser.add_argument("--retry-rounds", type=int, default=1)
     parser.add_argument("--poll", type=int, default=60, help="seconds between status checks")
     parser.add_argument("--direct", action="store_true", help="direct calls, not the Batch API")
-    parser.add_argument("--concurrency", type=int, default=32, help="--direct calls in flight")
+    parser.add_argument("--concurrency", type=int, default=8, help="--direct calls in flight")
     parser.add_argument("--max-usd", type=float, default=None, help="refuse above this estimate")
     args = parser.parse_args()
 
@@ -416,13 +424,23 @@ def main() -> None:
         + ", ".join(f"{k} {totals[k]} tok ${c[k]:.4f}" for k in totals)
         + f"; total ${c['total']:.4f}"
     )
+    kind = "direct" if args.direct else "batch"
+    # A rerun reuses earlier successes; log only spend not already recorded for this run.
+    prior = 0.0
+    spend_log = data_root / "m1" / "gold_spend.jsonl"
+    if spend_log.exists():
+        for line in spend_log.read_text().splitlines():
+            e = json.loads(line)
+            if e["run"] == run.name and e["kind"] == kind:
+                prior += e["usd_total"]
     record_spend(
         data_root,
         {
             "run": run.name,
-            "kind": "direct" if args.direct else "batch",
+            "kind": kind,
             "tokens": totals,
-            "usd_total": c["total"],
+            "usd_total": round(c["total"] - prior, 6),
+            "job_usd_total": c["total"],
             "time": time.time(),
         },
     )
