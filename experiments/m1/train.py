@@ -50,7 +50,9 @@ from judge import (
     JudgeFailure,
     ProxyJudge,
     check_health,
+    dropout_keep,
     proxy_from_env,
+    score,
 )
 
 
@@ -94,6 +96,7 @@ class RolloutLog:
             for r in self.rows:
                 f.write(json.dumps(r, ensure_ascii=False) + "\n")
         scored = [r["reward"] for r in self.rows if r["reward"] is not None]
+        proxy = [r["metrics"]["proxy_score"] for r in self.rows if "proxy_score" in r["metrics"]]
         lengths = [r["metrics"]["completion_tokens"] for r in self.rows]
         summary = {
             "rollouts": len(self.rows),
@@ -101,6 +104,7 @@ class RolloutLog:
             "proxy_failures": self.failures,
             "reward_seconds": round(self.reward_seconds, 3),
             "mean_reward": sum(scored) / len(scored) if scored else None,
+            "mean_proxy_score": sum(proxy) / len(proxy) if proxy else None,
             "mean_completion_tokens": sum(lengths) / len(lengths) if lengths else None,
             "truncated": sum(r["is_truncated"] for r in self.rows),
         }
@@ -108,10 +112,16 @@ class RolloutLog:
         return summary
 
 
-def make_reward_fn(judge: ProxyJudge, log: RolloutLog):
-    """Async TRL reward function: one proxy call per completion, rows buffered in ``log``."""
+def make_reward_fn(judge: ProxyJudge, log: RolloutLog, dropout: float = 0.0, min_keep: int = 3):
+    """Async TRL reward function: one proxy call per completion, rows buffered in ``log``.
 
-    async def proxy_reward(prompts, completions, completion_ids, example_id, criteria, **_kw):
+    With ``dropout`` > 0 (M2 run B, Rubric Dropout), the proxy still grades the full rubric in
+    one call, and the reward is the score on the criteria kept by ``dropout_keep`` for this
+    prompt and step. The full-rubric score stays in metrics.proxy_score.
+    """
+
+    async def proxy_reward(prompts, completions, completion_ids, example_id, criteria, **kw):
+        step = kw["trainer_state"].global_step if "trainer_state" in kw else 0
         start = time.monotonic()
         crits = [criteria_from_json(c) for c in criteria]
         texts = [completion_text(c) for c in completions]
@@ -128,9 +138,18 @@ def make_reward_fn(judge: ProxyJudge, log: RolloutLog):
                 "n_criteria": float(len(cr)),
                 "completion_tokens": float(len(ids)),
             }
+            reward = res.score if res.ok else None
+            keep = None
+            if dropout > 0:
+                keep = dropout_keep(int(ex), step, len(cr), dropout, min_keep)
+                metrics["n_kept"] = float(len(keep))
             if res.ok:
                 metrics["proxy_score"] = float(res.score)  # type: ignore[arg-type]
                 metrics["n_satisfied"] = float(sum(res.verdicts))  # type: ignore[arg-type]
+                if keep is not None:
+                    v = res.verdicts or []
+                    reward = score([v[i] for i in keep], [cr[i] for i in keep])
+                    metrics["dropout_reward"] = float(reward)
             else:
                 metrics["judge_failed"] = 1.0
             log.rows.append(
@@ -138,16 +157,21 @@ def make_reward_fn(judge: ProxyJudge, log: RolloutLog):
                     "example_id": int(ex),
                     "prompt": p,
                     "completion": [{"role": "assistant", "content": t}],
-                    "reward": res.score if res.ok else None,
+                    "reward": reward,
                     "is_completed": True,
                     "is_truncated": truncated,
                     "metrics": metrics,
-                    "info": {"proxy_verdicts": res.verdicts, "judge_error": res.error},
+                    "info": {
+                        "proxy_verdicts": res.verdicts,
+                        "judge_error": res.error,
+                        "dropout_kept": keep,
+                        "train_step": step,
+                    },
                 }
             )
             log.calls += 1
             log.failures += 0 if res.ok else 1
-            rewards.append(res.score if res.ok else None)
+            rewards.append(reward)
         return rewards
 
     return proxy_reward
@@ -346,7 +370,11 @@ def main() -> None:
     step_writer, evaluator, log_writer = build_callbacks(cfg, out, log, judge, eval_set)
     trainer = GRPOTrainer(
         model=cfg["model"],
-        reward_funcs=[make_reward_fn(judge, log)],
+        reward_funcs=[
+            make_reward_fn(
+                judge, log, cfg.get("rubric_dropout", 0.0), cfg.get("rubric_dropout_min_keep", 3)
+            )
+        ],
         args=grpo_args,
         train_dataset=ds,
         processing_class=tok,

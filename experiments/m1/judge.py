@@ -14,8 +14,10 @@ instead of letting it continue on unscored rollouts.
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import os
+import random
 import time
 import urllib.request
 from dataclasses import dataclass, field
@@ -91,6 +93,19 @@ def score(verdicts: list[int], criteria: list[Criterion]) -> float:
         raise ValueError("rubric has no positive weights")
     raw = sum(c.weight * v for c, v in zip(criteria, verdicts, strict=True)) / pos
     return min(1.0, max(0.0, raw))
+
+
+def dropout_keep(example_id: int, step: int, n: int, frac: float, min_keep: int = 3) -> list[int]:
+    """Indices of the criteria kept by Rubric Dropout (arXiv 2608.11669, section 3).
+
+    Drops floor(frac * n) criteria, keeping at least ``min_keep``. The mask is seeded with
+    SHA256(example_id, step), so every rollout of a prompt at a step (one GRPO group) shares
+    it, and it changes from step to step. All RubricHub medical weights are positive, so every
+    criterion is eligible.
+    """
+    n_keep = min(n, max(min_keep, n - int(frac * n)))
+    seed = int.from_bytes(hashlib.sha256(f"{example_id}:{step}".encode()).digest()[:8], "big")
+    return sorted(random.Random(seed).sample(range(n), n_keep))
 
 
 @dataclass
