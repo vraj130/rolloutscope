@@ -164,3 +164,11 @@ in the archived plans.
   $ROLLOUTSCOPE_DATA/m1/gold_spend.jsonl.
 - 2026-09-27: M2 run B, seed 1 (config_b_s1.yaml, Rubric Dropout 50%): Expect B to score higher
   than A on gold after the first few hundred steps.
+- 2026-09-27: rubric-lift check (rubric_lift.py, base Qwen2.5-1.5B-Instruct, proxy graded): expect
+  a clearly positive lift from the rubric in the prompt; the RGSD paper reports +44 points for
+  Qwen2.5-3B on RubricHub medical.
+- 2026-09-27: M2 run A reruns (config_a_s1/s2.yaml, the M1 recipe with every 50-step checkpoint
+  kept; they replace m1-qwen1.5b-s1/s2 as run A for M2 and M4): expect the M1 pattern again,
+  proxy rising and gold nearly flat.
+- 2026-09-27: M2 run B, seed 2 (config_b_s2.yaml, mask hash includes the seed): expect B to score
+  higher than A on gold after the first few hundred steps.
