@@ -172,3 +172,9 @@ in the archived plans.
   proxy rising and gold nearly flat.
 - 2026-09-27: M2 run B, seed 2 (config_b_s2.yaml, mask hash includes the seed): expect B to score
   higher than A on gold after the first few hundred steps.
+- 2026-09-27: rubric-lift result. Base Qwen2.5-1.5B-Instruct on the 100 held-out prompts, 4
+  answers each, proxy graded on the plain prompt and full rubric: plain 0.300, rubric in the
+  prompt 0.786, lift +0.486 [+0.435, +0.535] (95% prompt bootstrap), positive on 96 of 100
+  prompts, 0/800 proxy failures. Rubric-conditioned answers are about twice as long (567 vs 268
+  tokens), and the proxy's score correlates with length, so part of the lift may be length.
+  Source: $ROLLOUTSCOPE_DATA/m1/rubric_lift/result.json.
