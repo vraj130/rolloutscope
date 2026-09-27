@@ -178,3 +178,6 @@ in the archived plans.
   prompts, 0/800 proxy failures. Rubric-conditioned answers are about twice as long (567 vs 268
   tokens), and the proxy's score correlates with length, so part of the lift may be length.
   Source: $ROLLOUTSCOPE_DATA/m1/rubric_lift/result.json.
+- 2026-09-27: M2 run C (config_c_s1/s2.yaml, RGSD, no judge in the loop): expect no widening of
+  the proxy minus gold gap as in A, and gold at least as high as A after the first few hundred
+  steps.
