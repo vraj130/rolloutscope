@@ -7,12 +7,12 @@ Current status and decision log. Direction lives in [PLAN.md](PLAN.md). The v0 b
 Keep this file short. Update the status table when a milestone moves, append decisions
 at the bottom, and write any experiment's pass or fail criterion here before the run.
 
-## Status (2026-09-25)
+## Status (2026-09-27)
 
 | Milestone | State | Evidence |
 |---|---|---|
 | M0 housekeeping | done once v0.2.0 is tagged | docs refocus commit; version bump commit |
-| M1 reproduce rubric hacking | results in, verdict pending (e) | Notes 2026-09-27 "M1 results" |
+| M1 reproduce rubric hacking | done | $ROLLOUTSCOPE_DATA/m1/m1-qwen1.5b-s{1,2}/analysis/; verdict recorded in 1efc17e |
 | M2 matched conditions | not started | |
 | M3 black-box baselines | not started | |
 | M4 white-box signals | not started | |
