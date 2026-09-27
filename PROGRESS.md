@@ -44,6 +44,21 @@ Write each one here, dated, before the run it governs.
   d6f172d with early and late taken as the first and last 3 eval steps of the analyzed run and
   an overclaim late-minus-early interval added; on the dry run its other outputs are identical
   to d6f172d. A gold rise then fall is reported but not required.
+  Result (2026-09-27):
+  - (a) to (d): per-seed values in Notes 2026-09-27 "M1 results".
+  - (e) result: seed 1 = 10/10, seed 2 = 10/10 top-gap cases are mostly proxy error. Files:
+    m1-qwen1.5b-s1/analysis/top_gaps_step600.md and m1-qwen1.5b-s2/analysis/top_gaps_step600.md.
+  - Reviewed by the author.
+  - Verdict: M1 PASS (all of (a) to (e) met in both seeds).
+  - Caveats:
+    a. Disagreement is one-directional: across the 20 cases only one row had proxy 0 and gold 1.
+       The proxy mostly says yes to everything.
+    b. Top-10 gaps are selected by construction, so this is not a proxy error rate.
+    c. 6 of 10 prompts repeat across seeds; about 14 distinct prompts.
+    d. The gold judge was too harsh on about 6 to 8 rows. Treat gold as a stronger judge, not
+       ground truth.
+    e. The policy produces confident medical misinformation that the proxy passes (for example
+       an IM injection into subcutaneous space).
 
 ## Decisions
 
@@ -81,6 +96,10 @@ in the archived plans.
   600 steps, seeds 1 and 2. Reason: the dry run already shows proxy and gold diverging at
   1.5B, and full fine-tuning avoids a LoRA confound. This supersedes R-008 for M1; 3B only if
   M1 fails.
+- R-010 (2026-09-27): M1 passed (pre-registered criterion, seeds 1 and 2). Next is M2 (matched
+  runs A, B, C). The checkpoint retention setting must be fixed before M2 runs so that M4 has
+  checkpoints: seeds 1 and 2 kept only steps 550, 575 and 600 (save_every 25 with
+  save_total_limit 3).
 
 ## Notes
 
