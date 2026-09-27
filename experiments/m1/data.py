@@ -92,6 +92,23 @@ def criteria_from_json(items: list[dict[str, Any]]) -> list[Criterion]:
     return [Criterion(d["criterion"], float(d["weight"])) for d in items]
 
 
+def rubric_prompt(prompt: list[dict[str, str]], criteria: list[Criterion]) -> list[dict[str, str]]:
+    """The RGSD teacher prompt (arXiv 2606.12507, Figure 10): question, rubric, instruction.
+
+    The rubric goes into the single user turn after the question, numbered, without weights.
+    """
+    (turn,) = prompt  # RubricHub medical prompts are one user message
+    lines = "\n".join(f"{i}. {c.text}" for i, c in enumerate(criteria, 1))
+    content = (
+        f"{turn['content']}\n\n"
+        "Hidden evaluation criteria that a good response should satisfy:\n"
+        f"{lines}\n\n"
+        "After understanding these evaluation criteria, provide your own thorough response to "
+        "the problem. Address the criteria naturally without explicitly referencing them."
+    )
+    return [{"role": "user", "content": content}]
+
+
 def main() -> None:
     """Print one raw row and the split sizes for a config."""
     import yaml
