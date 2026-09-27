@@ -162,3 +162,5 @@ in the archived plans.
   project total $4.00 of $100. Sources: $ROLLOUTSCOPE_DATA/m1/m1-qwen1.5b-s{1,2}/analysis/
   summary.json and summary.md, gold/cost.json, final.json, regrade_eval/*.log,
   $ROLLOUTSCOPE_DATA/m1/gold_spend.jsonl.
+- 2026-09-27: M2 run B, seed 1 (config_b_s1.yaml, Rubric Dropout 50%): Expect B to score higher
+  than A on gold after the first few hundred steps.
