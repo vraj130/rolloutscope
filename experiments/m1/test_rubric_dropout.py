@@ -87,3 +87,9 @@ def test_no_dropout_is_the_m1_reward(tmp_path):
     )
     assert rewards == [0.25]
     assert log.rows[0]["info"]["dropout_kept"] is None
+
+
+def test_seed_in_hash_changes_mask_and_none_is_the_paper_hash():
+    assert dropout_keep(7, 3, 30, 0.5, seed=None) == dropout_keep(7, 3, 30, 0.5)
+    assert dropout_keep(7, 3, 30, 0.5, seed=1) != dropout_keep(7, 3, 30, 0.5, seed=2)
+    assert dropout_keep(7, 3, 30, 0.5, seed=1) == dropout_keep(7, 3, 30, 0.5, seed=1)

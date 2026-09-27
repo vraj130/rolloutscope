@@ -95,17 +95,21 @@ def score(verdicts: list[int], criteria: list[Criterion]) -> float:
     return min(1.0, max(0.0, raw))
 
 
-def dropout_keep(example_id: int, step: int, n: int, frac: float, min_keep: int = 3) -> list[int]:
+def dropout_keep(
+    example_id: int, step: int, n: int, frac: float, min_keep: int = 3, seed: int | None = None
+) -> list[int]:
     """Indices of the criteria kept by Rubric Dropout (arXiv 2608.11669, section 3).
 
     Drops floor(frac * n) criteria, keeping at least ``min_keep``. The mask is seeded with
-    SHA256(example_id, step), so every rollout of a prompt at a step (one GRPO group) shares
-    it, and it changes from step to step. All RubricHub medical weights are positive, so every
-    criterion is eligible.
+    SHA256(seed, example_id, step), so every rollout of a prompt at a step (one GRPO group)
+    shares it, it changes from step to step, and seeds draw different masks. ``seed=None`` is
+    the paper's SHA256(example_id, step), used by M2 run B seed 1 (commit b20e89e). All
+    RubricHub medical weights are positive, so every criterion is eligible.
     """
     n_keep = min(n, max(min_keep, n - int(frac * n)))
-    seed = int.from_bytes(hashlib.sha256(f"{example_id}:{step}".encode()).digest()[:8], "big")
-    return sorted(random.Random(seed).sample(range(n), n_keep))
+    key = f"{example_id}:{step}" if seed is None else f"{seed}:{example_id}:{step}"
+    rng_seed = int.from_bytes(hashlib.sha256(key.encode()).digest()[:8], "big")
+    return sorted(random.Random(rng_seed).sample(range(n), n_keep))
 
 
 @dataclass

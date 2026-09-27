@@ -112,12 +112,19 @@ class RolloutLog:
         return summary
 
 
-def make_reward_fn(judge: ProxyJudge, log: RolloutLog, dropout: float = 0.0, min_keep: int = 3):
+def make_reward_fn(
+    judge: ProxyJudge,
+    log: RolloutLog,
+    dropout: float = 0.0,
+    min_keep: int = 3,
+    mask_seed: int | None = None,
+):
     """Async TRL reward function: one proxy call per completion, rows buffered in ``log``.
 
     With ``dropout`` > 0 (M2 run B, Rubric Dropout), the proxy still grades the full rubric in
     one call, and the reward is the score on the criteria kept by ``dropout_keep`` for this
-    prompt and step. The full-rubric score stays in metrics.proxy_score.
+    prompt and step (and ``mask_seed``, see ``dropout_keep``). The full-rubric score stays in
+    metrics.proxy_score.
     """
 
     async def proxy_reward(prompts, completions, completion_ids, example_id, criteria, **kw):
@@ -141,7 +148,7 @@ def make_reward_fn(judge: ProxyJudge, log: RolloutLog, dropout: float = 0.0, min
             reward = res.score if res.ok else None
             keep = None
             if dropout > 0:
-                keep = dropout_keep(int(ex), step, len(cr), dropout, min_keep)
+                keep = dropout_keep(int(ex), step, len(cr), dropout, min_keep, mask_seed)
                 metrics["n_kept"] = float(len(keep))
             if res.ok:
                 metrics["proxy_score"] = float(res.score)  # type: ignore[arg-type]
@@ -372,7 +379,13 @@ def main() -> None:
         model=cfg["model"],
         reward_funcs=[
             make_reward_fn(
-                judge, log, cfg.get("rubric_dropout", 0.0), cfg.get("rubric_dropout_min_keep", 3)
+                judge,
+                log,
+                cfg.get("rubric_dropout", 0.0),
+                cfg.get("rubric_dropout_min_keep", 3),
+                # the training seed is in the mask hash unless the config says otherwise
+                # (run B seed 1 ran without it)
+                cfg["seed"] if cfg.get("rubric_dropout_seeded_mask", True) else None,
             )
         ],
         args=grpo_args,

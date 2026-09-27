@@ -1,10 +1,10 @@
-# M2 run B, seed 1 (PLAN.md M2): the M1 recipe (config_s1.yaml) plus Rubric Dropout at 50%.
+# M2 run B, seed 2 (PLAN.md M2): the M1 recipe (config_s2.yaml) plus Rubric Dropout at 50%.
 # Expectation: PROGRESS.md Notes 2026-09-27. Dropout: arXiv 2608.11669, one mask per prompt
 # group and step, at least 3 criteria kept; eval grading always uses the full rubric.
-run_name: m2-b-qwen1.5b-s1
+run_name: m2-b-qwen1.5b-s2
 model: Qwen/Qwen2.5-1.5B-Instruct
 lora: false
-seed: 1
+seed: 2
 split_seed: 0                # same 500 train / 100 eval prompts as the dry run
 
 # data (data.py): seeded split of RubricHub medical by prompt
@@ -22,8 +22,7 @@ temperature: 1.0
 beta: 0.0
 loss_type: dapo
 rubric_dropout: 0.5          # fraction of criteria dropped from the training reward
-rubric_dropout_min_keep: 3
-rubric_dropout_seeded_mask: false   # this run hashed (example_id, step) only; later runs add the seed
+rubric_dropout_min_keep: 3   # mask hash includes the seed (SHA256(seed, example_id, step))
 vllm_gpu_memory_utilization: 0.30
 vllm_max_model_length: 2048
 gradient_checkpointing: true
