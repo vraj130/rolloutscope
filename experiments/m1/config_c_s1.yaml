@@ -1,0 +1,31 @@
+# M2 run C, seed 1: RGSD (train_rgsd.py), matched to run A on model, split, steps, answers
+# per step (64), lr, completion length, eval schedule and checkpoints. No judge in the loop.
+run_name: m2-c-qwen1.5b-s1
+model: Qwen/Qwen2.5-1.5B-Instruct
+lora: false
+seed: 1
+split_seed: 0                # same 500 train / 100 eval prompts as the dry run
+
+# data (data.py): seeded split of RubricHub medical by prompt
+n_train: 500
+n_eval: 100
+
+# RGSD (TRL SDFTTrainer subclass): student and vLLM on GPU 0, frozen teacher on GPU 1
+max_steps: 600
+lr: 1.0e-6
+prompts_per_step: 64
+num_generations: 1
+micro_batch_size: 2
+max_completion_length: 768
+temperature: 1.0
+distillation_beta: 0.5         # generalized JSD, 0 = forward KL, 1 = reverse KL
+distillation_topk: 128        # teacher top-k support; the paper's clip tau is skipped (undefined)
+vllm_gpu_memory_utilization: 0.30
+vllm_max_model_length: 2048
+gradient_checkpointing: true
+save_every: 50               # weights only; every checkpoint kept (M4 needs the whole run)
+checkpoint_dir: ~/rolloutscope-ckpt   # local disk; copied to the run directory afterwards
+
+# evaluation: every eval_every (K) steps, and once before training
+eval_every: 25
+

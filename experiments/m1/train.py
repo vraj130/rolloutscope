@@ -184,11 +184,19 @@ def make_reward_fn(
     return proxy_reward
 
 
-def build_callbacks(cfg, out: Path, log: RolloutLog, judge: ProxyJudge, eval_set: list[Example]):
-    """Return (rollout writer + stats + judge guard, evaluator, trainer log) callbacks."""
+def build_callbacks(
+    cfg, out: Path, log: RolloutLog, judge: ProxyJudge | None, eval_set: list[Example]
+):
+    """Return (rollout writer + stats + judge guard, evaluator, trainer log) callbacks.
+
+    With ``judge=None`` the evaluator writes every eval row as ungraded, and the rollout writer
+    must not be used (train_rgsd.py uses only the evaluator and the trainer log).
+    """
     from transformers import TrainerCallback
 
-    guard = FailureGuard(cfg["judge_max_failure_rate"], cfg["judge_failure_patience"])
+    guard = FailureGuard(
+        cfg.get("judge_max_failure_rate", 0.10), cfg.get("judge_failure_patience", 3)
+    )
 
     class StepWriter(TrainerCallback):
         def on_step_begin(self, args, state, control, **kw):
@@ -234,8 +242,13 @@ def build_callbacks(cfg, out: Path, log: RolloutLog, judge: ProxyJudge, eval_set
             texts = tok.batch_decode(completion_ids, skip_special_tokens=True)
             gen_s = time.monotonic() - t0
             items = [(e.prompt, t, e.criteria) for e, t in zip(eval_set, texts, strict=True)]
-            fut = asyncio.run_coroutine_threadsafe(judge.grade_many(items), tr.async_loop)
-            results = fut.result()
+            if (
+                judge is None
+            ):  # no proxy during training (run C): regrade_eval_proxy.py grades later
+                results = [GradeResult(False, error="deferred: graded after training")] * len(items)
+            else:
+                fut = asyncio.run_coroutine_threadsafe(judge.grade_many(items), tr.async_loop)
+                results = fut.result()
             path = out / "eval" / f"step_{step}.jsonl"
             path.parent.mkdir(exist_ok=True)
             with path.open("w") as f:
