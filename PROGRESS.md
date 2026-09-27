@@ -112,3 +112,13 @@ in the archived plans.
   and 0.089 (step 300). Gold separates quality but is strict: practical ceiling about 0.35 on
   these rubrics. Caveat: the gold judge graded its own model's answers, so self-preference may
   inflate the reference score. Source: $ROLLOUTSCOPE_DATA/m1/gold_calibration/result_gold.json.
+- 2026-09-26: Eval proxy grading timed out on 174 of 2,500 rows in seed 1 (and 273 in seed 2),
+  caused by the 30 s per-call timeout added after the dry run, with 100 concurrent calls against
+  a proxy that serves about 28 at once. Failures clustered in the last rows of the eval list.
+  Failed rows were regraded after training with the same judge, prompt, schema and temperature
+  0, using regrade_eval_proxy.py (commit 9445374), with a longer timeout and lower concurrency;
+  originals are kept in eval_orig/. Interpretation of pre-registered criterion (d), fixed before
+  any analysis: the failure rate is counted after this regrade; the raw pre-regrade rates are
+  reported alongside. Training-time proxy calls: 0 failures of 38,400 (seed 1).
+- 2026-09-26: for all future runs, cap eval grading concurrency at the proxy's capacity (about
+  28) or give eval calls a longer timeout, so eval grading cannot time out this way again.
