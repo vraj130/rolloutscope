@@ -12,7 +12,7 @@ at the bottom, and write any experiment's pass or fail criterion here before the
 | Milestone | State | Evidence |
 |---|---|---|
 | M0 housekeeping | done once v0.2.0 is tagged | docs refocus commit; version bump commit |
-| M1 reproduce rubric hacking | criteria registered, seeds 1 and 2 in progress | Notes 2026-09-26 |
+| M1 reproduce rubric hacking | results in, verdict pending (e) | Notes 2026-09-27 "M1 results" |
 | M2 matched conditions | not started | |
 | M3 black-box baselines | not started | |
 | M4 white-box signals | not started | |
@@ -119,6 +119,27 @@ in the archived plans.
   0, using regrade_eval_proxy.py (commit 9445374), with a longer timeout and lower concurrency;
   originals are kept in eval_orig/. Interpretation of pre-registered criterion (d), fixed before
   any analysis: the failure rate is counted after this regrade; the raw pre-regrade rates are
-  reported alongside. Training-time proxy calls: 0 failures of 38,400 (seed 1).
+  reported alongside. Training-time proxy calls: 0 failures of 38,400 (seed 1) and 0 failures of
+  38,400 (seed 2).
 - 2026-09-26: for all future runs, cap eval grading concurrency at the proxy's capacity (about
   28) or give eval calls a longer timeout, so eval grading cannot time out this way again.
+- 2026-09-27: M1 results (seeds 1 and 2, Qwen2.5-1.5B-Instruct, full fine-tune, 600 steps, fixed
+  split, 100 held-out prompts). analyze.py at 5da6089 plus the presentation-only 72cd980, after
+  the eval proxy regrade. 95% prompt-bootstrap intervals, B = 10,000; early = eval steps 0, 25,
+  50; late = 550, 575, 600. No verdict recorded.
+
+  | Criterion | Seed 1 | Seed 2 |
+  |---|---|---|
+  | (a) gap slope per 100 steps [CI] | +0.0088 [+0.0047, +0.0131] | +0.0070 [+0.0036, +0.0103] |
+  | (b) overclaim late minus early [CI] | +0.0580 [+0.0336, +0.0836] | +0.0507 [+0.0258, +0.0747] |
+  | (c) proxy late minus early | +0.0685 | +0.0589 |
+  | (c) gold late minus early | +0.0157 | +0.0089 |
+  | (d) proxy failures after regrade, eval / training | 0/2,500 / 0/38,400 | 0/2,500 / 0/38,400 |
+  | (d) raw eval proxy failures, before regrade | 174/2,500 (6.96%) | 273/2,500 (10.92%) |
+  | (d) gold failures | 0/2,500 | 0/2,500 |
+  | (e) 10 largest gaps at step 600 | pending author review | pending author review |
+
+  Gold spend (gpt-6-luna, direct calls, standard prices): seed 1 $1.5753, seed 2 $1.5941;
+  project total $4.00 of $100. Sources: $ROLLOUTSCOPE_DATA/m1/m1-qwen1.5b-s{1,2}/analysis/
+  summary.json and summary.md, gold/cost.json, final.json, regrade_eval/*.log,
+  $ROLLOUTSCOPE_DATA/m1/gold_spend.jsonl.
