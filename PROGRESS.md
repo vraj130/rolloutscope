@@ -7,16 +7,15 @@ Current status and decision log. Direction lives in [PLAN.md](PLAN.md). The v0 b
 Keep this file short. Update the status table when a milestone moves, append decisions
 at the bottom, and write any experiment's pass or fail criterion here before the run.
 
-## Status (2026-09-27)
+## Status (2026-09-29)
 
 | Milestone | State | Evidence |
 |---|---|---|
 | M0 housekeeping | done once v0.2.0 is tagged | docs refocus commit; version bump commit |
 | M1 reproduce rubric hacking | done | $ROLLOUTSCOPE_DATA/m1/m1-qwen1.5b-s{1,2}/analysis/; verdict recorded in 1efc17e |
-| M2 matched conditions | not started | |
-| M3 black-box baselines | not started | |
-| M4 white-box signals | not started | |
-| M5 explain and promote | not started | |
+| M2 matched conditions | closed, gate not met | Notes 2026-09-29 "M2 results" |
+| M3 to M5 | dropped (R-011) | PLAN.md J1 |
+| J1 proxy-judge audit | in progress | |
 
 Package baseline at `c2d7dcc`: 462 offline tests pass (7 integration tests deselected).
 ruff, the format check, and strict mypy are clean. Schema 2.0, six detectors, and
@@ -100,6 +99,10 @@ in the archived plans.
   runs A, B, C). The checkpoint retention setting must be fixed before M2 runs so that M4 has
   checkpoints: seeds 1 and 2 kept only steps 550, 575 and 600 (save_every 25 with
   save_total_limit 3).
+- R-011 (2026-09-29): M2 gate not met. C (no judge) widens the gap as much as A, so the gap
+  reflects proxy leniency toward longer, rubric-shaped answers, not method-specific hacking.
+  M4 as written is dropped, and PLAN.md M3 to M5 are replaced by J1 (proxy-judge audit),
+  built from the existing M2 runs only.
 
 ## Notes
 
@@ -181,3 +184,23 @@ in the archived plans.
 - 2026-09-27: M2 run C (config_c_s1/s2.yaml, RGSD, no judge in the loop): expect no widening of
   the proxy minus gold gap as in A, and gold at least as high as A after the first few hundred
   steps.
+- 2026-09-29: M2 results. Qwen2.5-1.5B-Instruct, 600 steps, same split and eval schedule, 100
+  held-out prompts, proxy Llama-3.1-8B-Instruct, gold gpt-6-luna. analyze.py (5da6089 plus
+  72cd980) after the eval proxy regrade; 95% prompt-bootstrap intervals; early = eval steps 0,
+  25, 50, late = 550, 575, 600. Gold failures 0/2,500 in every run.
+
+  | Run | Gap slope per 100 steps [CI] | Overclaim late minus early [CI] | Gold late minus early | Proxy / gold at 600 | Tokens at 600 |
+  |---|---|---|---|---|---|
+  | A s1 (GRPO) | +0.0068 [+0.0025, +0.0113] | +0.0600 [+0.0297, +0.0909] | +0.0103 | 0.341 / 0.126 | 315 |
+  | A s2 | +0.0062 [+0.0021, +0.0102] | +0.0395 [+0.0118, +0.0663] | +0.0109 | 0.352 / 0.122 | 323 |
+  | B s1 (Rubric Dropout 50%) | +0.0068 [+0.0028, +0.0109] | +0.0504 [+0.0192, +0.0834] | +0.0154 | 0.353 / 0.126 | 311 |
+  | B s2 | +0.0078 [+0.0037, +0.0121] | +0.0557 [+0.0265, +0.0849] | +0.0129 | 0.346 / 0.129 | 327 |
+  | C s1 (RGSD, no judge) | +0.0096 [+0.0057, +0.0133] | +0.0577 [+0.0289, +0.0871] | +0.0150 | 0.405 / 0.124 | 381 |
+  | C s2 | +0.0073 [+0.0034, +0.0112] | +0.0532 [+0.0239, +0.0824] | +0.0111 | 0.390 / 0.125 | 373 |
+
+  Verdict: M2 gate not met. Gold at step 600 is 0.122 to 0.129 in all six runs; A does not
+  fall below B or C, and no run shows a gold rise then fall. C (no judge) widens the gap as
+  much as A, so the gap reflects proxy leniency toward longer, rubric-shaped answers, not
+  method-specific hacking. M4 as written is dropped (R-011). Sources:
+  $ROLLOUTSCOPE_DATA/m1/m2-a-qwen1.5b-s1/analysis/summary.md, m2-a-qwen1.5b-s2/..., m2-b-qwen1.5b-s1/...,
+  m2-b-qwen1.5b-s2/..., m2-c-qwen1.5b-s1/..., m2-c-qwen1.5b-s2/analysis/summary.md.

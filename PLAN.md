@@ -97,42 +97,22 @@ nothing.
 Gate: on the gold judge, run A falls below B and C after the onset. Without that
 contrast, M4 has nothing to explain.
 
-### M3. Black-box baselines
+Closed 2026-09-29, gate not met (PROGRESS.md).
 
-These set the bar a white-box signal has to clear:
+### J1. Proxy-judge audit (replaces M3 to M5, 2026-09-29)
 
-- Proxy minus gold gap and per-criterion overclaim rate. Add a `judge_divergence`
-  detector to the package that reads these from logged `metrics`. It is offline and
-  CPU-only, so it fits the v0 rules.
-- `length_inflation` (existing) over the step series.
-- A logit-level baseline, the self-internalization gap from arXiv:2605.12474. It needs
-  the model, so it is computed in `experiments/` and logged as a metric.
+M2 closed without its gate: the no-judge run C widened the proxy minus gold gap as much as
+run A, so the gap is proxy leniency, not method-specific hacking, and M4 as written is
+dropped (PROGRESS.md, 2026-09-29).
 
-Gate: every baseline has an onset step on run A, computed by a rule fixed before any
-white-box result is looked at.
+Question: does a before-training audit of the proxy judge predict which rubric criteria get
+overclaimed during training? Uses the existing M2 runs only: no training, no new gold calls.
+Tag eval criteria by type, audit the proxy on answers known to fail each criterion, and test
+whether the audit false-positive rate predicts each criterion's overclaim growth, against
+step-0 proxy-yes rate and criterion length.
 
-### M4. White-box signals, in experiments/ only
-
-- Capture mean-pooled residual-stream activations on the fixed evaluation prompts at
-  each checkpoint, for the policy and the base model.
-- Primary, unsupervised: per-layer drift from the base model, and drift relative to run
-  C at the same step.
-- Secondary, supervised: a linear probe whose labels come from gold-judge overclaim,
-  never from rolloutscope detectors, split by prompt.
-- Write the pass criterion into PROGRESS.md before running. Default:
-  1. the white-box onset precedes the earliest black-box onset on run A by more than
-     the seed-to-seed spread;
-  2. the same signal stays quiet on runs B and C at that step;
-  3. the null checks in section 4 pass.
-
-Gate: pass means M5. Fail means writing up the negative result, which is also a
-publishable outcome at this scale.
-
-### M5. Explain and promote (only after M4 passes)
-
-Use SAE features to say what moved, for example coverage and format features versus
-content features. Then move the parts that proved themselves into the package behind an
-optional extra, with a written data contract.
+Expect criteria types with high audit false-positive rates to show the fastest overclaim
+growth.
 
 ## 4. Controls every white-box number must carry
 
@@ -168,7 +148,6 @@ Stop and revise this file before working on any of these:
 ## 6. Package maintenance
 
 - Keep the offline suite, ruff, and mypy green, and fix bugs as found.
-- Add `judge_divergence` (M3).
 - Keep the known limits stated plainly in the README: legacy input formats only,
   analysis holds the run in memory, and `verifier_tamper` has a false-positive rate
   near 0.5 on the TRACE tuning split.
