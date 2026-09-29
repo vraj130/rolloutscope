@@ -15,7 +15,7 @@ at the bottom, and write any experiment's pass or fail criterion here before the
 | M1 reproduce rubric hacking | done | $ROLLOUTSCOPE_DATA/m1/m1-qwen1.5b-s{1,2}/analysis/; verdict recorded in 1efc17e |
 | M2 matched conditions | closed, gate not met | Notes 2026-09-29 "M2 results" |
 | M3 to M5 | dropped (R-011) | PLAN.md J1 |
-| J1 proxy-judge audit | in progress | |
+| J1 proxy-judge audit | results in; tag spot-check pending | Notes 2026-09-29 "J1 results" |
 
 Package baseline at `c2d7dcc`: 462 offline tests pass (7 integration tests deselected).
 ruff, the format check, and strict mypy are clean. Schema 2.0, six detectors, and
@@ -204,3 +204,37 @@ in the archived plans.
   method-specific hacking. M4 as written is dropped (R-011). Sources:
   $ROLLOUTSCOPE_DATA/m1/m2-a-qwen1.5b-s1/analysis/summary.md, m2-a-qwen1.5b-s2/..., m2-b-qwen1.5b-s1/...,
   m2-b-qwen1.5b-s2/..., m2-c-qwen1.5b-s1/..., m2-c-qwen1.5b-s2/analysis/summary.md.
+- 2026-09-29: J1 results (PLAN.md J1), from the six M2 runs only: no training, no gold calls.
+  3,040 eval criteria tagged (297 by regex, 2,743 by one Llama-3.1-8B-Instruct pass): factual
+  1,277, presence 1,047, structural 386, negation 196, numeric 93, compound 41; 100 tags in
+  tag_spotcheck.tsv await a manual check. Audit (ii): 2,410 edits of gold-yes answers (1,482
+  criteria), 2,032 valid and proxy graded, 378 left the text unchanged and were dropped; the
+  proxy said yes on 0.695 of the unedited answers. Overclaim growth is 1[proxy yes and gold no]
+  per 100 steps, mean of six per-run OLS slopes. 95% prompt-bootstrap intervals.
+
+  | Type | Audit FP, edits [CI] (n) | Audit FP, step-0 gold-no | Overclaim growth per 100 steps [CI] | Gold yes, late minus early [CI] |
+  |---|---|---|---|---|
+  | factual | 0.433 [0.376, 0.486] (1,109) | 0.192 | +0.0080 [+0.0043, +0.0118] | +0.0051 [+0.0002, +0.0101] |
+  | numeric | 0.396 [0.182, 0.630] (48) | 0.188 | +0.0067 [+0.0022, +0.0115] | +0.0000 [-0.0092, +0.0077] |
+  | structural | 0.342 [0.271, 0.413] (193) | 0.256 | +0.0077 [+0.0042, +0.0112] | +0.0118 [-0.0067, +0.0302] |
+  | compound | 0.333 [0.000, 0.667] (6) | 0.100 | +0.0051 [-0.0011, +0.0123] | -0.0014 [-0.0119, +0.0093] |
+  | presence | 0.302 [0.248, 0.356] (537) | 0.226 | +0.0093 [+0.0052, +0.0129] | +0.0241 [+0.0133, +0.0359] |
+  | negation | 0.273 [0.205, 0.345] (139) | 0.416 | +0.0042 [-0.0003, +0.0094] | +0.0065 [-0.0164, +0.0310] |
+
+  Type level (n = 6, exact permutation p): Spearman of edit FP with growth +0.371 (p = 0.50);
+  step-0 gold-no FP -0.029 (p = 1.00); step-0 proxy-yes -0.029; length -0.086. Criterion level
+  (1,140 criteria with both audits, outcome 1[growth > 0], positive rate 0.600), CV AUC grouped
+  by prompt: edit FP alone 0.504; baselines (step-0 proxy-yes, log length) 0.592; baselines plus
+  edit FP 0.644. The baselines' AUC comes from a negative step-0 proxy-yes coefficient, and
+  step 0 is also in the slope: with growth measured over steps 25 to 600 only, every model is
+  at or below chance (0.423 to 0.470) and every feature's Spearman with growth is within
+  +/-0.07. Audit (i) is not independent of the baseline: its Spearman with step-0 proxy-yes is
+  +0.9994 (most criteria have no gold-yes answer at step 0). Proxy-yes rises in every type
+  mostly between step 0 and step 100, then flattens. Gold on factual criteria did not fall
+  (+0.0051) while presence rose (+0.0241). The PLAN.md J1 expectation (high audit FP types
+  show the fastest overclaim growth) is not borne out: factual and numeric have the highest
+  edit FP, presence the fastest growth. Caveats: the editor is the same Llama model as the
+  proxy; edits fail by construction, not by a judge; 1,102 of 1,482 source answers come from
+  trained steps (step-0 sources alone give the same type order: factual 0.388, structural
+  0.322, presence 0.315, negation 0.282); compound has 6 edits. Source:
+  $ROLLOUTSCOPE_DATA/j1/summary.md and summary.json.
